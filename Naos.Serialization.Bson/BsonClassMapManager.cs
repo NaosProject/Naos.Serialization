@@ -9,6 +9,12 @@ namespace Naos.Serialization.Bson
     using System;
     using System.Collections.Generic;
 
+    using OBeautifulCode.Reflection;
+
+    using Spritely.Recipes;
+
+    using static System.FormattableString;
+
     /// <summary>
     /// Example of how to create a BsonClassMapManager.
     /// </summary>
@@ -20,6 +26,32 @@ namespace Naos.Serialization.Bson
         private static readonly Dictionary<Type, BsonClassMapperBase> Instances = new Dictionary<Type, BsonClassMapperBase>();
 
         /// <summary>
+        /// Registers the class maps for the specified <see cref="BsonClassMapperBase"/> type.
+        /// </summary>
+        /// <typeparam name="T">Type of derivative of <see cref="BsonClassMapperBase"/> to use.</typeparam>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
+        public static void RegisterClassMaps<T>()
+            where T : BsonClassMapperBase, new()
+        {
+            var instance = Instance<T>();
+            instance.RegisterClassMaps();
+        }
+
+        /// <summary>
+        /// Registers the class maps for the specified <see cref="BsonClassMapperBase"/> type.
+        /// </summary>
+        /// <param name="type">Type of derivative of <see cref="BsonClassMapperBase"/> to use.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
+        public static void RegisterClassMaps(Type type)
+        {
+            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            type.IsSubclassOf(typeof(BsonClassMapperBase)).Named(Invariant($"typeMustBeSubclassOf{nameof(BsonClassMapperBase)}")).Must().BeTrue().OrThrowFirstFailure();
+
+            var instance = Instance(type, () => (BsonClassMapperBase)type.Construct());
+            instance.RegisterClassMaps();
+        }
+
+        /// <summary>
         /// Gets the singleton instance of the specified type.
         /// </summary>
         /// <typeparam name="T">Type of derivative of <see cref="BsonClassMapperBase"/> to use.</typeparam>
@@ -28,7 +60,11 @@ namespace Naos.Serialization.Bson
         public static BsonClassMapperBase Instance<T>()
             where T : BsonClassMapperBase, new()
         {
-            var type = typeof(T);
+            return Instance(typeof(T), () => new T());
+        }
+
+        private static BsonClassMapperBase Instance(Type type, Func<BsonClassMapperBase> creatorFunc)
+        {
             lock (SyncReadInstances)
             {
                 BsonClassMapperBase ret;
@@ -48,7 +84,7 @@ namespace Naos.Serialization.Bson
                         }
                         else
                         {
-                            ret = new T();
+                            ret = creatorFunc();
                             Instances.Add(type, ret);
 
                             return ret;

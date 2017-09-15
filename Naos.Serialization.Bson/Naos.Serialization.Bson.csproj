@@ -49,6 +49,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Enum\EnumExtensions.cs" />
+    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Reflection\ReflectionHelper.Attribute.cs" />
+    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Reflection\ReflectionHelper.cs" />
+    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Reflection\ReflectionHelper.Enum.cs" />
+    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Reflection\ReflectionHelper.Field.cs" />
+    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Reflection\ReflectionHelper.Property.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\MakeRule.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\MustExtensions.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\RuleExtensions.cs" />

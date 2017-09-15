@@ -42,6 +42,11 @@ namespace Naos.Serialization.Bson
                             NaosBsonConventions.RegisterEnumAsStringConventionIfNotRegistered();
                         }
 
+                        foreach (var dependantMapperType in this.DependentMapperTypes)
+                        {
+                            BsonClassMapManager.RegisterClassMaps(dependantMapperType);
+                        }
+
                         this.RegisterCustomClassMappings();
 
                         registered = true;
@@ -56,6 +61,11 @@ namespace Naos.Serialization.Bson
         protected virtual bool ShouldRegisterEnumConvention => true;
 
         /// <summary>
+        /// Gets a list of <see cref="BsonClassMapperBase"/>'s that are needed for the current implemenation of <see cref="BsonClassMapperBase"/>.  Optionally overrideable, DEFAULT is empty collection.
+        /// </summary>
+        protected virtual IReadOnlyCollection<Type> DependentMapperTypes => new Type[0];
+
+        /// <summary>
         /// Template method to override and specify custom class maps.
         /// </summary>
         protected abstract void RegisterCustomClassMappings();
@@ -64,10 +74,28 @@ namespace Naos.Serialization.Bson
         /// Method to use relection and call <see cref="BsonClassMap.RegisterClassMap{TClass}()"/> using the <see cref="Type"/> as a parameter.
         /// </summary>
         /// <param name="type">Type to register.</param>
-        protected static void RegisterClassMap(Type type)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
+        protected void RegisterClassMap(Type type)
         {
+            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+
             var genericRegisterClassMapMethod = RegisterClassMapGenericMethod.MakeGenericMethod(type);
             genericRegisterClassMapMethod.Invoke(null, null);
+        }
+
+        /// <summary>
+        /// Method to use relection and call <see cref="BsonClassMap.RegisterClassMap{TClass}()"/> using the <see cref="Type"/> as a parameter.
+        /// </summary>
+        /// <param name="types">Types to register.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
+        protected void RegisterClassMap(IReadOnlyCollection<Type> types)
+        {
+            new { types }.Must().NotBeNull().OrThrowFirstFailure();
+
+            foreach (var type in types)
+            {
+                this.RegisterClassMap(type);
+            }
         }
 
         /// <summary>
@@ -75,11 +103,11 @@ namespace Naos.Serialization.Bson
         /// </summary>
         /// <param name="types">Types to register.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterTypesAndTheirSubclasses(ICollection<Type> types)
+        protected void RegisterTypesAndTheirSubclasses(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull().OrThrowFirstFailure();
 
-            List<Type> GetTypeAndDerivativeTypes(Type type)
+            IReadOnlyCollection<Type> GetTypeAndDerivativeTypes(Type type)
             {
                 var derivativeTypes = type.Assembly.GetTypes().Where(_ => _.IsSubclassOf(type)).ToList();
                 derivativeTypes.Add(type);
@@ -89,7 +117,7 @@ namespace Naos.Serialization.Bson
             foreach (var type in types)
             {
                 var allTypes = GetTypeAndDerivativeTypes(type);
-                allTypes.ForEach(_ => RegisterClassMap(_));
+                this.RegisterClassMap(allTypes);
             }
         }
 
