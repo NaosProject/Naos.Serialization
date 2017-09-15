@@ -21,6 +21,7 @@ namespace Naos.Serialization.Json
         /// <summary>
         /// Encoding to use for conversion in and out of bytes.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is not mutable.")]
         public static readonly Encoding SerializationEncoding = Encoding.UTF8;
 
         /// <summary>
