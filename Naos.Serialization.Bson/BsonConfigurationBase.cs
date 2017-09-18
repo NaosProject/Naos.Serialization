@@ -15,12 +15,16 @@ namespace Naos.Serialization.Bson
 
     using Spritely.Recipes;
 
+    using static System.FormattableString;
+
     /// <summary>
     /// Base class to use for creating
     /// </summary>
     public abstract class BsonConfigurationBase
     {
-        private static readonly MethodInfo RegisterClassMapGenericMethod = typeof(BsonClassMap).GetMethods().Single(_ => (_.Name == nameof(BsonClassMap.RegisterClassMap)) && (!_.GetParameters().Any()) && _.IsGenericMethod);
+        private const string RegisterClassMapMethodName = nameof(BsonClassMap.RegisterClassMap);
+
+        private static readonly MethodInfo RegisterClassMapGenericMethod = typeof(BsonClassMap).GetMethods().Single(_ => (_.Name == RegisterClassMapMethodName) && (!_.GetParameters().Any()) && _.IsGenericMethod);
 
         private static readonly object SyncConfigure = new object();
 
@@ -79,8 +83,15 @@ namespace Naos.Serialization.Bson
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
-            var genericRegisterClassMapMethod = RegisterClassMapGenericMethod.MakeGenericMethod(type);
-            genericRegisterClassMapMethod.Invoke(null, null);
+            try
+            {
+                var genericRegisterClassMapMethod = RegisterClassMapGenericMethod.MakeGenericMethod(type);
+                genericRegisterClassMapMethod.Invoke(null, null);
+            }
+            catch (Exception ex)
+            {
+                throw new BsonConfigurationException(Invariant($"Failed to run {RegisterClassMapMethodName} on {type.FullName}"), ex);
+            }
         }
 
         /// <summary>

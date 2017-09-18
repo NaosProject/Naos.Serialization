@@ -65,6 +65,7 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="NaosBsonSerializer.cs" />
     <Compile Include="NaosBsonConventions.cs" />
+    <Compile Include="BsonConfigurationException.cs" />
     <Compile Include="NaosBsonSerializerHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
