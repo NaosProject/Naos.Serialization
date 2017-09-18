@@ -103,23 +103,7 @@ namespace Naos.Serialization.Bson
         /// </summary>
         /// <param name="types">Types to register.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForClassTypesAndTheirSubclasses(IReadOnlyCollection<Type> types)
-        {
-            new { types }.Must().NotBeNull().OrThrowFirstFailure();
-
-            foreach (var type in types)
-            {
-                var allTypes = this.GetSubclassTypes(type);
-                this.RegisterClassMapForTypes(allTypes);
-            }
-        }
-
-        /// <summary>
-        /// Method to register the specified type and all derivative types in the same assembly.
-        /// </summary>
-        /// <param name="types">Types to register.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForInterfaceTypesAndTheirImplementations(IReadOnlyCollection<Type> types)
+        protected void RegisterClassMapForTypeAndSubclassTypes(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull().OrThrowFirstFailure();
 
