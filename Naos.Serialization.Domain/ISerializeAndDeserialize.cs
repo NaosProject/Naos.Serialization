@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ISerializeAndDeserializeThings.cs" company="Naos">
+// <copyright file="ISerializeAndDeserialize.cs" company="Naos">
 //    Copyright (c) Naos 2017. All Rights Reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -11,7 +11,14 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Interface to work with compression.
     /// </summary>
-    public interface ISerializeAndDeserializeThings
+    public interface ISerializeAndDeserialize : ISerialize, IDeserialize
+    {
+    }
+
+    /// <summary>
+    /// Interface to work with compression.
+    /// </summary>
+    public interface ISerialize
     {
         /// <summary>
         /// Serializes an object into a byte array.
@@ -20,7 +27,13 @@ namespace Naos.Serialization.Domain
         /// <returns>Serialized object into a byte array.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:Identifiers should not contain type names", Justification = "Spelling/name is correct.")]
         byte[] Serialize(object objectToSerialize);
+    }
 
+    /// <summary>
+    /// Interface to work with compression.
+    /// </summary>
+    public interface IDeserialize
+    {
         /// <summary>
         /// Deserializes the byte array into an object.
         /// </summary>

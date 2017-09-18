@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BsonClassMapperBase.cs" company="Naos">
+// <copyright file="BsonConfigurationBase.cs" company="Naos">
 //    Copyright (c) Naos 2017. All Rights Reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -18,24 +18,24 @@ namespace Naos.Serialization.Bson
     /// <summary>
     /// Base class to use for creating
     /// </summary>
-    public abstract class BsonClassMapperBase
+    public abstract class BsonConfigurationBase
     {
         private static readonly MethodInfo RegisterClassMapGenericMethod = typeof(BsonClassMap).GetMethods().Single(_ => (_.Name == nameof(BsonClassMap.RegisterClassMap)) && (!_.GetParameters().Any()) && _.IsGenericMethod);
 
-        private static readonly object SyncRegister = new object();
+        private static readonly object SyncConfigure = new object();
 
-        private static bool registered;
+        private static bool configured;
 
         /// <summary>
-        /// Class to manage class maps necessary for the CoScore Storage Model.
+        /// Run configuration logic.
         /// </summary>
-        public void RegisterClassMaps()
+        public void Configure()
         {
-            if (!registered)
+            if (!configured)
             {
-                lock (SyncRegister)
+                lock (SyncConfigure)
                 {
-                    if (!registered)
+                    if (!configured)
                     {
                         if (this.ShouldRegisterEnumConvention)
                         {
@@ -44,12 +44,12 @@ namespace Naos.Serialization.Bson
 
                         foreach (var dependantMapperType in this.DependentMapperTypes)
                         {
-                            BsonClassMapManager.RegisterClassMaps(dependantMapperType);
+                            BsonConfigurationManager.Configure(dependantMapperType);
                         }
 
-                        this.RegisterCustomClassMappings();
+                        this.CustomConfiguration();
 
-                        registered = true;
+                        configured = true;
                     }
                 }
             }
@@ -61,21 +61,21 @@ namespace Naos.Serialization.Bson
         protected virtual bool ShouldRegisterEnumConvention => true;
 
         /// <summary>
-        /// Gets a list of <see cref="BsonClassMapperBase"/>'s that are needed for the current implemenation of <see cref="BsonClassMapperBase"/>.  Optionally overrideable, DEFAULT is empty collection.
+        /// Gets a list of <see cref="BsonConfigurationBase"/>'s that are needed for the current implemenation of <see cref="BsonConfigurationBase"/>.  Optionally overrideable, DEFAULT is empty collection.
         /// </summary>
         protected virtual IReadOnlyCollection<Type> DependentMapperTypes => new Type[0];
 
         /// <summary>
-        /// Template method to override and specify custom class maps.
+        /// Template method to override and specify custom logic.
         /// </summary>
-        protected abstract void RegisterCustomClassMappings();
+        protected abstract void CustomConfiguration();
 
         /// <summary>
         /// Method to use relection and call <see cref="BsonClassMap.RegisterClassMap{TClass}()"/> using the <see cref="Type"/> as a parameter.
         /// </summary>
         /// <param name="type">Type to register.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMap(Type type)
+        protected void RegisterClassMapForType(Type type)
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
@@ -88,13 +88,13 @@ namespace Naos.Serialization.Bson
         /// </summary>
         /// <param name="types">Types to register.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMap(IReadOnlyCollection<Type> types)
+        protected void RegisterClassMapForTypes(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull().OrThrowFirstFailure();
 
             foreach (var type in types)
             {
-                this.RegisterClassMap(type);
+                this.RegisterClassMapForType(type);
             }
         }
 
@@ -103,22 +103,53 @@ namespace Naos.Serialization.Bson
         /// </summary>
         /// <param name="types">Types to register.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterTypesAndTheirSubclasses(IReadOnlyCollection<Type> types)
+        protected void RegisterClassMapForClassTypesAndTheirSubclasses(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull().OrThrowFirstFailure();
 
-            IReadOnlyCollection<Type> GetTypeAndDerivativeTypes(Type type)
+            foreach (var type in types)
             {
-                var derivativeTypes = type.Assembly.GetTypes().Where(_ => _.IsSubclassOf(type)).ToList();
-                derivativeTypes.Add(type);
-                return derivativeTypes;
+                var allTypes = this.GetSubclassTypes(type);
+                this.RegisterClassMapForTypes(allTypes);
             }
+        }
+
+        /// <summary>
+        /// Method to register the specified type and all derivative types in the same assembly.
+        /// </summary>
+        /// <param name="types">Types to register.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
+        protected void RegisterClassMapForInterfaceTypesAndTheirImplementations(IReadOnlyCollection<Type> types)
+        {
+            new { types }.Must().NotBeNull().OrThrowFirstFailure();
 
             foreach (var type in types)
             {
-                var allTypes = GetTypeAndDerivativeTypes(type);
-                this.RegisterClassMap(allTypes);
+                var allTypes = this.GetSubclassTypes(type);
+                this.RegisterClassMapForTypes(allTypes);
             }
+        }
+
+        /// <summary>
+        /// Get a list of the subclass types of the provided type and the provided type if <paramref name="includeSpecifiedTypeInReturnList"/> is true.
+        /// </summary>
+        /// <param name="classType">Type to find derivatives of.</param>
+        /// <param name="includeSpecifiedTypeInReturnList">Optional value indicating whether or not to include the provided type in the return list; DEFAULT is true.</param>
+        /// <returns>List of the subclass types of the provided type and the provided type if <paramref name="includeSpecifiedTypeInReturnList"/> is true.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
+        protected IReadOnlyCollection<Type> GetSubclassTypes(Type classType, bool includeSpecifiedTypeInReturnList = true)
+        {
+            new { classType }.Must().NotBeNull().OrThrowFirstFailure();
+            new { classType.IsClass }.Must().BeTrue().OrThrowFirstFailure();
+
+            var derivativeTypes = classType.Assembly.GetTypes().Where(_ => _.IsSubclassOf(classType)).ToList();
+
+            if (includeSpecifiedTypeInReturnList)
+            {
+                derivativeTypes.Add(classType);
+            }
+
+            return derivativeTypes;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Just for example purposes, move to recipe eventually.")]
@@ -146,12 +177,12 @@ namespace Naos.Serialization.Bson
     }
 
     /// <summary>
-    /// Null implementation of <see cref="BsonClassMapperBase"/>.
+    /// Null implementation of <see cref="BsonConfigurationBase"/>.
     /// </summary>
-    public class NullBsonClassMapper : BsonClassMapperBase
+    public sealed class NullBsonConfiguration : BsonConfigurationBase
     {
-        /// <inheritdoc cref="BsonClassMapperBase"/>
-        protected override void RegisterCustomClassMappings()
+        /// <inheritdoc cref="BsonConfigurationBase"/>
+        protected override void CustomConfiguration()
         {
             /* no-op */
         }

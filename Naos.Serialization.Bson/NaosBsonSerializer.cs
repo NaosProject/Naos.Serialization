@@ -13,30 +13,30 @@ namespace Naos.Serialization.Bson
     /// <summary>
     /// Mongo BSON serializer.
     /// </summary>
-    /// <typeparam name="TBsonClassManager">Type of <see cref="BsonClassMapperBase"/> to use (can use <see cref="NullBsonClassMapper"/> if none needed).</typeparam>
-    public class NaosBsonSerializer<TBsonClassManager> : ISerializeAndDeserializeThings
-        where TBsonClassManager : BsonClassMapperBase, new()
+    /// <typeparam name="TBsonConfiguration">Type of <see cref="BsonConfigurationBase"/> to use (can use <see cref="NullBsonConfiguration"/> if none needed).</typeparam>
+    public class NaosBsonSerializer<TBsonConfiguration> : ISerializeAndDeserialize
+        where TBsonConfiguration : BsonConfigurationBase, new()
     {
-        /// <inheritdoc cref="ISerializeAndDeserializeThings"/>
+        /// <inheritdoc cref="ISerializeAndDeserialize"/>
         public byte[] Serialize(object objectToSerialize)
         {
-            BsonClassMapManager.Instance<TBsonClassManager>().RegisterClassMaps();
+            BsonConfigurationManager.Configure<TBsonConfiguration>();
 
             return NaosBsonSerializerHelper.Serialize(objectToSerialize);
         }
 
-        /// <inheritdoc cref="ISerializeAndDeserializeThings"/>
+        /// <inheritdoc cref="ISerializeAndDeserialize"/>
         public T Deserialize<T>(byte[] serializedBytes)
         {
-            BsonClassMapManager.Instance<TBsonClassManager>().RegisterClassMaps();
+            BsonConfigurationManager.Configure<TBsonConfiguration>();
 
             return NaosBsonSerializerHelper.Deserialize<T>(serializedBytes);
         }
 
-        /// <inheritdoc cref="ISerializeAndDeserializeThings"/>
+        /// <inheritdoc cref="ISerializeAndDeserialize"/>
         public object Deserialize(byte[] serializedBytes, Type type)
         {
-            BsonClassMapManager.Instance<TBsonClassManager>().RegisterClassMaps();
+            BsonConfigurationManager.Configure<TBsonConfiguration>();
 
             return NaosBsonSerializerHelper.Deserialize(serializedBytes, type);
         }

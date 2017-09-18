@@ -16,7 +16,7 @@ namespace Naos.Serialization.Json
     /// <summary>
     /// JSON serializer.
     /// </summary>
-    public class NaosJsonSerializer : ISerializeAndDeserializeThings
+    public class NaosJsonSerializer : ISerializeAndDeserialize
     {
         /// <summary>
         /// Encoding to use for conversion in and out of bytes.
@@ -47,7 +47,7 @@ namespace Naos.Serialization.Json
             return ret;
         }
 
-        /// <inheritdoc cref="ISerializeAndDeserializeThings"/>
+        /// <inheritdoc cref="ISerializeAndDeserialize"/>
         public byte[] Serialize(object objectToSerialize)
         {
             new { objectToSerialize }.Must().NotBeNull().OrThrow();
@@ -57,14 +57,14 @@ namespace Naos.Serialization.Json
             return jsonBytes;
         }
 
-        /// <inheritdoc cref="ISerializeAndDeserializeThings"/>
+        /// <inheritdoc cref="ISerializeAndDeserialize"/>
         public T Deserialize<T>(byte[] serializedBytes)
         {
             var ret = this.Deserialize(serializedBytes, typeof(T));
             return (T)ret;
         }
 
-        /// <inheritdoc cref="ISerializeAndDeserializeThings"/>
+        /// <inheritdoc cref="ISerializeAndDeserialize"/>
         public object Deserialize(byte[] serializedBytes, Type type)
         {
             new { serializedBytes }.Must().NotBeNull().OrThrow();

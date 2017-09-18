@@ -60,8 +60,8 @@
     <Compile Include=".Spritely.Recipes\MustValidation\RuleExtensions.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\Rules.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\ValidatedNotNullAttribute.cs" />
-    <Compile Include="BsonClassMapManager.cs" />
-    <Compile Include="BsonClassMapperBase.cs" />
+    <Compile Include="BsonConfigurationManager.cs" />
+    <Compile Include="BsonConfigurationBase.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="NaosBsonSerializer.cs" />
     <Compile Include="NaosBsonConventions.cs" />
