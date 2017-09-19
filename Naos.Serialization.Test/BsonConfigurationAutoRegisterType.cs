@@ -18,7 +18,7 @@ namespace Naos.Serialization.Test
         /// <inheritdoc cref="BsonConfigurationBase" />
         protected override void CustomConfiguration()
         {
-            this.RegisterClassMapsTypeFullyAutomatic<T>();
+            this.RegisterClassMapForTypeWithAutomaticMapping<T>();
         }
     }
 
