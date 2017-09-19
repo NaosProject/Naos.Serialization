@@ -118,11 +118,9 @@ namespace Naos.Serialization.Bson
         {
             new { types }.Must().NotBeNull().OrThrowFirstFailure();
 
-            foreach (var type in types)
-            {
-                var allTypes = this.GetSubclassTypes(type);
-                this.RegisterClassMapForTypes(allTypes);
-            }
+            var allTypes = types.SelectMany(_ => this.GetSubclassTypes(_)).Distinct().ToList();
+
+            this.RegisterClassMapForTypes(allTypes);
         }
 
         /// <summary>
@@ -144,7 +142,7 @@ namespace Naos.Serialization.Bson
                 derivativeTypes.Add(classType);
             }
 
-            return derivativeTypes;
+            return derivativeTypes.Distinct().ToList();
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Just for example purposes, move to recipe eventually.")]
