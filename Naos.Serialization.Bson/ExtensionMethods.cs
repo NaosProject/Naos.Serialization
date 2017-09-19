@@ -6,7 +6,10 @@
 
 namespace Naos.Serialization.Bson
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
 
     using MongoDB.Bson;
     using MongoDB.Bson.Serialization;
@@ -17,6 +20,8 @@ namespace Naos.Serialization.Bson
 
     using Spritely.Recipes;
 
+    using static System.FormattableString;
+
     /// <summary>
     /// Extension methods for use with Bson serialization.
     /// </summary>
@@ -25,38 +30,55 @@ namespace Naos.Serialization.Bson
         /// <summary>
         /// Sets a serializer to serialize and deserialize an enumeration as a string.
         /// </summary>
-        /// <typeparam name="T">Type of the enumeration.</typeparam>
         /// <param name="map">Member the extension is on.</param>
         /// <returns>Updated <see cref="BsonMemberMap"/>.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
-        public static BsonMemberMap SetEnumStringSerializer<T>(this BsonMemberMap map)
-            where T : struct
+        public static BsonMemberMap SetEnumStringSerializer(this BsonMemberMap map)
         {
             new { map }.Must().NotBeNull().OrThrowFirstFailure();
 
             map.MemberType.IsEnum.Named("memberTypeIsEnumeration").Must().BeTrue().OrThrowFirstFailure();
 
-            return map.SetSerializer(new EnumSerializer<T>(BsonType.String));
+            var serializer = MakeEnumStringSerializerFromType(map.MemberType);
+
+            return map.SetSerializer(serializer);
         }
 
         /// <summary>
-        /// Sets a serializer to serialize and deserialize an array (will automatically setup enumeration serialization.
+        /// Sets a serializer to serialize and deserialize an array (will automatically setup enumeration serialization).
         /// </summary>
-        /// <typeparam name="T">Type of the array member.</typeparam>
         /// <param name="map">Member the extension is on.</param>
-        /// <param name="elementSerializer">Optional serializer to use for the elements.</param>
         /// <returns>Updated <see cref="BsonMemberMap"/>.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
-        public static BsonMemberMap SetArraySerializer<T>(this BsonMemberMap map, IBsonSerializer<T> elementSerializer = null)
+        public static BsonMemberMap SetEnumArraySerializer(this BsonMemberMap map)
         {
             new { map }.Must().NotBeNull().OrThrowFirstFailure();
 
-            var type = typeof(T);
-            var typeArrayType = type.MakeArrayType();
-            map.MemberType.Named("memberTypeIsArrayOfSpecifiedType").Must().BeEqualTo(typeArrayType).OrThrowFirstFailure();
+            map.MemberType.IsArray.Named("memberTypeIsArray").Must().BeTrue().OrThrowFirstFailure();
 
-            var elementSerializerLocal = elementSerializer ?? MakeEnumStringIfEnumOtherwiseObjectSerializer<T>();
-            var serializer = new ArraySerializer<T>(elementSerializerLocal);
+            var elementType = map.MemberType.GetElementType();
+            new { elementType }.Must().NotBeNull().OrThrowFirstFailure();
+            elementType.IsEnum.Named("itemTypeIsEnum").Must().BeTrue().OrThrowFirstFailure();
+
+            var elementSerializer = MakeEnumStringSerializerFromType(elementType);
+            var serializer = typeof(ArraySerializer<>).MakeGenericType(elementType).Construct(elementSerializer);
+
+            return map.SetSerializer((IBsonSerializer)serializer);
+        }
+
+        /// <summary>
+        /// Sets a serializer to serialize and deserialize a <see cref="DateTime"/> in and out using default string behavior.
+        /// </summary>
+        /// <param name="map">Member the extension is on.</param>
+        /// <returns>Updated <see cref="BsonMemberMap"/>.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
+        public static BsonMemberMap SetDateTimeStringSerializer(this BsonMemberMap map)
+        {
+            new { map }.Must().NotBeNull().OrThrowFirstFailure();
+
+            new { map.MemberType }.Must().BeEqualTo(typeof(DateTime)).OrThrowFirstFailure();
+
+            var serializer = new NaosBsonDateTimeSerializer();
 
             return map.SetSerializer(serializer);
         }
@@ -64,32 +86,77 @@ namespace Naos.Serialization.Bson
         /// <summary>
         /// Sets a serializer to serialize and deserialize a dictionary.
         /// </summary>
-        /// <typeparam name="TKey">Type of the key of the dictionary.</typeparam>
-        /// <typeparam name="TValue">Type of the value of the dictionary.</typeparam>
         /// <param name="map">Member the extension is on.</param>
         /// <returns>Updated <see cref="BsonMemberMap"/>.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
-        public static BsonMemberMap SetDictionarySerializer<TKey, TValue>(this BsonMemberMap map)
+        public static BsonMemberMap SetDictionarySerializer(this BsonMemberMap map)
         {
             new { map }.Must().NotBeNull().OrThrowFirstFailure();
 
             new { map.MemberType }.Must().NotBeNull().OrThrowFirstFailure();
 
-            map.MemberType.IsSubclassOf(typeof(IDictionary<TKey, TValue>)).Named("memberMustBeDictionaryImplementationOfSpecifiedKeyAndValueTypes").Must().BeTrue().OrThrowFirstFailure();
+            var arguments = map.MemberType.GetGenericArguments();
+            arguments.Named("memberGenericArguments").Must().NotBeNull().OrThrowFirstFailure();
+            arguments.Length.Named("memberGenericArgumentsCount").Must().BeEqualTo(2).OrThrowFirstFailure();
 
-            var keySerializer = MakeEnumStringIfEnumOtherwiseObjectSerializer<TKey>();
-            var valueSerializer = MakeEnumStringIfEnumOtherwiseObjectSerializer<TValue>();
+            var keyType = arguments[0];
+            var valueType = arguments[1];
 
-            var serializer = new DictionaryInterfaceImplementerSerializer<Dictionary<TKey, TValue>>(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
+            var dictionaryInterfaceType = typeof(IDictionary<,>).MakeGenericType(keyType, valueType);
 
-            return map.SetSerializer(serializer);
+            map.MemberType.GetInterfaces().Contains(dictionaryInterfaceType).Named("memberMustBeDictionaryImplementation").Must().BeTrue().OrThrowFirstFailure();
+
+            var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
+            var keySerializer = keyType.IsEnum || keyType == typeof(string) ? MakeEnumStringIfEnumOtherwiseObjectSerializer(keyType) : throw new BsonConfigurationException(Invariant($"Can only use a string or enumeration as a key in a dictionary or Mongo complains; member type: {map.MemberType}, key type: {keyType}, value type: {valueType}"));
+            var valueSerializer = MakeEnumStringIfEnumOtherwiseObjectSerializer(valueType);
+            var serializer = typeof(DictionaryInterfaceImplementerSerializer<>).MakeGenericType(dictionaryType).Construct(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
+
+            return map.SetSerializer((IBsonSerializer)serializer);
         }
 
-        private static IBsonSerializer<T> MakeEnumStringIfEnumOtherwiseObjectSerializer<T>()
+        /// <summary>
+        /// Gets the underlying type of a <see cref="MemberInfo"/>.
+        /// </summary>
+        /// <param name="member"><see cref="MemberInfo"/> to check.</param>
+        /// <returns>Type of the member.</returns>
+        internal static Type GetUnderlyingType(this MemberInfo member)
         {
-            return typeof(T).IsEnum
-                       ? (IBsonSerializer<T>)typeof(EnumSerializer<>).MakeGenericType(typeof(T)).Construct(BsonType.String)
-                       : (IBsonSerializer<T>)new ObjectSerializer();
+            switch (member.MemberType)
+            {
+                case MemberTypes.Event:
+                    return ((EventInfo)member).EventHandlerType;
+                case MemberTypes.Field:
+                    return ((FieldInfo)member).FieldType;
+                case MemberTypes.Method:
+                    return ((MethodInfo)member).ReturnType;
+                case MemberTypes.Property:
+                    return ((PropertyInfo)member).PropertyType;
+                default: throw new ArgumentException("Input MemberInfo must be if type EventInfo, FieldInfo, MethodInfo, or PropertyInfo");
+            }
+        }
+
+        /// <summary>
+        /// Converts a <see cref="DateTime"/> to the <see cref="DateTimeKind"/> of <see cref="DateTimeKind.Unspecified"/>.
+        /// </summary>
+        /// <param name="dateTime"><see cref="DateTime"/> to convert.</param>
+        /// <returns>Converted <see cref="DateTime"/>.</returns>
+        public static DateTime ToUnspecified(this DateTime dateTime)
+        {
+            return new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond, DateTimeKind.Unspecified);
+        }
+
+        private static IBsonSerializer MakeEnumStringIfEnumOtherwiseObjectSerializer(Type type)
+        {
+            return type.IsEnum
+                       ? (IBsonSerializer)typeof(EnumSerializer<>).MakeGenericType(type).Construct(BsonType.String)
+                       : new ObjectSerializer();
+        }
+
+        private static IBsonSerializer MakeEnumStringSerializerFromType(Type type)
+        {
+            type.IsEnum.Named("typeIsEnumeration").Must().BeTrue().OrThrowFirstFailure();
+
+            return (IBsonSerializer)typeof(EnumSerializer<>).MakeGenericType(type).Construct(BsonType.String);
         }
     }
 }

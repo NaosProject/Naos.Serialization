@@ -1,0 +1,135 @@
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DateTimeStringSerializerTest.cs" company="Naos">
+//    Copyright (c) Naos 2017. All Rights Reserved.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Naos.Serialization.Test
+{
+    using System;
+    using System.Linq;
+
+    using FluentAssertions;
+
+    using MongoDB.Bson;
+
+    using Naos.Serialization.Bson;
+    using Naos.Serialization.Domain;
+
+    using Xunit;
+
+    public static class DateTimeStringSerializerTest
+    {
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_utc___Works()
+        {
+            // Arrange
+            var expected = DateTime.UtcNow;
+            var serializer = new NaosDateTimeStringSerializer();
+
+            // Act
+            var serialized = serializer.Serialize(expected);
+            var actual = serializer.Deserialize<DateTime>(serialized);
+
+            // Assert
+            actual.Kind.Should().Be(expected.Kind);
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_unspecified___Works()
+        {
+            // Arrange
+            var expected = DateTime.UtcNow.ToUnspecified();
+            var serializer = new NaosDateTimeStringSerializer();
+
+            // Act
+            var serialized = serializer.Serialize(expected);
+            var actual = serializer.Deserialize<DateTime>(serialized);
+
+            // Assert
+            actual.Kind.Should().Be(expected.Kind);
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_local_zero_offset___Works()
+        {
+            // Arrange
+            var expected = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time"));
+            var serializer = new NaosDateTimeStringSerializer();
+
+            // Act
+            var serialized = serializer.Serialize(expected);
+            var actual = serializer.Deserialize<DateTime>(serialized);
+
+            // Assert
+            actual.Kind.Should().Be(expected.Kind);
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_local_positive_offset___Works()
+        {
+            // Arrange
+            var expected = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("New Zealand Standard Time"));
+            var serializer = new NaosDateTimeStringSerializer();
+
+            // Act
+            var serialized = serializer.Serialize(expected);
+            var actual = serializer.Deserialize<DateTime>(serialized);
+
+            // Assert
+            actual.Kind.Should().Be(expected.Kind);
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_local_negative_offset___Works()
+        {
+            // Arrange
+            var expected = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
+            var serializer = new NaosDateTimeStringSerializer();
+
+            // Act
+            var serialized = serializer.Serialize(expected);
+            var actual = serializer.Deserialize<DateTime>(serialized);
+
+            // Assert
+            actual.Kind.Should().Be(expected.Kind);
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public static void Serialize___Not_date_time___Throws()
+        {
+            // Arrange
+            var serializer = new NaosDateTimeStringSerializer();
+            Action action = () => serializer.Serialize("not a datetime");
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentException>();
+            exception.Message.Should().Be("Value must be equal to System.DateTime.\r\nParameter name: inputIsDateTimeTypeNot-System.String");
+        }
+
+        [Fact]
+        public static void Deserialize___Null_type___Throws()
+        {
+            // Arrange
+            var serializer = new NaosDateTimeStringSerializer();
+            Action action = () => serializer.Deserialize(string.Empty, null);
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentNullException>();
+            exception.Message.Should().Be("\r\nParameter name: type");
+        }
+    }
+}

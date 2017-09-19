@@ -9,6 +9,7 @@ namespace Naos.Serialization.Bson
     using System;
     using System.IO;
 
+    using MongoDB.Bson;
     using MongoDB.Bson.IO;
     using MongoDB.Bson.Serialization;
 
@@ -26,7 +27,7 @@ namespace Naos.Serialization.Bson
         /// <returns>Serialized object into a byte array.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:Identifiers should not contain type names", Justification = "I like this name...")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It should not actually be an issue.")]
-        public static byte[] Serialize(object objectToSerialize)
+        public static byte[] SerializeToBytes(object objectToSerialize)
         {
             new { objectToSerialize }.Must().NotBeNull().OrThrow();
 
@@ -40,6 +41,28 @@ namespace Naos.Serialization.Bson
                     return memoryStream.ToArray();
                 }
             }
+        }
+
+        /// <summary>
+        /// Serializes an object into a byte array.
+        /// </summary>
+        /// <param name="objectToSerialize">Object to serialize.</param>
+        /// <returns>Serialized object into a byte array.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:Identifiers should not contain type names", Justification = "I like this name...")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It should not actually be an issue.")]
+        public static BsonDocument SerializeToDocument(object objectToSerialize)
+        {
+            new { objectToSerialize }.Must().NotBeNull().OrThrow();
+
+            var document = new BsonDocument();
+
+            using (var writer = new BsonDocumentWriter(document))
+            {
+                BsonSerializer.Serialize(writer, objectToSerialize.GetType(), objectToSerialize);
+                writer.Close();
+            }
+
+            return document;
         }
 
         /// <summary>

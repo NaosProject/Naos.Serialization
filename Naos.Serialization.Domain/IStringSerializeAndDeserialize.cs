@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ISerializeAndDeserialize.cs" company="Naos">
+// <copyright file="IStringSerializeAndDeserialize.cs" company="Naos">
 //    Copyright (c) Naos 2017. All Rights Reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -9,47 +9,47 @@ namespace Naos.Serialization.Domain
     using System;
 
     /// <summary>
-    /// Interface to work with compression.
+    /// Interface to serialize and deserialize to and from a string.
     /// </summary>
-    public interface ISerializeAndDeserialize : ISerialize, IDeserialize
+    public interface IStringSerializeAndDeserialize : IStringSerialize, IStringDeserialize
     {
     }
 
     /// <summary>
-    /// Interface to work with compression.
+    /// Interface to serialize to a string.
     /// </summary>
-    public interface ISerialize
+    public interface IStringSerialize
     {
         /// <summary>
-        /// Serializes an object into a byte array.
+        /// Serializes an object into a string.
         /// </summary>
         /// <param name="objectToSerialize">Object to serialize.</param>
-        /// <returns>Serialized object into a byte array.</returns>
+        /// <returns>Serialized object into a string.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:Identifiers should not contain type names", Justification = "Spelling/name is correct.")]
-        byte[] Serialize(object objectToSerialize);
+        string Serialize(object objectToSerialize);
     }
 
     /// <summary>
-    /// Interface to work with compression.
+    /// Interface to deserialize from a string.
     /// </summary>
-    public interface IDeserialize
+    public interface IStringDeserialize
     {
         /// <summary>
-        /// Deserializes the byte array into an object.
+        /// Deserializes the string into an object.
         /// </summary>
-        /// <param name="serializedBytes">Byte array to deserialize.</param>
+        /// <param name="serializedString">String to deserialize.</param>
         /// <typeparam name="T">Type of object to deserialize.</typeparam>
-        /// <returns>Deserialized bytes into object of specified type.</returns>
+        /// <returns>Deserialized string into object of specified type.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:Identifiers should not contain type names", Justification = "Spelling/name is correct.")]
-        T Deserialize<T>(byte[] serializedBytes);
+        T Deserialize<T>(string serializedString);
 
         /// <summary>
-        /// Deserializes the byte array into an object.
+        /// Deserializes the string into an object.
         /// </summary>
-        /// <param name="serializedBytes">Byte array to deserialize.</param>
+        /// <param name="serializedString">String to deserialize.</param>
         /// <param name="type">Type to deserialize into.</param>
-        /// <returns>Deserialized bytes into object of specified type.</returns>
+        /// <returns>Deserialized string into object of specified type.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:Identifiers should not contain type names", Justification = "Spelling/name is correct.")]
-        object Deserialize(byte[] serializedBytes, Type type);
+        object Deserialize(string serializedString, Type type);
     }
 }

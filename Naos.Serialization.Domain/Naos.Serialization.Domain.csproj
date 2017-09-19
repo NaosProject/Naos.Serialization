@@ -51,8 +51,11 @@
     <Compile Include=".Spritely.Recipes\MustValidation\RuleExtensions.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\Rules.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\ValidatedNotNullAttribute.cs" />
+    <Compile Include="NaosSerializationException.cs" />
+    <Compile Include="NaosDateTimeStringSerializer.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="ISerializeAndDeserialize.cs" />
+    <Compile Include="IBinarySerializeAndDeserialize.cs" />
+    <Compile Include="IStringSerializeAndDeserialize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

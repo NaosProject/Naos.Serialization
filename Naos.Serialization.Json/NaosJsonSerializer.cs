@@ -16,7 +16,7 @@ namespace Naos.Serialization.Json
     /// <summary>
     /// JSON serializer.
     /// </summary>
-    public class NaosJsonSerializer : ISerializeAndDeserialize
+    public sealed class NaosJsonSerializer : IBinarySerializeAndDeserialize, IStringSerializeAndDeserialize
     {
         /// <summary>
         /// Encoding to use for conversion in and out of bytes.
@@ -47,30 +47,49 @@ namespace Naos.Serialization.Json
             return ret;
         }
 
-        /// <inheritdoc cref="ISerializeAndDeserialize"/>
-        public byte[] Serialize(object objectToSerialize)
+        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
+        byte[] IBinarySerialize.Serialize(object objectToSerialize)
         {
-            new { objectToSerialize }.Must().NotBeNull().OrThrow();
-
-            var jsonString = DefaultJsonSerializer.SerializeObject(objectToSerialize);
+            var jsonString = ((IStringSerializeAndDeserialize)this).Serialize(objectToSerialize);
             var jsonBytes = ConvertJsonToByteArray(jsonString);
             return jsonBytes;
         }
 
-        /// <inheritdoc cref="ISerializeAndDeserialize"/>
+        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
         public T Deserialize<T>(byte[] serializedBytes)
         {
             var ret = this.Deserialize(serializedBytes, typeof(T));
             return (T)ret;
         }
 
-        /// <inheritdoc cref="ISerializeAndDeserialize"/>
+        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
         public object Deserialize(byte[] serializedBytes, Type type)
         {
-            new { serializedBytes }.Must().NotBeNull().OrThrow();
+            new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
             var jsonString = ConvertByteArrayToJson(serializedBytes);
-            var ret = DefaultJsonSerializer.DeserializeObject(jsonString, type);
+            return this.Deserialize(jsonString, type);
+        }
+
+        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        string IStringSerialize.Serialize(object objectToSerialize)
+        {
+            var ret = DefaultJsonSerializer.SerializeObject(objectToSerialize);
+            return ret;
+        }
+
+        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        public T Deserialize<T>(string serializedString)
+        {
+            return (T)this.Deserialize(serializedString, typeof(T));
+        }
+
+        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        public object Deserialize(string serializedString, Type type)
+        {
+            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+
+            var ret = DefaultJsonSerializer.DeserializeObject(serializedString, type);
             return ret;
         }
     }

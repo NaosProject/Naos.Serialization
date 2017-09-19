@@ -7,6 +7,7 @@
 namespace Naos.Serialization.Test
 {
     using System;
+    using System.Threading;
 
     using FluentAssertions;
 
@@ -17,22 +18,39 @@ namespace Naos.Serialization.Test
     public static class TestBsonConfigurationManager
     {
         [Fact]
-        public static void ConfigureWorksWithType()
+        public static void Configure___Type_not_BsonConfigurationBase___Throws()
         {
-            BsonConfigurationManager.Configure(typeof(TestConfigure));
-            BsonConfigurationManager.Configure(typeof(TestConfigure));
-            BsonConfigurationManager.Configure<TestConfigure>();
+            // Arrange
+            Action action = () => BsonConfigurationManager.Configure(typeof(string));
 
-            TestConfigure.Configured.Should().BeTrue();
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentException>();
+            exception.Message.Should().Be("Value must be true.\r\nParameter name: typeMustBeSubclassOfBsonConfigurationBase");
         }
 
         [Fact]
-        public static void ConfigureWorksWithGeneric()
+        public static void Configure___Type_does_not_have_default_constructor___Throws()
+        {
+            // Arrange
+            Action action = () => BsonConfigurationManager.Configure(typeof(TestConfigureParameterConstructor));
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentException>();
+            exception.Message.Should().Be("Value must be true.\r\nParameter name: typeHasParameterLessConstructor");
+        }
+
+        [Fact]
+        public static void Configure___Valid_type_as_generic___Works()
         {
             BsonConfigurationManager.Configure<TestConfigure>();
-            BsonConfigurationManager.Configure<TestConfigure>();
-            BsonConfigurationManager.Configure(typeof(TestConfigure));
-
             TestConfigure.Configured.Should().BeTrue();
         }
     }
@@ -53,6 +71,22 @@ namespace Naos.Serialization.Test
             }
 
             Configured = true;
+        }
+    }
+
+    public class TestConfigureParameterConstructor : BsonConfigurationBase
+    {
+        public TestConfigureParameterConstructor(string thingy)
+        {
+            this.Thingy = thingy;
+        }
+
+        public string Thingy { get; set; }
+
+        /// <inheritdoc cref="BsonConfigurationBase" />
+        protected override void CustomConfiguration()
+        {
+            /* no-op */
         }
     }
 }
