@@ -30,9 +30,9 @@ namespace Naos.Serialization.Bson
 
         private static readonly MethodInfo RegisterClassMapGenericMethod = typeof(BsonClassMap).GetMethods().Single(_ => (_.Name == RegisterClassMapMethodName) && (!_.GetParameters().Any()) && _.IsGenericMethod);
 
-        private static readonly object SyncConfigure = new object();
+        private readonly object syncConfigure = new object();
 
-        private static bool configured;
+        private bool configured;
 
         /// <summary>
         /// Run configuration logic.
@@ -41,9 +41,9 @@ namespace Naos.Serialization.Bson
         {
             if (!configured)
             {
-                lock (SyncConfigure)
+                lock (this.syncConfigure)
                 {
-                    if (!configured)
+                    if (!this.configured)
                     {
                         if (this.ShouldRegisterEnumConvention)
                         {
@@ -57,7 +57,7 @@ namespace Naos.Serialization.Bson
 
                         this.CustomConfiguration();
 
-                        configured = true;
+                        this.configured = true;
                     }
                 }
             }
