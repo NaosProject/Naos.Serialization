@@ -7,12 +7,15 @@
 namespace Naos.Serialization.Test
 {
     using System;
+    using System.Linq;
     using System.Reflection;
     using System.Runtime.ExceptionServices;
 
     using FluentAssertions;
 
     using MongoDB.Bson.Serialization;
+
+    using Naos.Serialization.Bson;
 
     using Xunit;
 
@@ -22,14 +25,17 @@ namespace Naos.Serialization.Test
         public static void RegisterClassMapsTypeFullyAutomatic___Type_with_no_constraints___Works()
         {
             // Arrange
-            var configuration = new BsonConfigurationTestAutoConstrainedType(typeof(TestMapping));
+            var type = typeof(TestMapping);
+            var configuration = new BsonConfigurationTestAutoConstrainedType(type);
+            var expectedMemberNames = BsonConfigurationBase.GetMembersToAutomap(type).Select(_ => _.Name).OrderBy(_ => _).ToList();
 
             // Act
             var classMap = RunTestCode(configuration);
 
             // Assert
             classMap.Should().NotBeNull();
-            throw new NotImplementedException("assert more");
+            var actualMemberNames = classMap.DeclaredMemberMaps.Select(_ => _.MemberName).OrderBy(_ => _).ToList();
+            actualMemberNames.Should().Equal(expectedMemberNames);
         }
 
         [Fact]
@@ -37,6 +43,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var constraints = new[] { nameof(TestMapping.GuidProperty), nameof(TestMapping.StringIntMap) };
+            var expectedMemberNames = constraints.ToList();
             var configuration = new BsonConfigurationTestAutoConstrainedType(typeof(TestMapping), constraints);
 
             // Act
@@ -44,7 +51,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             classMap.Should().NotBeNull();
-            throw new NotImplementedException("assert more");
+            var actualMemberNames = classMap.DeclaredMemberMaps.Select(_ => _.MemberName).OrderBy(_ => _).ToList();
+            actualMemberNames.Should().Equal(expectedMemberNames);
         }
 
         [Fact]

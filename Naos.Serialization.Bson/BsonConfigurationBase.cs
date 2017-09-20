@@ -24,7 +24,11 @@ namespace Naos.Serialization.Bson
     /// </summary>
     public abstract class BsonConfigurationBase
     {
-        private const BindingFlags DefaultMongoBsonMemberSelectionBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+        /// <summary>
+        /// Binding flags used in <see cref="GetMembersToAutomap"/> to reflect on a type.
+        /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Name is correct.")]
+        public const BindingFlags BsonMemberAutomapSelectionBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
         private const string RegisterClassMapMethodName = nameof(BsonClassMap.RegisterClassMap);
 
@@ -192,9 +196,7 @@ namespace Naos.Serialization.Bson
 
             var constraintsAreNullOrEmpty = constrainToProperties == null || constrainToProperties.Count == 0;
 
-            var allMembers = type.GetMembers(DefaultMongoBsonMemberSelectionBindingFlags)
-                .Where(_ => _.MemberType == MemberTypes.Field || _.MemberType == MemberTypes.Property)
-                .Where(_ => !_.CustomAttributes.Select(s => s.AttributeType).Contains(typeof(CompilerGeneratedAttribute))).ToList();
+            var allMembers = GetMembersToAutomap(type);
 
             var members = allMembers.Where(_ => constraintsAreNullOrEmpty || constrainToProperties.Contains(_.Name)).ToList();
 
@@ -240,6 +242,21 @@ namespace Naos.Serialization.Bson
             }
 
             return bsonClassMap;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="MemberInfo"/>'s to use for auto mapping.
+        /// </summary>
+        /// <param name="type">Type to interrogate.</param>
+        /// <returns>Collection of members to map.</returns>
+        public static IReadOnlyCollection<MemberInfo> GetMembersToAutomap(Type type)
+        {
+            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+
+            var allMembers = type.GetMembers(BsonMemberAutomapSelectionBindingFlags)
+                .Where(_ => _.MemberType == MemberTypes.Field || _.MemberType == MemberTypes.Property)
+                .Where(_ => !_.CustomAttributes.Select(s => s.AttributeType).Contains(typeof(CompilerGeneratedAttribute))).ToList();
+            return allMembers;
         }
 
         /// <summary>
