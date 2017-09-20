@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TestBsonSerializer.cs" company="Naos">
+// <copyright file="TestJsonSerializer.cs" company="Naos">
 //    Copyright (c) Naos 2017. All Rights Reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -12,17 +12,20 @@ namespace Naos.Serialization.Test
 
     using FluentAssertions;
 
+    using MongoDB.Bson;
+
     using Naos.Serialization.Bson;
+    using Naos.Serialization.Json;
 
     using Xunit;
 
-    public static class TestBsonSerializer
+    public static class TestJsonSerializer
     {
         [Fact]
-        public static void RoundtripSerializeDeserialize___Using_TestMapping_and_BsonConfigurationTestAutoAllGeneric___Works()
+        public static void RoundtripSerializeDeserialize___Using_TestMapping___Works()
         {
             // Arrange
-            var serializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestMapping>>();
+            var serializer = new NaosJsonSerializer();
 
             var expected = new TestMapping
                                {

@@ -75,7 +75,7 @@ namespace Naos.Serialization.Domain
         private static readonly StringComparison StringComparisonType = StringComparison.InvariantCultureIgnoreCase;
 
         /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
-        public string Serialize(object objectToSerialize)
+        public string SerializeToString(object objectToSerialize)
         {
             var typeToTest = (objectToSerialize ?? default(DateTime)).GetType();
             typeToTest.Named(Invariant($"inputIsDateTimeTypeNot-{typeToTest}")).Must().BeEqualTo(typeof(DateTime)).OrThrowFirstFailure();

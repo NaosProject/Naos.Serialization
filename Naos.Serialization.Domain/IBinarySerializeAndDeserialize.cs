@@ -26,7 +26,7 @@ namespace Naos.Serialization.Domain
         /// <param name="objectToSerialize">Object to serialize.</param>
         /// <returns>Serialized object into a byte array.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:Identifiers should not contain type names", Justification = "Spelling/name is correct.")]
-        byte[] Serialize(object objectToSerialize);
+        byte[] SerializeToBytes(object objectToSerialize);
     }
 
     /// <summary>

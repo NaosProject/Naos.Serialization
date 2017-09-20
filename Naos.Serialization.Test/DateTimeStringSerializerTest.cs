@@ -25,7 +25,7 @@ namespace Naos.Serialization.Test
             var serializer = new NaosDateTimeStringSerializer();
 
             // Act
-            var serialized = serializer.Serialize(expected);
+            var serialized = serializer.SerializeToString(expected);
             var actual = serializer.Deserialize<DateTime>(serialized);
 
             // Assert
@@ -41,7 +41,7 @@ namespace Naos.Serialization.Test
             var serializer = new NaosDateTimeStringSerializer();
 
             // Act
-            var serialized = serializer.Serialize(expected);
+            var serialized = serializer.SerializeToString(expected);
             var actual = serializer.Deserialize<DateTime>(serialized);
 
             // Assert
@@ -57,7 +57,7 @@ namespace Naos.Serialization.Test
             var serializer = new NaosDateTimeStringSerializer();
 
             // Act
-            var serialized = serializer.Serialize(expected);
+            var serialized = serializer.SerializeToString(expected);
             var actual = serializer.Deserialize<DateTime>(serialized);
 
             // Assert
@@ -73,7 +73,7 @@ namespace Naos.Serialization.Test
             var serializer = new NaosDateTimeStringSerializer();
 
             // Act
-            var serialized = serializer.Serialize(expected);
+            var serialized = serializer.SerializeToString(expected);
             var actual = serializer.Deserialize<DateTime>(serialized);
 
             // Assert
@@ -89,7 +89,7 @@ namespace Naos.Serialization.Test
             var serializer = new NaosDateTimeStringSerializer();
 
             // Act
-            var serialized = serializer.Serialize(expected);
+            var serialized = serializer.SerializeToString(expected);
             var actual = serializer.Deserialize<DateTime>(serialized);
 
             // Assert
@@ -102,7 +102,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var serializer = new NaosDateTimeStringSerializer();
-            Action action = () => serializer.Serialize("not a datetime");
+            Action action = () => serializer.SerializeToString("not a datetime");
 
             // Act
             var exception = Record.Exception(action);

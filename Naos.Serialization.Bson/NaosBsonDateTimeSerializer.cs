@@ -28,7 +28,7 @@ namespace Naos.Serialization.Bson
         {
             new { context }.Must().NotBeNull().OrThrow();
 
-            context.Writer.WriteString(StringSerializer.Serialize(value));
+            context.Writer.WriteString(StringSerializer.SerializeToString(value));
         }
 
         /// <inheritdoc cref="SerializerBase{T}" />

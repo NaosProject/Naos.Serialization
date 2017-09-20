@@ -48,9 +48,9 @@ namespace Naos.Serialization.Json
         }
 
         /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
-        byte[] IBinarySerialize.Serialize(object objectToSerialize)
+        public byte[] SerializeToBytes(object objectToSerialize)
         {
-            var jsonString = ((IStringSerializeAndDeserialize)this).Serialize(objectToSerialize);
+            var jsonString = ((IStringSerializeAndDeserialize)this).SerializeToString(objectToSerialize);
             var jsonBytes = ConvertJsonToByteArray(jsonString);
             return jsonBytes;
         }
@@ -72,7 +72,7 @@ namespace Naos.Serialization.Json
         }
 
         /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
-        string IStringSerialize.Serialize(object objectToSerialize)
+        public string SerializeToString(object objectToSerialize)
         {
             var ret = DefaultJsonSerializer.SerializeObject(objectToSerialize);
             return ret;

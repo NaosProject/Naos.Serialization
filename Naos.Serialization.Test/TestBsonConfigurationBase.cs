@@ -29,6 +29,7 @@ namespace Naos.Serialization.Test
 
             // Assert
             classMap.Should().NotBeNull();
+            throw new NotImplementedException("assert more");
         }
 
         [Fact]
@@ -43,6 +44,7 @@ namespace Naos.Serialization.Test
 
             // Assert
             classMap.Should().NotBeNull();
+            throw new NotImplementedException("assert more");
         }
 
         [Fact]

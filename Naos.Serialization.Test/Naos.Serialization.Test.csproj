@@ -79,6 +79,7 @@
     <Compile Include="BsonConfigurationAutoRegisterType.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="DateTimeStringSerializerTest.cs" />
+    <Compile Include="TestJsonSerializer.cs" />
     <Compile Include="TestBsonSerializer.cs" />
     <Compile Include="TestBsonConfigurationBase.cs" />
     <Compile Include="TestBsonConfigurationManager.cs" />
@@ -106,6 +107,10 @@
     <ProjectReference Include="..\Naos.Serialization.Domain\Naos.Serialization.Domain.csproj">
       <Project>{6C781A9D-70B9-4E37-88E1-E829D8157764}</Project>
       <Name>Naos.Serialization.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Naos.Serialization.Json\Naos.Serialization.Json.csproj">
+      <Project>{A9A03CEC-794F-4FB0-8425-0DB6D4F3CF68}</Project>
+      <Name>Naos.Serialization.Json</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

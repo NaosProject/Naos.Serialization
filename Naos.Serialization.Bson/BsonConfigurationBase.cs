@@ -45,11 +45,6 @@ namespace Naos.Serialization.Bson
                 {
                     if (!this.configured)
                     {
-                        if (this.ShouldRegisterEnumConvention)
-                        {
-                            NaosBsonConventions.RegisterEnumAsStringConventionIfNotRegistered();
-                        }
-
                         foreach (var dependantMapperType in this.DependentMapperTypes)
                         {
                             BsonConfigurationManager.Configure(dependantMapperType);
@@ -64,11 +59,6 @@ namespace Naos.Serialization.Bson
         }
 
         /// <summary>
-        /// Gets a value indicating whether or not to run <see cref="NaosBsonConventions.RegisterEnumAsStringConventionIfNotRegistered"/>.  Optionally overrideable, DEFAULT is true.
-        /// </summary>
-        protected virtual bool ShouldRegisterEnumConvention => true;
-
-        /// <summary>
         /// Gets a list of <see cref="BsonConfigurationBase"/>'s that are needed for the current implemenation of <see cref="BsonConfigurationBase"/>.  Optionally overrideable, DEFAULT is empty collection.
         /// </summary>
         protected virtual IReadOnlyCollection<Type> DependentMapperTypes => new Type[0];
@@ -79,11 +69,11 @@ namespace Naos.Serialization.Bson
         protected abstract void CustomConfiguration();
 
         /// <summary>
-        /// Method to use relection and call <see cref="BsonClassMap.RegisterClassMap{TClass}()"/> using the <see cref="Type"/> as a parameter.
+        /// Method to perform automatic type member mapping using specific internal conventions.
         /// </summary>
         /// <param name="type">Type to register.</param>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForType(Type type)
+        protected void RegisterClassMapForTypeUsingMongoGeneric(Type type)
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
@@ -94,12 +84,48 @@ namespace Naos.Serialization.Bson
             }
             catch (Exception ex)
             {
+                throw new BsonConfigurationException(Invariant($"Failed to run {nameof(BsonClassMap.RegisterClassMap)} on {type.FullName}"), ex);
+            }
+        }
+
+        /// <summary>
+        /// Method to perform automatic type member mapping using specific internal conventions.
+        /// </summary>
+        /// <param name="type">Type to register.</param>
+        /// <param name="constrainToProperties">Optional list of properties to constrain type members to (null or 0 will mean all).</param>
+        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Like this structure.")]
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
+        protected void RegisterClassMapForType(Type type, IReadOnlyCollection<string> constrainToProperties = null)
+        {
+            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+
+            try
+            {
+                var bsonClassMap = this.AutomaticallyBuildBsonClassMap(type, constrainToProperties);
+
+                BsonClassMap.RegisterClassMap(bsonClassMap);
+            }
+            catch (Exception ex)
+            {
                 throw new BsonConfigurationException(Invariant($"Failed to run {RegisterClassMapMethodName} on {type.FullName}"), ex);
             }
         }
 
         /// <summary>
-        /// Method to use relection and call <see cref="BsonClassMap.RegisterClassMap{TClass}()"/> using the <see cref="Type"/> as a parameter.
+        /// Method to perform automatic type member mapping using specific internal conventions.
+        /// </summary>
+        /// <typeparam name="T">Type to register.</typeparam>
+        /// <param name="constrainToProperties">Optional list of properties to constrain type members to (null or 0 will mean all).</param>
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Want to use this as a generic.")]
+        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Like this structure.")]
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
+        protected void RegisterClassMapForType<T>(IReadOnlyCollection<string> constrainToProperties = null)
+        {
+            this.RegisterClassMapForType(typeof(T), constrainToProperties);
+        }
+
+        /// <summary>
+        /// Method to perform automatic type member mapping using specific internal conventions.
         /// </summary>
         /// <param name="types">Types to register.</param>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
@@ -130,58 +156,24 @@ namespace Naos.Serialization.Bson
         /// <summary>
         /// Method to register the specified type and all derivative types in the same assembly.
         /// </summary>
-        /// <param name="types">Types to register.</param>
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForTypeAndSubclassTypesWithAutomaticMapping(IReadOnlyCollection<Type> types)
-        {
-            new { types }.Must().NotBeNull().OrThrowFirstFailure();
-
-            var allTypes = types.SelectMany(_ => this.GetSubclassTypes(_)).Distinct().ToList();
-
-            this.RegisterClassMapForTypeWithAutomaticMapping(allTypes);
-        }
-
-        /// <summary>
-        /// Register class maps by automatically inferring usage from types; can optionally be filtered to a set of properties.
-        /// </summary>
-        /// <typeparam name="T">Type to register.</typeparam>
-        /// <param name="constrainToProperties">Optional list of properties to constrain type members to (null or 0 will mean all).</param>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Want this to be used with generic type declaration.")]
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForTypeWithAutomaticMapping<T>(IReadOnlyCollection<string> constrainToProperties = null)
-        {
-            this.RegisterClassMapForTypeWithAutomaticMapping(typeof(T), constrainToProperties);
-        }
-
-        /// <summary>
-        /// Method to use relection and call <see cref="BsonClassMap.RegisterClassMap{TClass}()"/> using the <see cref="Type"/> as a parameter.
-        /// </summary>
-        /// <param name="types">Types to register.</param>
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForTypeWithAutomaticMapping(IReadOnlyCollection<Type> types)
-        {
-            new { types }.Must().NotBeNull().OrThrowFirstFailure();
-
-            foreach (var type in types)
-            {
-                this.RegisterClassMapForTypeWithAutomaticMapping(type);
-            }
-        }
-
-        /// <summary>
-        /// Register class maps by automatically inferring usage from types; can optionally be filtered to a set of properties.
-        /// </summary>
         /// <param name="type">Type to register.</param>
-        /// <param name="constrainToProperties">Optional list of properties to constrain type members to (null or 0 will mean all).</param>
-        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Like this structure.")]
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForTypeWithAutomaticMapping(Type type, IReadOnlyCollection<string> constrainToProperties = null)
+        protected void RegisterClassMapForTypeAndSubclassTypes(Type type)
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
-            var bsonClassMap = this.AutomaticallyBuildBsonClassMap(type, constrainToProperties);
+            this.RegisterClassMapForTypeAndSubclassTypes(new[] { type });
+        }
 
-            BsonClassMap.RegisterClassMap(bsonClassMap);
+        /// <summary>
+        /// Method to register the specified type and all derivative types in the same assembly.
+        /// </summary>
+        /// <typeparam name="T">Type to register.</typeparam>
+        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Want to use this as a generic.")]
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
+        protected void RegisterClassMapForTypeAndSubclassTypes<T>()
+        {
+            this.RegisterClassMapForTypeAndSubclassTypes(typeof(T));
         }
 
         /// <summary>

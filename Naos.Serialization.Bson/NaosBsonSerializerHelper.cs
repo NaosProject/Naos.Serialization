@@ -44,7 +44,7 @@ namespace Naos.Serialization.Bson
         }
 
         /// <summary>
-        /// Serializes an object into a byte array.
+        /// Serializes an object into a <see cref="BsonDocument"/>.
         /// </summary>
         /// <param name="objectToSerialize">Object to serialize.</param>
         /// <returns>Serialized object into a byte array.</returns>
@@ -63,6 +63,40 @@ namespace Naos.Serialization.Bson
             }
 
             return document;
+        }
+
+        /// <summary>
+        /// Deserializes a <see cref="BsonDocument"/> to an object.
+        /// </summary>
+        /// <param name="bsonDocumentToDeserialize"><see cref="BsonDocument"/> to deserialize.</param>
+        /// <param name="type">Type to deserialize into.</param>
+        /// <returns>Serialized object into a byte array.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:Identifiers should not contain type names", Justification = "I like this name...")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It should not actually be an issue.")]
+        public static object DeserializeFromDocument(BsonDocument bsonDocumentToDeserialize, Type type)
+        {
+            new { bsonDocumentToDeserialize }.Must().NotBeNull().OrThrowFirstFailure();
+
+            var ret = BsonSerializer.Deserialize(bsonDocumentToDeserialize, type);
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Deserializes a <see cref="BsonDocument"/> to an object.
+        /// </summary>
+        /// <param name="bsonDocumentToDeserialize"><see cref="BsonDocument"/> to deserialize.</param>
+        /// <typeparam name="T">Type to deserialize into.</typeparam>
+        /// <returns>Serialized object into a byte array.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:Identifiers should not contain type names", Justification = "I like this name...")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It should not actually be an issue.")]
+        public static T DeserializeFromDocument<T>(BsonDocument bsonDocumentToDeserialize)
+        {
+            new { bsonDocumentToDeserialize }.Must().NotBeNull().OrThrowFirstFailure();
+
+            var ret = BsonSerializer.Deserialize<T>(bsonDocumentToDeserialize);
+
+            return ret;
         }
 
         /// <summary>
@@ -100,6 +134,17 @@ namespace Naos.Serialization.Bson
                     return ret;
                 }
             }
+        }
+
+        /// <summary>
+        /// Converts a string of JSON into a <see cref="BsonDocument"/>.
+        /// </summary>
+        /// <param name="json">JSON to convert.</param>
+        /// <returns>Converted JSON into <see cref="BsonDocument"/>.</returns>
+        public static BsonDocument ToBsonDocument(this string json)
+        {
+            var document = BsonDocument.Parse(json);
+            return document;
         }
     }
 }
