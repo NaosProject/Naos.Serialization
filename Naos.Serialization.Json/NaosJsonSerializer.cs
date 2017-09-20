@@ -50,7 +50,7 @@ namespace Naos.Serialization.Json
         /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
         public byte[] SerializeToBytes(object objectToSerialize)
         {
-            var jsonString = ((IStringSerializeAndDeserialize)this).SerializeToString(objectToSerialize);
+            var jsonString = this.SerializeToString(objectToSerialize);
             var jsonBytes = ConvertJsonToByteArray(jsonString);
             return jsonBytes;
         }
