@@ -18,7 +18,18 @@ namespace Naos.Serialization.Test
         /// <inheritdoc cref="BsonConfigurationBase" />
         protected override void CustomConfiguration()
         {
-            this.RegisterClassMapForType<T>();
+            this.RegisterClassMapForTypeAndSubclassTypes<T>();
+        }
+    }
+
+    public class BsonConfigurationAutoRegisterInherited : BsonConfigurationBase
+    {
+        /// <inheritdoc cref="BsonConfigurationBase" />
+        protected override void CustomConfiguration()
+        {
+            this.RegisterClassMapForTypeAndSubclassTypes<TestWithInheritorExtraPropertyWrapper>();
+            this.RegisterClassMapForTypeAndSubclassTypes<TestWithInheritor>();
+            this.RegisterClassMapForTypeAndSubclassTypes<TestWithInheritorExtraProperty>();
         }
     }
 

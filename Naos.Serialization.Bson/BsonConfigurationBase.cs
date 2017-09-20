@@ -7,6 +7,7 @@
 namespace Naos.Serialization.Bson
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
@@ -252,6 +253,10 @@ namespace Naos.Serialization.Bson
             else if (memberType == typeof(DateTime))
             {
                 memberMap.SetDateTimeStringSerializer();
+            }
+            else if (memberType == typeof(DateTime?))
+            {
+                memberMap.SetNullableDateTimeStringSerializer();
             }
             else if (memberType.IsArray && memberType.GetElementType().IsEnum)
             {

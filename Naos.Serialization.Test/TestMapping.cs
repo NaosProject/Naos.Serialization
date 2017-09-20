@@ -46,6 +46,40 @@ namespace Naos.Serialization.Test
         public string Id { get; set; }
     }
 
+    public class TestWithInheritor
+    {
+        public string Id { get; set; }
+
+        public string Name { get; set; }
+    }
+
+    public class TestWithInheritorExtraProperty : TestWithInheritor
+    {
+        public string AnotherName { get; set; }
+    }
+
+    public class TestWithInheritorExtraPropertyWrapper
+    {
+        public TestWithInheritor InheritorPropertyBase { get; set; }
+
+        public TestWithInheritor InheritorPropertyExtended { get; set; }
+    }
+
+    public class TestWrappedFields
+    {
+        public DateTime? NullableDateTimeNull { get; set; }
+
+        public DateTime? NullableDateTimeWithValue { get; set; }
+
+        public IEnumerable<DateTime> EnumerableOfDateTime { get; set; }
+
+        public AnotherEnumeration? NullableEnumNull { get; set; }
+
+        public AnotherEnumeration? NullableEnumWithValue { get; set; }
+
+        public IEnumerable<AnotherEnumeration> EnumerableOfEnum { get; set; }
+    }
+
     public class TestMappingThatFails
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]

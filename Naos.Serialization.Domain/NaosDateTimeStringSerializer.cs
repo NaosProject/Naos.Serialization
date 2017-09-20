@@ -10,7 +10,6 @@ namespace Naos.Serialization.Domain
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Globalization;
-    using System.Linq;
     using System.Text.RegularExpressions;
 
     using Spritely.Recipes;
@@ -77,10 +76,15 @@ namespace Naos.Serialization.Domain
         /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
         public string SerializeToString(object objectToSerialize)
         {
-            var typeToTest = (objectToSerialize ?? default(DateTime)).GetType();
-            typeToTest.Named(Invariant($"inputIsDateTimeTypeNot-{typeToTest}")).Must().BeEqualTo(typeof(DateTime)).OrThrowFirstFailure();
+            var type = (objectToSerialize ?? default(DateTime)).GetType();
+            (type == typeof(DateTime) || type == typeof(DateTime?)).Named("typeMustBeDateTimeOrNullableDateTime").Must().BeTrue().OrThrowFirstFailure();
 
-            // ReSharper disable once PossibleNullReferenceException - value type can't be null
+            if (objectToSerialize == null)
+            {
+                /* support for DateTime? */
+                return null;
+            }
+
             var dateTime = (DateTime)objectToSerialize;
             string formatString;
             DateTimeKindToFormatStringMap.TryGetValue(dateTime.Kind, out formatString)
@@ -100,8 +104,16 @@ namespace Naos.Serialization.Domain
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
+            (type == typeof(DateTime) || type == typeof(DateTime?)).Named("typeMustBeDateTimeOrNullableDateTime").Must().BeTrue().OrThrowFirstFailure();
+
             try
             {
+                if (serializedString == null)
+                {
+                    /* support for DateTime? */
+                    return null;
+                }
+
                 var kind = DiscoverKindInSerializedString(serializedString);
 
                 string formatString;

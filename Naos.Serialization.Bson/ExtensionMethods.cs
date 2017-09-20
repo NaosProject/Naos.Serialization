@@ -84,6 +84,23 @@ namespace Naos.Serialization.Bson
         }
 
         /// <summary>
+        /// Sets a serializer to serialize and deserialize a <see cref="Nullable{DateTime}"/> in and out using default string behavior.
+        /// </summary>
+        /// <param name="map">Member the extension is on.</param>
+        /// <returns>Updated <see cref="BsonMemberMap"/>.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
+        public static BsonMemberMap SetNullableDateTimeStringSerializer(this BsonMemberMap map)
+        {
+            new { map }.Must().NotBeNull().OrThrowFirstFailure();
+
+            new { map.MemberType }.Must().BeEqualTo(typeof(DateTime?)).OrThrowFirstFailure();
+
+            var serializer = new NaosBsonNullableDateTimeSerializer();
+
+            return map.SetSerializer(serializer);
+        }
+
+        /// <summary>
         /// Sets a serializer to serialize and deserialize a dictionary.
         /// </summary>
         /// <param name="map">Member the extension is on.</param>
