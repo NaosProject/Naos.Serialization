@@ -13,11 +13,8 @@ namespace Naos.Serialization.Test
     using FluentAssertions;
 
     using MongoDB.Bson;
-    using MongoDB.Bson.IO;
 
     using Naos.Serialization.Bson;
-
-    using Newtonsoft.Json.Linq;
 
     using Xunit;
 

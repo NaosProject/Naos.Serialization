@@ -7,7 +7,6 @@
 namespace Naos.Serialization.Test
 {
     using System;
-    using System.Linq;
     using System.Reflection;
     using System.Runtime.ExceptionServices;
 

@@ -7,11 +7,8 @@
 namespace Naos.Serialization.Test
 {
     using System;
-    using System.Linq;
 
     using FluentAssertions;
-
-    using MongoDB.Bson;
 
     using Naos.Serialization.Bson;
     using Naos.Serialization.Domain;

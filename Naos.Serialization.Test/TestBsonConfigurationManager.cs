@@ -7,7 +7,6 @@
 namespace Naos.Serialization.Test
 {
     using System;
-    using System.Threading;
 
     using FluentAssertions;
 
