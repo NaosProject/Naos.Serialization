@@ -152,7 +152,7 @@ namespace Naos.Serialization.Bson
         {
             new { types }.Must().NotBeNull().OrThrowFirstFailure();
 
-            var allTypes = types.SelectMany(_ => this.GetSubclassTypes(_)).Distinct().ToList();
+            var allTypes = types.SelectMany(_ => this.GetSubclassTypes(_, includeSpecifiedTypeInReturnList: true)).Distinct().ToList();
 
             this.RegisterClassMapForType(allTypes);
         }
@@ -266,7 +266,7 @@ namespace Naos.Serialization.Bson
         /// <param name="includeSpecifiedTypeInReturnList">Optional value indicating whether or not to include the provided type in the return list; DEFAULT is true.</param>
         /// <returns>List of the subclass types of the provided type and the provided type if <paramref name="includeSpecifiedTypeInReturnList"/> is true.</returns>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected IReadOnlyCollection<Type> GetSubclassTypes(Type classType, bool includeSpecifiedTypeInReturnList = true)
+        protected IReadOnlyCollection<Type> GetSubclassTypes(Type classType, bool includeSpecifiedTypeInReturnList = false)
         {
             new { classType }.Must().NotBeNull().OrThrowFirstFailure();
             new { classType.IsClass }.Must().BeTrue().OrThrowFirstFailure();
