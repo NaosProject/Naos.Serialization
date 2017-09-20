@@ -39,7 +39,7 @@ namespace Naos.Serialization.Bson
         /// </summary>
         public void Configure()
         {
-            if (!configured)
+            if (!this.configured)
             {
                 lock (this.syncConfigure)
                 {
