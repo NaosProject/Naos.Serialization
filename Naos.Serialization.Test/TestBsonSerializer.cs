@@ -19,6 +19,28 @@ namespace Naos.Serialization.Test
     public static class TestBsonSerializer
     {
         [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestWithId_and_BsonConfigurationTestAutoAllGeneric___Works()
+        {
+            // Arrange
+            var serializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestWithId>>();
+
+            var expected = new TestWithId { Id = Guid.NewGuid().ToString(), };
+
+            // Act
+            var actualBytes = serializer.SerializeToBytes(expected);
+            var actualString = serializer.SerializeToString(expected);
+            var actualObjectFromBytes = serializer.Deserialize<TestWithId>(actualBytes);
+            var actualObjectFromString = serializer.Deserialize<TestWithId>(actualString);
+
+            // Assert
+            actualObjectFromBytes.Should().NotBeNull();
+            actualObjectFromBytes.Id.Should().Be(expected.Id);
+
+            actualObjectFromString.Should().NotBeNull();
+            actualObjectFromString.Id.Should().Be(expected.Id);
+        }
+
+        [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestMapping_and_BsonConfigurationTestAutoAllGeneric___Works()
         {
             // Arrange

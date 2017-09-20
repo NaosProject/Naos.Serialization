@@ -22,6 +22,27 @@ namespace Naos.Serialization.Test
     public static class TestBsonConfigurationBase
     {
         [Fact]
+        public static void RegisterClassMapsTypeFullyAutomatic___Type_with_id_member___Works()
+        {
+            // Arrange
+            var type = typeof(TestWithId);
+            var configuration = new BsonConfigurationTestAutoConstrainedType(type);
+            var expectedMemberNames = BsonConfigurationBase.GetMembersToAutomap(type).Select(_ => _.Name).OrderBy(_ => _).ToList();
+
+            // Act
+            var classMap = RunTestCode(configuration);
+
+            // Assert
+            classMap.Should().NotBeNull();
+
+            classMap.IdMemberMap.MemberType.Should().Be(typeof(string));
+            classMap.IdMemberMap.MemberName.Should().Be(nameof(TestWithId.Id));
+
+            var actualMemberNames = classMap.DeclaredMemberMaps.Select(_ => _.MemberName).OrderBy(_ => _).ToList();
+            actualMemberNames.Should().Equal(expectedMemberNames);
+        }
+
+        [Fact]
         public static void RegisterClassMapsTypeFullyAutomatic___Type_with_no_constraints___Works()
         {
             // Arrange
@@ -34,6 +55,9 @@ namespace Naos.Serialization.Test
 
             // Assert
             classMap.Should().NotBeNull();
+
+            classMap.IdMemberMap.Should().BeNull();
+
             var actualMemberNames = classMap.DeclaredMemberMaps.Select(_ => _.MemberName).OrderBy(_ => _).ToList();
             actualMemberNames.Should().Equal(expectedMemberNames);
         }
@@ -51,6 +75,9 @@ namespace Naos.Serialization.Test
 
             // Assert
             classMap.Should().NotBeNull();
+
+            classMap.IdMemberMap.Should().BeNull();
+
             var actualMemberNames = classMap.DeclaredMemberMaps.Select(_ => _.MemberName).OrderBy(_ => _).ToList();
             actualMemberNames.Should().Equal(expectedMemberNames);
         }

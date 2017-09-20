@@ -30,6 +30,11 @@ namespace Naos.Serialization.Bson
         [SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Name is correct.")]
         public const BindingFlags BsonMemberAutomapSelectionBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
+        /// <summary>
+        /// Default member name to use as the ID.
+        /// </summary>
+        public const string DefaultIdMemberName = "Id";
+
         private const string RegisterClassMapMethodName = nameof(BsonClassMap.RegisterClassMap);
 
         private static readonly MethodInfo RegisterClassMapGenericMethod = typeof(BsonClassMap).GetMethods().Single(_ => (_.Name == RegisterClassMapMethodName) && (!_.GetParameters().Any()) && _.IsGenericMethod);
@@ -213,27 +218,8 @@ namespace Naos.Serialization.Bson
 
                 try
                 {
-                    if (memberType.IsEnum)
-                    {
-                        bsonClassMap.MapMember(member).SetEnumStringSerializer();
-                    }
-                    else if (memberType == typeof(DateTime))
-                    {
-                        bsonClassMap.MapMember(member).SetDateTimeStringSerializer();
-                    }
-                    else if (memberType.IsArray && memberType.GetElementType().IsEnum)
-                    {
-                        bsonClassMap.MapMember(member).SetEnumArraySerializer();
-                    }
-                    else if (memberType.IsGenericType && memberType.GetInterfaces().Where(_ => _.IsGenericType).Select(_ => _.GetGenericTypeDefinition())
-                                 .Contains(typeof(IDictionary<,>)))
-                    {
-                        bsonClassMap.MapMember(member).SetDictionarySerializer();
-                    }
-                    else
-                    {
-                        bsonClassMap.MapMember(member);
-                    }
+                    var memberMap = MapMember(bsonClassMap, member);
+                    SetSerializer(memberMap, memberType);
                 }
                 catch (Exception ex)
                 {
@@ -242,6 +228,43 @@ namespace Naos.Serialization.Bson
             }
 
             return bsonClassMap;
+        }
+
+        private static BsonMemberMap MapMember(BsonClassMap bsonClassMap, MemberInfo member)
+        {
+            if (DefaultIdMemberName.Equals(member.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                // TODO: add logic to make sure ID is of acceptable type here...
+                return bsonClassMap.MapIdMember(member);
+            }
+            else
+            {
+                return bsonClassMap.MapMember(member);
+            }
+        }
+
+        private static void SetSerializer(BsonMemberMap memberMap, Type memberType)
+        {
+            if (memberType.IsEnum)
+            {
+                memberMap.SetEnumStringSerializer();
+            }
+            else if (memberType == typeof(DateTime))
+            {
+                memberMap.SetDateTimeStringSerializer();
+            }
+            else if (memberType.IsArray && memberType.GetElementType().IsEnum)
+            {
+                memberMap.SetEnumArraySerializer();
+            }
+            else if (memberType.IsGenericType && memberType.GetInterfaces().Where(_ => _.IsGenericType).Select(_ => _.GetGenericTypeDefinition()).Contains(typeof(IDictionary<,>)))
+            {
+                memberMap.SetDictionarySerializer();
+            }
+            else
+            {
+                /* no-op */
+            }
         }
 
         /// <summary>

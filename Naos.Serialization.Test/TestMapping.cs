@@ -41,6 +41,11 @@ namespace Naos.Serialization.Test
         public DateTime DateTimePropertyUnspecified { get; set; }
     }
 
+    public class TestWithId
+    {
+        public string Id { get; set; }
+    }
+
     public class TestMappingThatFails
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
