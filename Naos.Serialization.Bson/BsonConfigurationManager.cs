@@ -21,8 +21,7 @@ namespace Naos.Serialization.Bson
     /// </summary>
     public static class BsonConfigurationManager
     {
-        private static readonly object SyncReadInstances = new object();
-        private static readonly object SyncWriteInstances = new object();
+        private static readonly object SyncInstances = new object();
 
         private static readonly Dictionary<Type, BsonConfigurationBase> Instances = new Dictionary<Type, BsonConfigurationBase>();
 
@@ -67,32 +66,14 @@ namespace Naos.Serialization.Bson
 
         private static BsonConfigurationBase Instance(Type type, Func<BsonConfigurationBase> creatorFunc)
         {
-            lock (SyncReadInstances)
+            lock (SyncInstances)
             {
-                BsonConfigurationBase ret;
-                var exists = Instances.TryGetValue(type, out ret);
-                if (exists)
+                if (!Instances.ContainsKey(type))
                 {
-                    return ret;
+                    Instances.Add(type, creatorFunc());
                 }
-                else
-                {
-                    lock (SyncWriteInstances)
-                    {
-                        var existsNow = Instances.TryGetValue(type, out ret);
-                        if (existsNow)
-                        {
-                            return ret;
-                        }
-                        else
-                        {
-                            ret = creatorFunc();
-                            Instances.Add(type, ret);
 
-                            return ret;
-                        }
-                    }
-                }
+                return Instances[type];
             }
         }
     }
