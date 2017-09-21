@@ -83,7 +83,6 @@
     <Compile Include="TestBsonConfigurationBase.cs" />
     <Compile Include="TestBsonConfigurationManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestExtensionMethods.cs" />
     <Compile Include="TestMapping.cs" />
   </ItemGroup>
   <ItemGroup>

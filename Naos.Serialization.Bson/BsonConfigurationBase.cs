@@ -12,9 +12,11 @@ namespace Naos.Serialization.Bson
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-
+    using MongoDB.Bson;
     using MongoDB.Bson.Serialization;
-
+    using MongoDB.Bson.Serialization.Options;
+    using MongoDB.Bson.Serialization.Serializers;
+    using OBeautifulCode.Reflection;
     using Spritely.Recipes;
 
     using static System.FormattableString;
@@ -219,7 +221,8 @@ namespace Naos.Serialization.Bson
                 try
                 {
                     var memberMap = MapMember(bsonClassMap, member);
-                    SetSerializer(memberMap, memberType);
+                    var serializer = GetSerializer(memberType);
+                    memberMap.SetSerializer(serializer);
                 }
                 catch (Exception ex)
                 {
@@ -243,32 +246,46 @@ namespace Naos.Serialization.Bson
             }
         }
 
-        private static void SetSerializer(BsonMemberMap memberMap, Type memberType)
+        internal static IBsonSerializer GetSerializer(Type type)
         {
-            if (memberType.IsEnum)
+            IBsonSerializer result;
+            if (type == typeof(string))
             {
-                memberMap.SetEnumStringSerializer();
+                result = new StringSerializer();
             }
-            else if (memberType == typeof(DateTime))
+            else if (type.IsEnum)
             {
-                memberMap.SetDateTimeStringSerializer();
+                result = typeof(EnumSerializer<>).MakeGenericType(type).Construct<IBsonSerializer>(BsonType.String);
             }
-            else if (memberType == typeof(DateTime?))
+            else if (type == typeof(DateTime))
             {
-                memberMap.SetNullableDateTimeStringSerializer();
+                result = new NaosBsonDateTimeSerializer();
             }
-            else if (memberType.IsArray && memberType.GetElementType().IsEnum)
+            else if (type == typeof(DateTime?))
             {
-                memberMap.SetEnumArraySerializer();
+                result = new NaosBsonNullableDateTimeSerializer();
             }
-            else if (memberType.IsGenericType && NullNaosDictionarySerializer.IsSupportedUnboundedGenericDictionaryType(memberType.GetGenericTypeDefinition()))
+            else if (type.IsGenericType && NullNaosDictionarySerializer.IsSupportedUnboundedGenericDictionaryType(type.GetGenericTypeDefinition()))
             {
-                memberMap.SetDictionarySerializer();
+                var arguments = type.GetGenericArguments();
+                var keyType = arguments[0];
+                var valueType = arguments[1];
+                var keySerializer = GetSerializer(keyType);
+                var valueSerializer = GetSerializer(valueType);
+                result = typeof(NaosDictionarySerializer<,,>).MakeGenericType(type, keyType, valueType).Construct<IBsonSerializer>(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
+            }
+            else if (type.IsArray)
+            {
+                var elementType = type.GetElementType();
+                var elementSerializer = GetSerializer(type);
+                result = typeof(ArraySerializer<>).MakeGenericType(elementType).Construct<IBsonSerializer>(elementSerializer);
             }
             else
             {
-                /* no-op */
+                result = new ObjectSerializer();
             }
+
+            return result;
         }
 
         /// <summary>
