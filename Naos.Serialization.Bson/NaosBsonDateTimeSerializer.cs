@@ -80,6 +80,7 @@ namespace Naos.Serialization.Bson
 
             if (context.Reader.State != BsonReaderState.Type && context.Reader.CurrentBsonType == BsonType.Null)
             {
+                context.Reader.ReadNull();
                 return null;
             }
 
