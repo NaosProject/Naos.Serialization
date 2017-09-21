@@ -69,6 +69,7 @@
     <Compile Include="NaosBsonSerializerHelper.cs" />
     <Compile Include="NaosBsonDateTimeSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="NaosDictionarySerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Naos.Serialization.Domain\Naos.Serialization.Domain.csproj">

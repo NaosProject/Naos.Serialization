@@ -8,6 +8,7 @@ namespace Naos.Serialization.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
 
     public class TestMapping
     {
@@ -96,6 +97,16 @@ namespace Naos.Serialization.Test
         /// No value specified.
         /// </summary>
         None,
+
+        /// <summary>
+        /// First value.
+        /// </summary>
+        TestFirst,
+
+        /// <summary>
+        /// Second value.
+        /// </summary>
+        TestSecond,
     }
 
     public enum AnotherEnumeration
@@ -104,5 +115,15 @@ namespace Naos.Serialization.Test
         /// No value specified.
         /// </summary>
         None,
+
+        /// <summary>
+        /// First value.
+        /// </summary>
+        AnotherFirst,
+
+        /// <summary>
+        /// Second value.
+        /// </summary>
+        AnotherSecond,
     }
 }

@@ -10,6 +10,8 @@ namespace Naos.Serialization.Test
     using System.Collections.Generic;
     using System.Linq;
 
+    using FakeItEasy;
+
     using FluentAssertions;
 
     using Naos.Serialization.Bson;
@@ -20,7 +22,7 @@ namespace Naos.Serialization.Test
 
     using static System.FormattableString;
 
-    public static class TestBsonSerializer
+    public static class TestSerialization
     {
         private static readonly NaosJsonSerializer JsonSerializerToUse = new NaosJsonSerializer();
 
@@ -132,17 +134,17 @@ namespace Naos.Serialization.Test
             var expected = new TestMapping
                                {
                                    StringProperty = Guid.NewGuid().ToString(),
-                                   IntProperty = 5,
+                                   IntProperty = A.Dummy<int>(),
                                    DateTimePropertyUtc = DateTime.UtcNow,
                                    DateTimePropertyLocal = DateTime.UtcNow.ToLocalTime(),
                                    DateTimePropertyUnspecified = DateTime.UtcNow.ToUnspecified(),
                                    GuidProperty = Guid.NewGuid(),
-                                   NonEnumArray = new[] { "monkey" },
-                                   EnumArray = new[] { TestEnumeration.None, },
-                                   StringIntMap = new Dictionary<string, int> { { "key", 0 } },
-                                   EnumIntMap = new Dictionary<AnotherEnumeration, int> { { AnotherEnumeration.None, 0 } },
+                                   NonEnumArray = new[] { A.Dummy<string>() },
+                                   EnumArray = new[] { A.Dummy<TestEnumeration>(), },
+                                   StringIntMap = new Dictionary<string, int> { { "key", A.Dummy<int>() } },
+                                   EnumIntMap = new Dictionary<AnotherEnumeration, int> { { A.Dummy<AnotherEnumeration>(), A.Dummy<int>() } },
                                    IntIntTuple = new Tuple<int, int>(3, 4),
-                                   EnumProperty = TestEnumeration.None,
+                                   EnumProperty = A.Dummy<TestEnumeration>(),
                                };
 
             void ThrowIfObjectsDiffer(object actualAsObject)

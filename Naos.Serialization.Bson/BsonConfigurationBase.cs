@@ -7,7 +7,6 @@
 namespace Naos.Serialization.Bson
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
@@ -262,7 +261,7 @@ namespace Naos.Serialization.Bson
             {
                 memberMap.SetEnumArraySerializer();
             }
-            else if (memberType.IsGenericType && memberType.GetInterfaces().Where(_ => _.IsGenericType).Select(_ => _.GetGenericTypeDefinition()).Contains(typeof(IDictionary<,>)))
+            else if (memberType.IsGenericType && NullNaosDictionarySerializer.IsSupportedUnboundedGenericDictionaryType(memberType.GetGenericTypeDefinition()))
             {
                 memberMap.SetDictionarySerializer();
             }

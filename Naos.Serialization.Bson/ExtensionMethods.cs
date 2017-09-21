@@ -119,15 +119,13 @@ namespace Naos.Serialization.Bson
             var keyType = arguments[0];
             var valueType = arguments[1];
 
-            var dictionaryInterfaceType = typeof(IDictionary<,>).MakeGenericType(keyType, valueType);
+            var isSupportedDictionaryType = NullNaosDictionarySerializer.IsSupportedUnboundedGenericDictionaryType(map.MemberType.GetGenericTypeDefinition());
+            new { isSupportedDictionaryType }.Must().BeTrue().OrThrow();
 
-            map.MemberType.GetInterfaces().Contains(dictionaryInterfaceType).Named("memberMustBeDictionaryImplementation").Must().BeTrue().OrThrowFirstFailure();
-
-            var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
             var keySerializer = keyType.IsEnum || keyType == typeof(string) ? MakeEnumStringIfEnumOtherwiseObjectSerializer(keyType) : throw new BsonConfigurationException(Invariant($"Can only use a string or enumeration as a key in a dictionary or Mongo complains; member type: {map.MemberType}, key type: {keyType}, value type: {valueType}"));
             var valueSerializer = MakeEnumStringIfEnumOtherwiseObjectSerializer(valueType);
-            var serializer = typeof(DictionaryInterfaceImplementerSerializer<>).MakeGenericType(dictionaryType).Construct(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
 
+            var serializer = typeof(NaosDictionarySerializer<,,>).MakeGenericType(map.MemberType, keyType, valueType).Construct(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
             return map.SetSerializer((IBsonSerializer)serializer);
         }
 

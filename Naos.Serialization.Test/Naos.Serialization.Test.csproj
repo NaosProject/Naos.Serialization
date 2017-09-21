@@ -79,8 +79,7 @@
     <Compile Include="BsonConfigurationAutoRegisterType.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="DateTimeStringSerializerTest.cs" />
-    <Compile Include="TestJsonSerializer.cs" />
-    <Compile Include="TestBsonSerializer.cs" />
+    <Compile Include="TestSerialization.cs" />
     <Compile Include="TestBsonConfigurationBase.cs" />
     <Compile Include="TestBsonConfigurationManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
