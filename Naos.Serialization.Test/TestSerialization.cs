@@ -141,9 +141,9 @@ namespace Naos.Serialization.Test
                 actual.Should().NotBeNull();
                 actual.StringProperty.Should().BeNull();
                 actual.IntProperty.Should().Be(default(int));
-                actual.DateTimePropertyUtc.Should().Be(new DateTime());
-                actual.DateTimePropertyLocal.Should().Be(new DateTime());
-                actual.DateTimePropertyUnspecified.Should().Be(new DateTime());
+                actual.DateTimePropertyUtc.Should().Be(default(DateTime));
+                actual.DateTimePropertyLocal.Should().Be(default(DateTime));
+                actual.DateTimePropertyUnspecified.Should().Be(default(DateTime));
                 actual.GuidProperty.Should().Be(Guid.Empty);
                 actual.NonEnumArray.Should().BeNull();
                 actual.EnumArray.Should().BeNull();

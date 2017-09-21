@@ -115,18 +115,24 @@ namespace Naos.Serialization.Test
 
     public class TestCollectionFields
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public ReadOnlyCollection<DateTime> ReadOnlyCollectionDateTime { get; set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public ICollection<string> ICollectionDateTime { get; set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public IList<AnotherEnumeration> IListEnum { get; set; }
 
         public IReadOnlyList<string> IReadOnlyListString { get; set; }
 
         public IReadOnlyCollection<DateTime> IReadOnlyCollectionGuid { get; set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1002:DoNotExposeGenericLists", Justification = "Just need a type to test.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public List<DateTime> ListDateTime { get; set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public Collection<Guid> CollectionGuid { get; set; }
     }
 

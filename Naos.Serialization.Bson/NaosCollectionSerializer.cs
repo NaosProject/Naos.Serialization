@@ -83,6 +83,8 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TCollection value)
         {
+            new { context }.Must().NotBeNull().OrThrow();
+
             if (value == null)
             {
                 context.Writer.WriteNull();
@@ -110,6 +112,8 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override TCollection Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
+            new { context }.Must().NotBeNull().OrThrow();
+
             if (context.Reader.State != BsonReaderState.Type && context.Reader.CurrentBsonType == BsonType.Null)
             {
                 context.Reader.ReadNull();

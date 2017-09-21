@@ -82,6 +82,8 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
+            new { context }.Must().NotBeNull().OrThrow();
+
             if (value == null)
             {
                 context.Writer.WriteNull();
@@ -102,6 +104,8 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override TDictionary Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
+            new { context }.Must().NotBeNull().OrThrow();
+
             if (context.Reader.State != BsonReaderState.Type && context.Reader.CurrentBsonType == BsonType.Null)
             {
                 context.Reader.ReadNull();
