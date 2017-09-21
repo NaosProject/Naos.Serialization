@@ -41,6 +41,10 @@ namespace Naos.Serialization.Test
         public DateTime DateTimePropertyLocal { get; set; }
 
         public DateTime DateTimePropertyUnspecified { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Just need a type to test.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public int[] IntArray { get; set; }
     }
 
     public class TestWithId
@@ -73,7 +77,8 @@ namespace Naos.Serialization.Test
 
         public DateTime? NullableDateTimeWithValue { get; set; }
 
-        public IEnumerable<DateTime> EnumerableOfDateTime { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ICollection<DateTime> CollectionOfDateTime { get; set; }
 
         public AnotherEnumeration? NullableEnumNull { get; set; }
 
@@ -97,6 +102,12 @@ namespace Naos.Serialization.Test
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public ConcurrentDictionary<string, string> ConcurrentDictionaryStringString { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ReadOnlyDictionary<string, int> ReadOnlyDictionaryStringInt { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ReadOnlyDictionary<int, string> ReadOnlyDictionaryIntString { get; set; }
     }
 
     public class TestMappingThatFails

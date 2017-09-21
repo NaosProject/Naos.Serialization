@@ -38,7 +38,7 @@ namespace Naos.Serialization.Test
             {
                 NullableDateTimeNull = null,
                 NullableDateTimeWithValue = DateTime.UtcNow,
-                EnumerableOfDateTime = new[] { DateTime.UtcNow, },
+                CollectionOfDateTime = new[] { DateTime.UtcNow, },
                 NullableEnumNull = null,
                 NullableEnumWithValue = AnotherEnumeration.None,
             };
@@ -49,7 +49,7 @@ namespace Naos.Serialization.Test
                 actual.Should().NotBeNull();
                 actual.NullableDateTimeNull.Should().Be(expected.NullableDateTimeNull);
                 actual.NullableDateTimeWithValue.Should().Be(expected.NullableDateTimeWithValue);
-                actual.EnumerableOfDateTime.Should().Equal(expected.EnumerableOfDateTime);
+                actual.CollectionOfDateTime.Should().Equal(expected.CollectionOfDateTime);
                 actual.NullableEnumNull.Should().Be(expected.NullableEnumNull);
                 actual.NullableEnumWithValue.Should().Be(expected.NullableEnumWithValue);
                 actual.EnumerableOfEnum.Should().Equal(expected.EnumerableOfEnum);
@@ -147,7 +147,8 @@ namespace Naos.Serialization.Test
                                    EnumIntMap = new Dictionary<AnotherEnumeration, int> { { A.Dummy<AnotherEnumeration>(), A.Dummy<int>() } },
                                    IntIntTuple = new Tuple<int, int>(3, 4),
                                    EnumProperty = A.Dummy<TestEnumeration>(),
-                               };
+                                   IntArray = A.Dummy<int[]>(),
+            };
 
             void ThrowIfObjectsDiffer(object actualAsObject)
             {
@@ -168,6 +169,7 @@ namespace Naos.Serialization.Test
                 actual.EnumIntMap.Single().Should().Be(expected.EnumIntMap.Single());
                 actual.IntIntTuple.Should().Be(expected.IntIntTuple);
                 actual.EnumProperty.Should().Be(expected.EnumProperty);
+                actual.IntArray.Should().Equal(expected.IntArray);
             }
 
             // Act & Assert
@@ -187,6 +189,8 @@ namespace Naos.Serialization.Test
                 ReadOnlyDictionaryStringString = A.Dummy<ReadOnlyDictionary<string, string>>(),
                 IReadOnlyDictionaryStringString = A.Dummy<ReadOnlyDictionary<string, string>>(),
                 ConcurrentDictionaryStringString = new ConcurrentDictionary<string, string>(A.Dummy<Dictionary<string, string>>()),
+                ReadOnlyDictionaryStringInt = A.Dummy<ReadOnlyDictionary<string, int>>(),
+                ReadOnlyDictionaryIntString = A.Dummy<ReadOnlyDictionary<int, string>>(),
             };
 
             void ThrowIfObjectsDiffer(object actualAsObject)
@@ -198,6 +202,8 @@ namespace Naos.Serialization.Test
                 actual.ReadOnlyDictionaryStringString.Should().Equal(expected.ReadOnlyDictionaryStringString);
                 actual.IReadOnlyDictionaryStringString.Should().Equal(expected.IReadOnlyDictionaryStringString);
                 actual.ConcurrentDictionaryStringString.Should().Equal(expected.ConcurrentDictionaryStringString);
+                actual.ReadOnlyDictionaryStringInt.Should().Equal(expected.ReadOnlyDictionaryStringInt);
+                actual.ReadOnlyDictionaryIntString.Should().Equal(expected.ReadOnlyDictionaryIntString);
             }
 
             // Act & Assert

@@ -24,11 +24,11 @@ namespace Naos.Serialization.Bson
     /// <summary>
     /// Custom dictionary serializer to do the right thing.
     /// Supports:
-    /// - <see cref="T:System.Collections.Generic.IDictionary`2" />
-    /// - <see cref="T:System.Collections.Generic.Dictionary`2" />
-    /// - <see cref="T:System.Collections.Generic.IReadOnlyDictionary`2" />
-    /// - <see cref="T:System.Collections.ObjectModel.ReadOnlyDictionary`2" />
-    /// - <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2" />
+    /// - <see cref="IDictionary{TKey, TValue}"/>
+    /// - <see cref="Dictionary{TKey, TValue}"/>
+    /// - <see cref="IReadOnlyDictionary{TKey, TValue}" />
+    /// - <see cref="ReadOnlyDictionary{TKey, TValue}" />
+    /// - <see cref="ConcurrentDictionary{TKey, TValue}" />
     /// </summary>
     /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
     /// <typeparam name="TKey">The type of the key of the dictionary.</typeparam>
@@ -40,11 +40,20 @@ namespace Naos.Serialization.Bson
         where TDictionary : class, IEnumerable<KeyValuePair<TKey, TValue>>
     {
         /// <summary>
+        /// Converts a dictionary returned by the underlying serializer into the type of dictionary of this serializer.
+        /// </summary>
+        /// <param name="dictionary">The dictionary returned by the underlying serializer.</param>
+        /// <returns>
+        /// The type of the dictionary to return.
+        /// </returns>
+        protected delegate TDictionary ConvertToUnderlyingSerializerType(Dictionary<TKey, TValue> dictionary);
+
+        /// <summary>
         /// Maps a supported dictionary type to a func that creates that type from a dictionary returned by the underlying serializer.
         /// </summary>
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "This is already an immutable type.")]
-        protected static readonly IReadOnlyDictionary<Type, Func<Dictionary<TKey, TValue>, TDictionary>>
-            DeserializationConverterFuncBySerializedType = new Dictionary<Type, Func<Dictionary<TKey, TValue>, TDictionary>>
+        protected static readonly IReadOnlyDictionary<Type, ConvertToUnderlyingSerializerType>
+            DeserializationConverterFuncBySerializedType = new Dictionary<Type, ConvertToUnderlyingSerializerType>
             {
                 { typeof(Dictionary<TKey, TValue>), dict => dict as TDictionary },
                 { typeof(IDictionary<TKey, TValue>), dict => dict as TDictionary },
@@ -71,7 +80,15 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
-            this.underlyingSerializer.Serialize(context, args, ((IDictionary<TKey, TValue>)value).ToDictionary(_ => _.Key, _ => _.Value));
+            var valueAsDictionary = value as Dictionary<TKey, TValue>;
+            if (valueAsDictionary != null)
+            {
+                this.underlyingSerializer.Serialize(context, args, valueAsDictionary);
+            }
+            else
+            {
+                this.underlyingSerializer.Serialize(context, args, ((IDictionary<TKey, TValue>)value).ToDictionary(_ => _.Key, _ => _.Value));
+            }
         }
 
         /// <inheritdoc />

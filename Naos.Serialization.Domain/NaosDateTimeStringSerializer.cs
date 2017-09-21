@@ -21,8 +21,6 @@ namespace Naos.Serialization.Domain
     /// </summary>
     public class NaosDateTimeStringSerializer : IStringSerializeAndDeserialize
     {
-        private delegate DateTime DateTimeParseMethod(string valueToParse, string formatString, IFormatProvider formatProvider, DateTimeStyles styles);
-
         /// <summary>
         /// Map of <see cref="DateTimeKind"/> to a format string used for serialization.
         /// </summary>
@@ -70,14 +68,17 @@ namespace Naos.Serialization.Domain
         /// Format provider used for serialization.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is immutable.")]
-        public static readonly IFormatProvider FormatProvider = CultureInfo.InvariantCulture;
+        private static readonly IFormatProvider FormatProvider = CultureInfo.InvariantCulture;
+
         private static readonly StringComparison StringComparisonType = StringComparison.InvariantCultureIgnoreCase;
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        private delegate DateTime DateTimeParseMethod(string valueToParse, string formatString, IFormatProvider formatProvider, DateTimeStyles styles);
+
+        /// <inheritdoc cref="IStringSerializeAndDeserialize" />
         public string SerializeToString(object objectToSerialize)
         {
             var type = (objectToSerialize ?? default(DateTime)).GetType();
-            (type == typeof(DateTime) || type == typeof(DateTime?)).Named("typeMustBeDateTimeOrNullableDateTime").Must().BeTrue().OrThrowFirstFailure();
+            (type == typeof(DateTime) || type == typeof(DateTime?)).Named(Invariant($"typeMustBeDateTimeOrNullableDateTime-{type}")).Must().BeTrue().OrThrowFirstFailure();
 
             if (objectToSerialize == null)
             {
@@ -139,7 +140,10 @@ namespace Naos.Serialization.Domain
             }
         }
 
+#pragma warning disable SA1201 // Elements should appear in the correct order
         private const string MatchLocalRegexPattern = @"[-+]\d\d:\d\d$";
+#pragma warning restore SA1201 // Elements should appear in the correct order
+
         private static readonly Regex MatchLocalRegex = new Regex(MatchLocalRegexPattern, RegexOptions.Compiled);
 
         private static DateTimeKind DiscoverKindInSerializedString(string serializedString)

@@ -221,8 +221,12 @@ namespace Naos.Serialization.Bson
                 try
                 {
                     var memberMap = MapMember(bsonClassMap, member);
-                    var serializer = GetSerializer(memberType);
-                    memberMap.SetSerializer(serializer);
+
+                    var serializer = GetSerializer(memberType, defaultToObjectSerializer: false);
+                    if (serializer != null)
+                    {
+                        memberMap.SetSerializer(serializer);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -246,12 +250,24 @@ namespace Naos.Serialization.Bson
             }
         }
 
-        internal static IBsonSerializer GetSerializer(Type type)
+        /// <summary>
+        /// Gets the serializer to use for a given type.
+        /// </summary>
+        /// <param name="type">The type to serialize.</param>
+        /// <param name="defaultToObjectSerializer">Optional.  If true (DEFAULT), then returns <see cref="ObjectSerializer"/> when the serializer cannot be determined.  Otherwise, returns null.</param>
+        /// <returns>
+        /// The serializer to use for the specified type.
+        /// </returns>
+        internal static IBsonSerializer GetSerializer(Type type, bool defaultToObjectSerializer = true)
         {
             IBsonSerializer result;
             if (type == typeof(string))
             {
                 result = new StringSerializer();
+            }
+            else if (type == typeof(Guid))
+            {
+                result = new GuidSerializer();
             }
             else if (type.IsEnum)
             {
@@ -265,6 +281,15 @@ namespace Naos.Serialization.Bson
             {
                 result = new NaosBsonNullableDateTimeSerializer();
             }
+            else if (type.IsArray)
+            {
+                var elementType = type.GetElementType();
+                var elementSerializer = GetSerializer(elementType, defaultToObjectSerializer: false);
+                result = elementSerializer == null
+                    ? typeof(ArraySerializer<>).MakeGenericType(elementType).Construct<IBsonSerializer>()
+                    : typeof(ArraySerializer<>).MakeGenericType(elementType)
+                        .Construct<IBsonSerializer>(elementSerializer);
+            }
             else if (type.IsGenericType && NullNaosDictionarySerializer.IsSupportedUnboundedGenericDictionaryType(type.GetGenericTypeDefinition()))
             {
                 var arguments = type.GetGenericArguments();
@@ -274,15 +299,23 @@ namespace Naos.Serialization.Bson
                 var valueSerializer = GetSerializer(valueType);
                 result = typeof(NaosDictionarySerializer<,,>).MakeGenericType(type, keyType, valueType).Construct<IBsonSerializer>(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
             }
-            else if (type.IsArray)
+            else if (type.IsGenericType && NullNaosCollectionSerializer.IsSupportedUnboundedGenericCollectionType(type.GetGenericTypeDefinition()))
             {
-                var elementType = type.GetElementType();
-                var elementSerializer = GetSerializer(type);
-                result = typeof(ArraySerializer<>).MakeGenericType(elementType).Construct<IBsonSerializer>(elementSerializer);
+                var arguments = type.GetGenericArguments();
+                var elementType = arguments[0];
+                var elementSerializer = GetSerializer(elementType, defaultToObjectSerializer: false);
+                result = typeof(NaosCollectionSerializer<,>).MakeGenericType(type, elementType).Construct<IBsonSerializer>(elementSerializer);
             }
             else
             {
-                result = new ObjectSerializer();
+                if (defaultToObjectSerializer)
+                {
+                    result = new ObjectSerializer();
+                }
+                else
+                {
+                    result = null;
+                }
             }
 
             return result;

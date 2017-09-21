@@ -110,7 +110,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must be equal to System.DateTime.\r\nParameter name: inputIsDateTimeTypeNot-System.String");
+            exception.Message.Should().Be("Value must be true.\r\nParameter name: typeMustBeDateTimeOrNullableDateTime-System.String");
         }
 
         [Fact]

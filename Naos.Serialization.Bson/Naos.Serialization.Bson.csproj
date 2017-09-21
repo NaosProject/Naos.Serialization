@@ -68,6 +68,7 @@
     <Compile Include="BsonConfigurationException.cs" />
     <Compile Include="NaosBsonSerializerHelper.cs" />
     <Compile Include="NaosBsonDateTimeSerializer.cs" />
+    <Compile Include="NaosCollectionSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NaosDictionarySerializer.cs" />
   </ItemGroup>
