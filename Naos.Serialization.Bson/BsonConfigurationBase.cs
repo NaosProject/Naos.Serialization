@@ -308,14 +308,7 @@ namespace Naos.Serialization.Bson
             }
             else
             {
-                if (defaultToObjectSerializer)
-                {
-                    result = new ObjectSerializer();
-                }
-                else
-                {
-                    result = null;
-                }
+                result = defaultToObjectSerializer ? new ObjectSerializer() : null;
             }
 
             return result;

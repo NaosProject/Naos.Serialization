@@ -128,6 +128,37 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestMapping_with_all_defaults___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestMapping>>();
+
+            var expected = new TestMapping();
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestMapping;
+                actual.Should().NotBeNull();
+                actual.StringProperty.Should().BeNull();
+                actual.IntProperty.Should().Be(default(int));
+                actual.DateTimePropertyUtc.Should().Be(new DateTime());
+                actual.DateTimePropertyLocal.Should().Be(new DateTime());
+                actual.DateTimePropertyUnspecified.Should().Be(new DateTime());
+                actual.GuidProperty.Should().Be(Guid.Empty);
+                actual.NonEnumArray.Should().BeNull();
+                actual.EnumArray.Should().BeNull();
+                actual.StringIntMap.Should().BeNull();
+                actual.EnumIntMap.Should().BeNull();
+                actual.IntIntTuple.Should().BeNull();
+                actual.EnumProperty.Should().Be(TestEnumeration.None);
+                actual.IntArray.Should().BeNull();
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestMapping___Works()
         {
             // Arrange
@@ -148,7 +179,7 @@ namespace Naos.Serialization.Test
                                    IntIntTuple = new Tuple<int, int>(3, 4),
                                    EnumProperty = A.Dummy<TestEnumeration>(),
                                    IntArray = A.Dummy<int[]>(),
-            };
+                                };
 
             void ThrowIfObjectsDiffer(object actualAsObject)
             {
@@ -177,21 +208,38 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestDictionaryMapping_with_all_nulls___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestDictionaryFields>>();
+
+            var expected = new TestDictionaryFields();
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestDictionaryFields;
+                actual.Should().NotBeNull();
+                actual.DictionaryStringString.Should().BeNull();
+                actual.IDictionaryStringString.Should().BeNull();
+                actual.ReadOnlyDictionaryStringString.Should().BeNull();
+                actual.IReadOnlyDictionaryStringString.Should().BeNull();
+                actual.ConcurrentDictionaryStringString.Should().BeNull();
+                actual.ReadOnlyDictionaryStringInt.Should().BeNull();
+                actual.ReadOnlyDictionaryIntString.Should().BeNull();
+                actual.IDictionaryEnumString.Should().BeNull();
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestDictionaryMapping___Works()
         {
             // Arrange
             var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestDictionaryFields>>();
 
-            var expected = new TestDictionaryFields
-            {
-                DictionaryStringString = A.Dummy<Dictionary<string, string>>(),
-                IDictionaryStringString = A.Dummy<Dictionary<string, string>>(),
-                ReadOnlyDictionaryStringString = A.Dummy<ReadOnlyDictionary<string, string>>(),
-                IReadOnlyDictionaryStringString = A.Dummy<ReadOnlyDictionary<string, string>>(),
-                ConcurrentDictionaryStringString = new ConcurrentDictionary<string, string>(A.Dummy<Dictionary<string, string>>()),
-                ReadOnlyDictionaryStringInt = A.Dummy<ReadOnlyDictionary<string, int>>(),
-                ReadOnlyDictionaryIntString = A.Dummy<ReadOnlyDictionary<int, string>>(),
-            };
+            var expected = A.Dummy<TestDictionaryFields>();
 
             void ThrowIfObjectsDiffer(object actualAsObject)
             {
@@ -204,6 +252,57 @@ namespace Naos.Serialization.Test
                 actual.ConcurrentDictionaryStringString.Should().Equal(expected.ConcurrentDictionaryStringString);
                 actual.ReadOnlyDictionaryStringInt.Should().Equal(expected.ReadOnlyDictionaryStringInt);
                 actual.ReadOnlyDictionaryIntString.Should().Equal(expected.ReadOnlyDictionaryIntString);
+                actual.IDictionaryEnumString.Should().Equal(expected.IDictionaryEnumString);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestCollectionFields_with_all_nulls___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestCollectionFields>>();
+
+            var expected = new TestCollectionFields();
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestCollectionFields;
+                actual.Should().NotBeNull();
+                actual.ReadOnlyCollectionDateTime.Should().BeNull();
+                actual.ICollectionDateTime.Should().BeNull();
+                actual.IListEnum.Should().BeNull();
+                actual.IReadOnlyListString.Should().BeNull();
+                actual.IReadOnlyCollectionGuid.Should().BeNull();
+                actual.ListDateTime.Should().BeNull();
+                actual.CollectionGuid.Should().BeNull();
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestCollectionFields___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestCollectionFields>>();
+
+            var expected = A.Dummy<TestCollectionFields>();
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestCollectionFields;
+                actual.Should().NotBeNull();
+                actual.ReadOnlyCollectionDateTime.Should().Equal(expected.ReadOnlyCollectionDateTime);
+                actual.ICollectionDateTime.Should().Equal(expected.ICollectionDateTime);
+                actual.IListEnum.Should().Equal(expected.IListEnum);
+                actual.IReadOnlyListString.Should().Equal(expected.IReadOnlyListString);
+                actual.IReadOnlyCollectionGuid.Should().Equal(expected.IReadOnlyCollectionGuid);
+                actual.ListDateTime.Should().Equal(expected.ListDateTime);
+                actual.CollectionGuid.Should().Equal(expected.CollectionGuid);
             }
 
             // Act & Assert

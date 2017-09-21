@@ -108,6 +108,26 @@ namespace Naos.Serialization.Test
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public ReadOnlyDictionary<int, string> ReadOnlyDictionaryIntString { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public IDictionary<AnotherEnumeration, string> IDictionaryEnumString { get; set; }
+    }
+
+    public class TestCollectionFields
+    {
+        public ReadOnlyCollection<DateTime> ReadOnlyCollectionDateTime { get; set; }
+
+        public ICollection<string> ICollectionDateTime { get; set; }
+
+        public IList<AnotherEnumeration> IListEnum { get; set; }
+
+        public IReadOnlyList<string> IReadOnlyListString { get; set; }
+
+        public IReadOnlyCollection<DateTime> IReadOnlyCollectionGuid { get; set; }
+
+        public List<DateTime> ListDateTime { get; set; }
+
+        public Collection<Guid> CollectionGuid { get; set; }
     }
 
     public class TestMappingThatFails

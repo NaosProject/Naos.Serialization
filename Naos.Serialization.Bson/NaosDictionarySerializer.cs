@@ -13,6 +13,8 @@ namespace Naos.Serialization.Bson
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
+    using MongoDB.Bson;
+    using MongoDB.Bson.IO;
     using MongoDB.Bson.Serialization;
     using MongoDB.Bson.Serialization.Options;
     using MongoDB.Bson.Serialization.Serializers;
@@ -80,6 +82,12 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
+            if (value == null)
+            {
+                context.Writer.WriteNull();
+                return;
+            }
+
             var valueAsDictionary = value as Dictionary<TKey, TValue>;
             if (valueAsDictionary != null)
             {
@@ -94,6 +102,12 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override TDictionary Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
+            if (context.Reader.State != BsonReaderState.Type && context.Reader.CurrentBsonType == BsonType.Null)
+            {
+                context.Reader.ReadNull();
+                return null;
+            }
+
             var dictionary = this.underlyingSerializer.Deserialize(context, args);
             var result = DeserializationConverterFuncBySerializedType[typeof(TDictionary)](dictionary);
             return result;

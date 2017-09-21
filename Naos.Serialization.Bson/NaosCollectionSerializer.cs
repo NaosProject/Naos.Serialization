@@ -7,12 +7,13 @@
 namespace Naos.Serialization.Bson
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
+    using MongoDB.Bson;
+    using MongoDB.Bson.IO;
     using MongoDB.Bson.Serialization;
     using MongoDB.Bson.Serialization.Serializers;
 
@@ -30,7 +31,6 @@ namespace Naos.Serialization.Bson
     /// - <see cref="IReadOnlyCollection{TElement}"/>
     /// - <see cref="List{TElement}"/>
     /// - <see cref="Collection{TElement}"/>
-    /// - <see cref="ConcurrentBag{TElement}"/>
     /// </summary>
     /// <typeparam name="TCollection">The type of the collection.</typeparam>
     /// <typeparam name="TElement">The type of the elements in the collection.</typeparam>
@@ -63,7 +63,6 @@ namespace Naos.Serialization.Bson
                 { typeof(IReadOnlyCollection<TElement>), collection => collection.ToList() as TCollection },
                 { typeof(List<TElement>), collection => collection.ToList() as TCollection },
                 { typeof(Collection<TElement>), collection => new Collection<TElement>(collection) as TCollection },
-                { typeof(ConcurrentBag<TElement>), collection => new ConcurrentBag<TElement>(collection) as TCollection },
             };
 
         private readonly ReadOnlyCollectionSerializer<TElement> underlyingSerializer;
@@ -84,6 +83,12 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TCollection value)
         {
+            if (value == null)
+            {
+                context.Writer.WriteNull();
+                return;
+            }
+
             var valueAsReadOnlyCollection = value as ReadOnlyCollection<TElement>;
             if (valueAsReadOnlyCollection != null)
             {
@@ -105,6 +110,12 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override TCollection Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
+            if (context.Reader.State != BsonReaderState.Type && context.Reader.CurrentBsonType == BsonType.Null)
+            {
+                context.Reader.ReadNull();
+                return null;
+            }
+
             var collection = this.underlyingSerializer.Deserialize(context, args);
             var result = DeserializationConverterFuncBySerializedType[typeof(TCollection)](collection);
             return result;
