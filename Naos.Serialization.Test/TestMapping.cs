@@ -7,6 +7,7 @@
 namespace Naos.Serialization.Test
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
 
@@ -79,6 +80,23 @@ namespace Naos.Serialization.Test
         public AnotherEnumeration? NullableEnumWithValue { get; set; }
 
         public IEnumerable<AnotherEnumeration> EnumerableOfEnum { get; set; }
+    }
+
+    public class TestDictionaryFields
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public Dictionary<string, string> DictionaryStringString { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public IDictionary<string, string> IDictionaryStringString { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ReadOnlyDictionary<string, string> ReadOnlyDictionaryStringString { get; set; }
+
+        public IReadOnlyDictionary<string, string> IReadOnlyDictionaryStringString { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ConcurrentDictionary<string, string> ConcurrentDictionaryStringString { get; set; }
     }
 
     public class TestMappingThatFails

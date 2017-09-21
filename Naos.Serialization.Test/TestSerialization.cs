@@ -7,7 +7,9 @@
 namespace Naos.Serialization.Test
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
 
     using FakeItEasy;
@@ -166,6 +168,36 @@ namespace Naos.Serialization.Test
                 actual.EnumIntMap.Single().Should().Be(expected.EnumIntMap.Single());
                 actual.IntIntTuple.Should().Be(expected.IntIntTuple);
                 actual.EnumProperty.Should().Be(expected.EnumProperty);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestDictionaryMapping___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestDictionaryFields>>();
+
+            var expected = new TestDictionaryFields
+            {
+                DictionaryStringString = A.Dummy<Dictionary<string, string>>(),
+                IDictionaryStringString = A.Dummy<Dictionary<string, string>>(),
+                ReadOnlyDictionaryStringString = A.Dummy<ReadOnlyDictionary<string, string>>(),
+                IReadOnlyDictionaryStringString = A.Dummy<ReadOnlyDictionary<string, string>>(),
+                ConcurrentDictionaryStringString = new ConcurrentDictionary<string, string>(A.Dummy<Dictionary<string, string>>()),
+            };
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestDictionaryFields;
+                actual.Should().NotBeNull();
+                actual.DictionaryStringString.Should().Equal(expected.DictionaryStringString);
+                actual.IDictionaryStringString.Should().Equal(expected.IDictionaryStringString);
+                actual.ReadOnlyDictionaryStringString.Should().Equal(expected.ReadOnlyDictionaryStringString);
+                actual.IReadOnlyDictionaryStringString.Should().Equal(expected.IReadOnlyDictionaryStringString);
+                actual.ConcurrentDictionaryStringString.Should().Equal(expected.ConcurrentDictionaryStringString);
             }
 
             // Act & Assert
