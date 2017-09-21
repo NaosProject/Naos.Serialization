@@ -60,34 +60,6 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
-        public static void RoundtripSerializeDeserialize___Using_TestWithInheritorExtraPropertyWrapper___Works()
-        {
-            // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<BsonConfigurationAutoRegisterInherited>>();
-
-            var inherit = new TestWithInheritor { Id = Guid.NewGuid().ToString(), Name = Guid.NewGuid().ToString(), };
-            var inheritWithProp = new TestWithInheritorExtraProperty { Id = Guid.NewGuid().ToString(), Name = Guid.NewGuid().ToString(), AnotherName = Guid.NewGuid().ToString(), };
-            var expected = new TestWithInheritorExtraPropertyWrapper { InheritorPropertyBase = inherit, InheritorPropertyExtended = inheritWithProp, };
-
-            void ThrowIfObjectsDiffer(object actualAsObject)
-            {
-                var actual = actualAsObject as TestWithInheritorExtraPropertyWrapper;
-                actual.Should().NotBeNull();
-                actual.InheritorPropertyBase.Should().BeOfType<TestWithInheritor>();
-                actual.InheritorPropertyBase.Id.Should().Be(expected.InheritorPropertyBase.Id);
-                actual.InheritorPropertyBase.Name.Should().Be(expected.InheritorPropertyBase.Name);
-                actual.InheritorPropertyExtended.Should().BeOfType<TestWithInheritorExtraProperty>();
-                actual.InheritorPropertyExtended.Id.Should().Be(expected.InheritorPropertyExtended.Id);
-                actual.InheritorPropertyExtended.Name.Should().Be(expected.InheritorPropertyExtended.Name);
-                ((TestWithInheritorExtraProperty)actual.InheritorPropertyExtended).AnotherName.Should()
-                    .Be(((TestWithInheritorExtraProperty)expected.InheritorPropertyExtended).AnotherName);
-            }
-
-            // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
-        }
-
-        [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestWithInheritor___Works()
         {
             // Arrange

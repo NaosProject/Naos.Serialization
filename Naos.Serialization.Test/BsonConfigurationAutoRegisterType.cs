@@ -22,17 +22,6 @@ namespace Naos.Serialization.Test
         }
     }
 
-    public class BsonConfigurationAutoRegisterInherited : BsonConfigurationBase
-    {
-        /// <inheritdoc cref="BsonConfigurationBase" />
-        protected override void CustomConfiguration()
-        {
-            this.RegisterClassMapForTypeAndSubclassTypes<TestWithInheritorExtraPropertyWrapper>();
-            this.RegisterClassMapForTypeAndSubclassTypes<TestWithInheritor>();
-            this.RegisterClassMapForTypeAndSubclassTypes<TestWithInheritorExtraProperty>();
-        }
-    }
-
     public class BsonConfigurationTestAutoConstrainedType : BsonConfigurationBase
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Justification = "Only used in testing.")]

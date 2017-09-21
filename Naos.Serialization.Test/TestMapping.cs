@@ -64,13 +64,6 @@ namespace Naos.Serialization.Test
         public string AnotherName { get; set; }
     }
 
-    public class TestWithInheritorExtraPropertyWrapper
-    {
-        public TestWithInheritor InheritorPropertyBase { get; set; }
-
-        public TestWithInheritor InheritorPropertyExtended { get; set; }
-    }
-
     public class TestWrappedFields
     {
         public DateTime? NullableDateTimeNull { get; set; }
