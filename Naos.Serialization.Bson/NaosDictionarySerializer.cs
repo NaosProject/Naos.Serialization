@@ -10,6 +10,7 @@ namespace Naos.Serialization.Bson
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     using MongoDB.Bson.Serialization;
@@ -23,30 +24,33 @@ namespace Naos.Serialization.Bson
     /// <summary>
     /// Custom dictionary serializer to do the right thing.
     /// Supports:
-    /// - <see cref="IDictionary{TKey, TValue}"/>
-    /// - <see cref="Dictionary{TKey, TValue}"/>
-    /// - <see cref="IReadOnlyDictionary{TKey, TValue}"/>
-    /// - <see cref="ReadOnlyDictionary{TKey, TValue}"/>
-    /// - <see cref="ConcurrentDictionary{TKey, TValue}"/>
+    /// - <see cref="T:System.Collections.Generic.IDictionary`2" />
+    /// - <see cref="T:System.Collections.Generic.Dictionary`2" />
+    /// - <see cref="T:System.Collections.Generic.IReadOnlyDictionary`2" />
+    /// - <see cref="T:System.Collections.ObjectModel.ReadOnlyDictionary`2" />
+    /// - <see cref="T:System.Collections.Concurrent.ConcurrentDictionary`2" />
     /// </summary>
-    /// <typeparam name="TDict">The type of the dictionary.</typeparam>
+    /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
     /// <typeparam name="TKey">The type of the key of the dictionary.</typeparam>
     /// <typeparam name="TValue">The type of the value of the dictionary.</typeparam>
+    [SuppressMessage("Microsoft.Design", "CA1005:AvoidExcessiveParametersOnGenericTypes", Justification = "All of these generic parameters are required.")]
+
     // ReSharper disable once InheritdocConsiderUsage
-    public class NaosDictionarySerializer<TDict, TKey, TValue> : SerializerBase<TDict>
-        where TDict : class, IEnumerable<KeyValuePair<TKey, TValue>>
+    public class NaosDictionarySerializer<TDictionary, TKey, TValue> : SerializerBase<TDictionary>
+        where TDictionary : class, IEnumerable<KeyValuePair<TKey, TValue>>
     {
         /// <summary>
         /// Maps a supported dictionary type to a func that creates that type from a dictionary returned by the underlying serializer.
         /// </summary>
-        protected static readonly Dictionary<Type, Func<Dictionary<TKey, TValue>, TDict>>
-            DeserializationConverterFuncBySerializedType = new Dictionary<Type, Func<Dictionary<TKey, TValue>, TDict>>
+        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "This is already an immutable type.")]
+        protected static readonly IReadOnlyDictionary<Type, Func<Dictionary<TKey, TValue>, TDictionary>>
+            DeserializationConverterFuncBySerializedType = new Dictionary<Type, Func<Dictionary<TKey, TValue>, TDictionary>>
             {
-                { typeof(Dictionary<TKey, TValue>), dict => dict as TDict },
-                { typeof(IDictionary<TKey, TValue>), dict => dict as TDict },
-                { typeof(ReadOnlyDictionary<TKey, TValue>), dict => new ReadOnlyDictionary<TKey, TValue>(dict) as TDict },
-                { typeof(IReadOnlyDictionary<TKey, TValue>), dict => new ReadOnlyDictionary<TKey, TValue>(dict) as TDict },
-                { typeof(ConcurrentDictionary<TKey, TValue>), dict => new ConcurrentDictionary<TKey, TValue>(dict) as TDict },
+                { typeof(Dictionary<TKey, TValue>), dict => dict as TDictionary },
+                { typeof(IDictionary<TKey, TValue>), dict => dict as TDictionary },
+                { typeof(ReadOnlyDictionary<TKey, TValue>), dict => new ReadOnlyDictionary<TKey, TValue>(dict) as TDictionary },
+                { typeof(IReadOnlyDictionary<TKey, TValue>), dict => new ReadOnlyDictionary<TKey, TValue>(dict) as TDictionary },
+                { typeof(ConcurrentDictionary<TKey, TValue>), dict => new ConcurrentDictionary<TKey, TValue>(dict) as TDictionary },
             };
 
         private readonly DictionaryInterfaceImplementerSerializer<Dictionary<TKey, TValue>> underlyingSerializer;
@@ -59,22 +63,22 @@ namespace Naos.Serialization.Bson
         /// <param name="valueSerializer">The value serializer.</param>
         public NaosDictionarySerializer(DictionaryRepresentation dictionaryRepresentation, IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
         {
-            DeserializationConverterFuncBySerializedType.ContainsKey(typeof(TDict)).Named(Invariant($"{typeof(TDict)}-mustBeSupportedDictionaryType")).Must().BeTrue().OrThrow();
+            DeserializationConverterFuncBySerializedType.ContainsKey(typeof(TDictionary)).Named(Invariant($"{typeof(TDictionary)}-mustBeSupportedDictionaryType")).Must().BeTrue().OrThrow();
 
             this.underlyingSerializer = new DictionaryInterfaceImplementerSerializer<Dictionary<TKey, TValue>>(dictionaryRepresentation, keySerializer, valueSerializer);
         }
 
         /// <inheritdoc />
-        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDict value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
             this.underlyingSerializer.Serialize(context, args, ((IDictionary<TKey, TValue>)value).ToDictionary(_ => _.Key, _ => _.Value));
         }
 
         /// <inheritdoc />
-        public override TDict Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        public override TDictionary Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var dictionary = this.underlyingSerializer.Deserialize(context, args);
-            var result = DeserializationConverterFuncBySerializedType[typeof(TDict)](dictionary);
+            var result = DeserializationConverterFuncBySerializedType[typeof(TDictionary)](dictionary);
             return result;
         }
     }

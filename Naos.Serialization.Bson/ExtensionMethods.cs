@@ -119,8 +119,7 @@ namespace Naos.Serialization.Bson
             var keyType = arguments[0];
             var valueType = arguments[1];
 
-            var isSupportedDictionaryType = NullNaosDictionarySerializer.IsSupportedUnboundedGenericDictionaryType(map.MemberType.GetGenericTypeDefinition());
-            new { isSupportedDictionaryType }.Must().BeTrue().OrThrow();
+            NullNaosDictionarySerializer.IsSupportedUnboundedGenericDictionaryType(map.MemberType.GetGenericTypeDefinition()).Named("isSupportedDictionaryType").Must().BeTrue().OrThrow();
 
             var keySerializer = keyType.IsEnum || keyType == typeof(string) ? MakeEnumStringIfEnumOtherwiseObjectSerializer(keyType) : throw new BsonConfigurationException(Invariant($"Can only use a string or enumeration as a key in a dictionary or Mongo complains; member type: {map.MemberType}, key type: {keyType}, value type: {valueType}"));
             var valueSerializer = MakeEnumStringIfEnumOtherwiseObjectSerializer(valueType);
