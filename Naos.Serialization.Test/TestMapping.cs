@@ -64,6 +64,44 @@ namespace Naos.Serialization.Test
         public string AnotherName { get; set; }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1040:AvoidEmptyInterfaces", Justification = "Here for testing.")]
+    public interface ITestConfigureActionFromInterface
+    {
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1040:AvoidEmptyInterfaces", Justification = "Here for testing.")]
+    public interface ITestConfigureActionFromAuto
+    {
+    }
+
+    public class TestConfigureActionFromInterface : ITestConfigureActionFromInterface
+    {
+    }
+
+    public class TestConfigureActionFromAuto : ITestConfigureActionFromAuto
+    {
+    }
+
+    public abstract class TestConfigureActionBaseFromSub
+    {
+    }
+
+    public abstract class TestConfigureActionBaseFromAuto
+    {
+    }
+
+    public class TestConfigureActionInheritedSub : TestConfigureActionBaseFromSub
+    {
+    }
+
+    public class TestConfigureActionInheritedAuto : TestConfigureActionBaseFromAuto
+    {
+    }
+
+    public class TestConfigureActionSingle
+    {
+    }
+
     public class TestWrappedFields
     {
         public DateTime? NullableDateTimeNull { get; set; }
@@ -127,12 +165,6 @@ namespace Naos.Serialization.Test
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public Collection<Guid> CollectionGuid { get; set; }
-    }
-
-    public class TestMappingThatFails
-    {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public Dictionary<int, int> StringIntMap { get; set; }
     }
 
     public struct TestStruct

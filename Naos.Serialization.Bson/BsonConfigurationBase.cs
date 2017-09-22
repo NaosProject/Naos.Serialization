@@ -16,6 +16,9 @@ namespace Naos.Serialization.Bson
     using MongoDB.Bson.Serialization;
     using MongoDB.Bson.Serialization.Options;
     using MongoDB.Bson.Serialization.Serializers;
+
+    using Naos.Serialization.Domain;
+
     using OBeautifulCode.Reflection;
     using Spritely.Recipes;
 
@@ -41,6 +44,21 @@ namespace Naos.Serialization.Bson
 
         private static readonly MethodInfo RegisterClassMapGenericMethod = typeof(BsonClassMap).GetMethods().Single(_ => (_.Name == RegisterClassMapMethodName) && (!_.GetParameters().Any()) && _.IsGenericMethod);
 
+        private static readonly Tracker<Type> TypeTracker = new Tracker<Type>((first, second) =>
+                {
+                    if (ReferenceEquals(first, second))
+                    {
+                        return true;
+                    }
+
+                    if (ReferenceEquals(first, null) || ReferenceEquals(second, null))
+                    {
+                        return false;
+                    }
+
+                    return first == second;
+                });
+
         private readonly object syncConfigure = new object();
 
         private bool configured;
@@ -56,10 +74,27 @@ namespace Naos.Serialization.Bson
                 {
                     if (!this.configured)
                     {
-                        foreach (var dependantMapperType in this.DependentMapperTypes)
+                        new
+                            {
+                                this.DependentConfigurationTypes,
+                                this.TypesToAutoRegister,
+                                this.ClassTypesToRegister,
+                                this.ClassTypesToRegisterAlongWithInheritors,
+                                this.InterfaceTypesToRegisterImplementationOf,
+                            }.Must().NotBeNull().OrThrowFirstFailure();
+
+                        foreach (var dependantMapperType in this.DependentConfigurationTypes)
                         {
                             BsonConfigurationManager.Configure(dependantMapperType);
                         }
+
+                        this.RegisterClassTypes(this.ClassTypesToRegister);
+
+                        var interfaceTypes = this.InterfaceTypesToRegisterImplementationOf.Concat(this.TypesToAutoRegister.Where(_ => _.IsInterface)).ToList();
+                        this.RegisterImplementationsOfInterfaceTypes(interfaceTypes);
+
+                        var classTypes = this.ClassTypesToRegisterAlongWithInheritors.Concat(this.TypesToAutoRegister.Where(_ => _.IsClass)).ToList();
+                        this.RegisterClassTypesAndTheirInheritedTypes(classTypes);
 
                         this.CustomConfiguration();
 
@@ -72,15 +107,43 @@ namespace Naos.Serialization.Bson
         /// <summary>
         /// Gets a list of <see cref="BsonConfigurationBase"/>'s that are needed for the current implemenation of <see cref="BsonConfigurationBase"/>.  Optionally overrideable, DEFAULT is empty collection.
         /// </summary>
-        protected virtual IReadOnlyCollection<Type> DependentMapperTypes => new Type[0];
+        protected virtual IReadOnlyCollection<Type> DependentConfigurationTypes => new Type[0];
 
         /// <summary>
-        /// Template method to override and specify custom logic.
+        /// Gets a list of <see cref="Type"/> that will be registered; class types will go to <see cref="RegisterClassTypesAndTheirInheritedTypes(IReadOnlyCollection{Type})" /> and interface types will go to <see cref="RegisterImplementationsOfInterfaceTypes(IReadOnlyCollection{Type})" />.
         /// </summary>
-        protected abstract void CustomConfiguration();
+        protected virtual IReadOnlyCollection<Type> TypesToAutoRegister => new Type[0];
 
         /// <summary>
-        /// Method to perform automatic type member mapping using specific internal conventions.
+        /// Gets a list of <see cref="Type"/> that need to be automatically registered using <see cref="RegisterClassType" />.
+        /// </summary>
+        protected virtual IReadOnlyCollection<Type> ClassTypesToRegister => new Type[0];
+
+        /// <summary>
+        /// Gets a list of class <see cref="Type"/> that need to be automatically registered using <see cref="RegisterClassTypesAndTheirInheritedTypes(IReadOnlyCollection{Type})" />.
+        /// </summary>
+        protected virtual IReadOnlyCollection<Type> ClassTypesToRegisterAlongWithInheritors => new Type[0];
+
+        /// <summary>
+        /// Gets a list of interface <see cref="Type"/> that need to be automatically registered using <see cref="RegisterImplementationsOfInterfaceTypes(IReadOnlyCollection{Type})" />.
+        /// </summary>
+        protected virtual IReadOnlyCollection<Type> InterfaceTypesToRegisterImplementationOf => new Type[0];
+
+        /// <summary>
+        /// Gets an optional <see cref="TrackerCollisionStrategy" /> to use when a <see cref="Type" /> is already registered; DEFAULT is <see cref="TrackerCollisionStrategy.Skip" />.
+        /// </summary>
+        protected virtual TrackerCollisionStrategy TypeTrackerCollisionStrategy => TrackerCollisionStrategy.Skip;
+
+        /// <summary>
+        /// Optional template method to override and specify custom logic, usually used for specific direct <see cref="MongoDB.Bson"/> calls.
+        /// </summary>
+        protected virtual void CustomConfiguration()
+        {
+            /* no-op - just for additional custom logic */
+        }
+
+        /// <summary>
+        /// Method to call <see cref="BsonClassMap.RegisterClassMap{TClass}()"/> using a <see cref="Type"/> parameter instead of the generic.
         /// </summary>
         /// <param name="type">Type to register.</param>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
@@ -90,8 +153,13 @@ namespace Naos.Serialization.Bson
 
             try
             {
-                var genericRegisterClassMapMethod = RegisterClassMapGenericMethod.MakeGenericMethod(type);
-                genericRegisterClassMapMethod.Invoke(null, null);
+                void TrackedOperation(Type typeToOperateOn)
+                {
+                    var genericRegisterClassMapMethod = RegisterClassMapGenericMethod.MakeGenericMethod(typeToOperateOn);
+                    genericRegisterClassMapMethod.Invoke(null, null);
+                }
+
+                TypeTracker.RunTrackedOperation(type, TrackedOperation, this.TypeTrackerCollisionStrategy, this.GetType());
             }
             catch (Exception ex)
             {
@@ -106,15 +174,19 @@ namespace Naos.Serialization.Bson
         /// <param name="constrainToProperties">Optional list of properties to constrain type members to (null or 0 will mean all).</param>
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Like this structure.")]
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForType(Type type, IReadOnlyCollection<string> constrainToProperties = null)
+        protected void RegisterClassType(Type type, IReadOnlyCollection<string> constrainToProperties = null)
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
             try
             {
-                var bsonClassMap = this.AutomaticallyBuildBsonClassMap(type, constrainToProperties);
+                void TrackedOperation(Type typeToOperateOn)
+                {
+                    var bsonClassMap = this.AutomaticallyBuildBsonClassMap(typeToOperateOn, constrainToProperties);
+                    BsonClassMap.RegisterClassMap(bsonClassMap);
+                }
 
-                BsonClassMap.RegisterClassMap(bsonClassMap);
+                TypeTracker.RunTrackedOperation(type, TrackedOperation, this.TypeTrackerCollisionStrategy, this.GetType());
             }
             catch (Exception ex)
             {
@@ -130,61 +202,53 @@ namespace Naos.Serialization.Bson
         [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Want to use this as a generic.")]
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Like this structure.")]
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForType<T>(IReadOnlyCollection<string> constrainToProperties = null)
+        protected void RegisterClassType<T>(IReadOnlyCollection<string> constrainToProperties = null)
         {
-            this.RegisterClassMapForType(typeof(T), constrainToProperties);
+            this.RegisterClassType(typeof(T), constrainToProperties);
         }
 
         /// <summary>
-        /// Method to perform automatic type member mapping using specific internal conventions.
+        /// Method to run <see cref="RegisterClassType"/> on each provided type.
         /// </summary>
         /// <param name="types">Types to register.</param>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForType(IReadOnlyCollection<Type> types)
+        protected void RegisterClassTypes(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull().OrThrowFirstFailure();
 
             foreach (var type in types)
             {
-                this.RegisterClassMapForType(type);
+                this.RegisterClassType(type);
             }
         }
 
         /// <summary>
         /// Method to register the specified type and all derivative types in the same assembly.
         /// </summary>
-        /// <param name="types">Types to register.</param>
+        /// <param name="types">Types of interfaces to register all implementations of.</param>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForTypeAndSubclassTypes(IReadOnlyCollection<Type> types)
+        protected void RegisterImplementationsOfInterfaceTypes(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull().OrThrowFirstFailure();
 
+            var allTypes = types.SelectMany(this.GetInterfaceImplementations).Distinct().ToList();
+
+            this.RegisterClassTypes(allTypes);
+        }
+
+        /// <summary>
+        /// Method to register the specified type and all derivative types in the same assembly.
+        /// </summary>
+        /// <param name="types">Types to register.</param>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
+        protected void RegisterClassTypesAndTheirInheritedTypes(IReadOnlyCollection<Type> types)
+        {
+            new { types }.Must().NotBeNull().OrThrowFirstFailure();
+
+            // ReSharper disable once ArgumentsStyleLiteral - it is clearer with a boolean to have the name of the parameter
             var allTypes = types.SelectMany(_ => this.GetSubclassTypes(_, includeSpecifiedTypeInReturnList: true)).Distinct().ToList();
 
-            this.RegisterClassMapForType(allTypes);
-        }
-
-        /// <summary>
-        /// Method to register the specified type and all derivative types in the same assembly.
-        /// </summary>
-        /// <param name="type">Type to register.</param>
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForTypeAndSubclassTypes(Type type)
-        {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
-
-            this.RegisterClassMapForTypeAndSubclassTypes(new[] { type });
-        }
-
-        /// <summary>
-        /// Method to register the specified type and all derivative types in the same assembly.
-        /// </summary>
-        /// <typeparam name="T">Type to register.</typeparam>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Want to use this as a generic.")]
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassMapForTypeAndSubclassTypes<T>()
-        {
-            this.RegisterClassMapForTypeAndSubclassTypes(typeof(T));
+            this.RegisterClassTypes(allTypes);
         }
 
         /// <summary>
@@ -341,7 +405,7 @@ namespace Naos.Serialization.Bson
             new { classType }.Must().NotBeNull().OrThrowFirstFailure();
             new { classType.IsClass }.Must().BeTrue().OrThrowFirstFailure();
 
-            var derivativeTypes = classType.Assembly.GetTypes().Where(_ => _.IsSubclassOf(classType)).ToList();
+            var derivativeTypes = GetAllTypesToConsiderForRegistration().Where(_ => _.IsSubclassOf(classType)).ToList();
 
             if (includeSpecifiedTypeInReturnList)
             {
@@ -350,6 +414,40 @@ namespace Naos.Serialization.Bson
 
             return derivativeTypes.Distinct().ToList();
         }
+
+        /// <summary>
+        /// Get a list of the types that are implemented by the provided interface type.
+        /// </summary>
+        /// <param name="interfaceType">Type to find implementation of.</param>
+        /// <returns>List of the types that are implemented by the provided interface type.</returns>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
+        protected IReadOnlyCollection<Type> GetInterfaceImplementations(Type interfaceType)
+        {
+            new { interfaceType }.Must().NotBeNull().OrThrowFirstFailure();
+            new { interfaceType.IsInterface }.Must().BeTrue().OrThrowFirstFailure();
+
+            var derivativeTypes = GetAllTypesToConsiderForRegistration().Where(_ => _.GetInterfaces().Contains(interfaceType)).ToList();
+
+            return derivativeTypes.Distinct().ToList();
+        }
+
+        /// <summary>
+        /// Get all loaded types to use when considering registration.
+        /// </summary>
+        /// <returns>List of all loaded types to use when considering registration.</returns>
+        public static IReadOnlyCollection<Type> GetAllTypesToConsiderForRegistration()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(_ => !_.IsDynamic)
+                    .SelectMany(_ => _.GetExportedTypes())
+                    .ToList();
+        }
+
+        /// <summary>
+        /// Gets all the types from this and any other <see cref="BsonConfigurationBase"/> derivative that have been registered.
+        /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want this accessible via the object.")]
+        public IReadOnlyCollection<Type> AllRegisteredTypes => TypeTracker.GetAllTrackedObjects().Select(_ => _.TrackedObject).ToList();
     }
 
     /// <summary>

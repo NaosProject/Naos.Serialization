@@ -7,6 +7,7 @@
 namespace Naos.Serialization.Test
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.ExceptionServices;
@@ -16,6 +17,7 @@ namespace Naos.Serialization.Test
     using MongoDB.Bson.Serialization;
 
     using Naos.Serialization.Bson;
+    using Naos.Serialization.Domain;
 
     using Xunit;
 
@@ -128,6 +130,183 @@ namespace Naos.Serialization.Test
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
             exception.Message.Should().Be("\r\nParameter name: type");
+        }
+
+        [Fact]
+        public static void Configure___With_null_ClassTypesToRegisterAlongWithInheritors___Throws()
+        {
+            // Arrange
+            var config = new TestConfigWithSettableFields { SettableClassTypesToRegisterAlongWithInheritors = null };
+            Action action = () => config.Configure();
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentNullException>();
+            exception.Message.Should().Be("\r\nParameter name: ClassTypesToRegisterAlongWithInheritors");
+        }
+
+        [Fact]
+        public static void Configure___With_null_ClassTypesToRegister___Throws()
+        {
+            // Arrange
+            var config = new TestConfigWithSettableFields { SettableClassTypesToRegister = null };
+            Action action = () => config.Configure();
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentNullException>();
+            exception.Message.Should().Be("\r\nParameter name: ClassTypesToRegister");
+        }
+
+        [Fact]
+        public static void Configure___With_null_DependentConfigurationTypes___Throws()
+        {
+            // Arrange
+            var config = new TestConfigWithSettableFields { SettableDependentConfigurationTypes = null };
+            Action action = () => config.Configure();
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentNullException>();
+            exception.Message.Should().Be("\r\nParameter name: DependentConfigurationTypes");
+        }
+
+        [Fact]
+        public static void Configure___With_null_InterfaceTypesToRegisterImplementationOf___Throws()
+        {
+            // Arrange
+            var config = new TestConfigWithSettableFields { SettableInterfaceTypesToRegisterImplementationOf = null };
+            Action action = () => config.Configure();
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentNullException>();
+            exception.Message.Should().Be("\r\nParameter name: InterfaceTypesToRegisterImplementationOf");
+        }
+
+        [Fact]
+        public static void Configure___With_null_SettableTypesToAutoRegister___Throws()
+        {
+            // Arrange
+            var config = new TestConfigWithSettableFields { SettableTypesToAutoRegister = null };
+            Action action = () => config.Configure();
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentNullException>();
+            exception.Message.Should().Be("\r\nParameter name: TypesToAutoRegister");
+        }
+
+        [Fact]
+        public static void Configure___With_Invalid_TypeTrackerCollisionStrategy___Throws()
+        {
+            // Arrange
+            var config = new TestConfigWithSettableFields { SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Invalid, SettableClassTypesToRegister = new[] { typeof(string) } };
+            Action action = () => config.Configure();
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<BsonConfigurationException>();
+            exception.Message.Should().Be("Failed to run RegisterClassMap on System.String");
+            exception.InnerException.Should().NotBeNull();
+            exception.InnerException.Should().BeOfType<ArgumentException>();
+            exception.InnerException.Message.Should().Be("Value must not be equal to Invalid.\r\nParameter name: trackerCollisionStrategy");
+        }
+
+        [Fact]
+        public static void Configure___Same_type_twice_with_Throw_TypeTrackerCollisionStrategy___Throws()
+        {
+            // Arrange
+            var config = new TestConfigWithSettableFields { SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Throw, SettableClassTypesToRegister = new[] { typeof(string), typeof(string) } };
+            Action action = () => config.Configure();
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<BsonConfigurationException>();
+            exception.Message.Should().Be("Failed to run RegisterClassMap on System.String");
+            exception.InnerException.Should().NotBeNull();
+            exception.InnerException.Should().BeOfType<TrackedObjectCollisionException>();
+            exception.InnerException.Message.Should().StartWith("Object of type System.Type with ToString value of 'System.String' is already tracked and TrackerCollisionStrategy is Throw - it was registered by Naos.Serialization.Test.TestConfigWithSettableFields on ");
+        }
+
+        [Fact]
+        public static void Configure___Same_type_twice_with_Skip_TypeTrackerCollisionStrategy___Only_registers_once()
+        {
+            // Arrange
+            var config = new TestConfigWithSettableFields { SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Skip, SettableClassTypesToRegister = new[] { typeof(string), typeof(string) } };
+
+            // Act
+            config.Configure();
+
+            // Assert
+            config.AllRegisteredTypes.Should().Contain(typeof(string));
+        }
+
+        [Fact]
+        public static void Configure___Override_collections___All_types_get_registered_as_expected()
+        {
+            var expectedTypes = new[]
+                                    {
+                                        typeof(TestConfigureActionBaseFromSub), typeof(TestConfigureActionInheritedSub),
+                                        typeof(TestConfigureActionSingle),
+                                        typeof(TestConfigureActionFromInterface),
+                                        typeof(TestConfigureActionBaseFromAuto), typeof(TestConfigureActionInheritedAuto), typeof(TestConfigureActionFromAuto),
+                                    };
+            var config = new TestConfigWithSettableFields
+                             {
+                                 SettableClassTypesToRegisterAlongWithInheritors = new[] { typeof(TestConfigureActionBaseFromSub) },
+                                 SettableClassTypesToRegister = new[] { typeof(TestConfigureActionSingle) },
+                                 SettableInterfaceTypesToRegisterImplementationOf = new[] { typeof(ITestConfigureActionFromInterface) },
+                                 SettableTypesToAutoRegister = new[] { typeof(ITestConfigureActionFromAuto), typeof(TestConfigureActionBaseFromAuto) },
+                                 SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Throw,
+                             };
+
+            // Act
+            config.Configure();
+
+            // Assert
+            config.AllRegisteredTypes.Intersect(expectedTypes).Should().BeEquivalentTo(expectedTypes);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "configs", Justification = "Name/spelling is correct.")]
+        [Fact]
+        public static void Configure___Provided_with_dependent_configs___Configures_dependents()
+        {
+            var config = new TestConfigWithSettableFields
+                             {
+                                 SettableDependentConfigurationTypes = new[] { typeof(CustomThrowsConfig) },
+                             };
+
+            Action action = () => config.Configure();
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentException>();
+            exception.Message.Should().Be(CustomThrowsConfig.ExceptionMessage);
         }
 
         private static BsonClassMap RunTestCode(object configuration)

@@ -51,6 +51,7 @@
     <Compile Include=".Spritely.Recipes\MustValidation\RuleExtensions.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\Rules.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\ValidatedNotNullAttribute.cs" />
+    <Compile Include="Tracker.cs" />
     <Compile Include="NaosSerializationException.cs" />
     <Compile Include="NaosDateTimeStringSerializer.cs" />
     <Compile Include="GlobalSuppressions.cs" />
