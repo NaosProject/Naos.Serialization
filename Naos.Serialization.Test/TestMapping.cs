@@ -102,6 +102,10 @@ namespace Naos.Serialization.Test
     {
     }
 
+    public class TestTracking
+    {
+    }
+
     public class TestWrappedFields
     {
         public DateTime? NullableDateTimeNull { get; set; }

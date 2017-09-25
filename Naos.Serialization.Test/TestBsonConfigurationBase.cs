@@ -309,6 +309,42 @@ namespace Naos.Serialization.Test
             exception.Message.Should().Be(CustomThrowsConfig.ExceptionMessage);
         }
 
+        [Fact]
+        public static void IsSubclassOf___Does_not_return_for_interfaces___Confirmation_test_for_internal_use()
+        {
+            typeof(TestConfigureActionFromInterface).IsSubclassOf(typeof(ITestConfigureActionFromInterface)).Should().BeFalse();
+        }
+
+        [Fact]
+        public static void AllTrackedTypeContainers___Post_registration___Returns_fully_loaded_set()
+        {
+            var testType = typeof(TestTracking);
+            var configOne = new TestConfigWithSettableFields
+                             {
+                                 SettableTypesToAutoRegister = new[] { testType },
+                             };
+
+            var configTwo = new TestConfigWithSettableFields
+                             {
+                                 SettableTypesToAutoRegister = new[] { testType },
+                             };
+
+            configOne.Configure();
+            configTwo.Configure();
+
+            // Act
+            var trackedContainersOne = configOne.AllTrackedTypeContainers;
+            var trackedContainersTwo = configTwo.AllTrackedTypeContainers;
+
+            // Assert
+            trackedContainersTwo.Should().Equal(trackedContainersOne);
+            var trackedContainer = trackedContainersOne.Single(_ => _.TrackedObject == testType);
+            trackedContainer.Should().NotBeNull();
+            var skipped = trackedContainer.Skipped.Single();
+            skipped.Should().NotBeNull();
+            skipped.CallingType.Should().Be(configTwo.GetType());
+        }
+
         private static BsonClassMap RunTestCode(object configuration)
         {
             try

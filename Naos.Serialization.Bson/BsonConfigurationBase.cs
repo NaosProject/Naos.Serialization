@@ -83,9 +83,9 @@ namespace Naos.Serialization.Bson
                                 this.InterfaceTypesToRegisterImplementationOf,
                             }.Must().NotBeNull().OrThrowFirstFailure();
 
-                        foreach (var dependantMapperType in this.DependentConfigurationTypes)
+                        foreach (var dependantConfigurationType in this.DependentConfigurationTypes)
                         {
-                            BsonConfigurationManager.Configure(dependantMapperType);
+                            BsonConfigurationManager.Configure(dependantConfigurationType);
                         }
 
                         this.RegisterClassTypes(this.ClassTypesToRegister);
@@ -448,6 +448,12 @@ namespace Naos.Serialization.Bson
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want this accessible via the object.")]
         public IReadOnlyCollection<Type> AllRegisteredTypes => TypeTracker.GetAllTrackedObjects().Select(_ => _.TrackedObject).ToList();
+
+        /// <summary>
+        /// Gets all the types in their wrapped form with telemetry from this and any other <see cref="BsonConfigurationBase"/> derivative that have been registered.
+        /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want this accessible via the object.")]
+        public IReadOnlyCollection<Tracker<Type>.TrackedObjectContainer> AllTrackedTypeContainers => TypeTracker.GetAllTrackedObjects();
     }
 
     /// <summary>

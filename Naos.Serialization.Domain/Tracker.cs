@@ -65,16 +65,22 @@ namespace Naos.Serialization.Domain
                 {
                     switch (trackerCollisionStrategy)
                     {
-                        case TrackerCollisionStrategy.Skip: return;
-                        case TrackerCollisionStrategy.Throw: throw new TrackedObjectCollisionException(Invariant($"Object of type {typeof(T)} with {nameof(trackedObject.ToString)} value of '{trackedObject.ToString()}' is already tracked and {nameof(TrackerCollisionStrategy)} is {trackerCollisionStrategy} - it was registered by {existing.CallingType} on {existing.TrackedTimeInUtc}"));
-                        default: throw new NotSupportedException();
+                        case TrackerCollisionStrategy.Skip:
+                            existing.UpdateSkipped(callingType, DateTime.UtcNow);
+                            break;
+                        case TrackerCollisionStrategy.Throw:
+                            throw new TrackedObjectCollisionException(Invariant($"Object of type {typeof(T)} with {nameof(trackedObject.ToString)} value of '{trackedObject.ToString()}' is already tracked and {nameof(TrackerCollisionStrategy)} is {trackerCollisionStrategy} - it was registered by {existing.CallingType} on {existing.TrackedTimeInUtc}"));
+                        default:
+                            throw new NotSupportedException();
                     }
                 }
                 else
                 {
+                    var stopwatch = Stopwatch.StartNew();
                     trackedOperation(trackedObject);
+                    stopwatch.Stop();
 
-                    var container = new TrackedObjectContainer(trackedObject, callingType, DateTime.UtcNow);
+                    var container = new TrackedObjectContainer(trackedObject, callingType, DateTime.UtcNow, stopwatch.Elapsed);
                     this.trackedObjects.Add(container);
                 }
             }
@@ -98,18 +104,27 @@ namespace Naos.Serialization.Domain
         /// </summary>
         public class TrackedObjectContainer
         {
+            private readonly List<TrackedSkipContainer> skipped = new List<TrackedSkipContainer>();
+
             /// <summary>
             /// Initializes a new instance of the <see cref="TrackedObjectContainer"/> class.
             /// </summary>
             /// <param name="trackedObject">The object that was tracked.</param>
             /// <param name="callingType">Type that operated on the object.</param>
             /// <param name="trackedTimeInUtc">Time of event in UTC.</param>
-            public TrackedObjectContainer(T trackedObject, Type callingType, DateTime trackedTimeInUtc)
+            /// <param name="timeOfOperation">Elapsed time of the operation.</param>
+            public TrackedObjectContainer(T trackedObject, Type callingType, DateTime trackedTimeInUtc, TimeSpan timeOfOperation)
             {
                 this.TrackedObject = trackedObject;
                 this.CallingType = callingType;
                 this.TrackedTimeInUtc = trackedTimeInUtc;
+                this.TimeOfOperation = timeOfOperation;
             }
+
+            /// <summary>
+            /// Gets the elapsed time of the operation.
+            /// </summary>
+            public TimeSpan TimeOfOperation { get; private set; }
 
             /// <summary>
             /// Gets the object that was tracked.
@@ -125,6 +140,48 @@ namespace Naos.Serialization.Domain
             /// Gets time of event in UTC.
             /// </summary>
             public DateTime TrackedTimeInUtc { get; private set; }
+
+            /// <summary>
+            /// Gets the skipped type registrations if any.
+            /// </summary>
+            public IReadOnlyCollection<TrackedSkipContainer> Skipped => this.skipped;
+
+            /// <summary>
+            /// Updates the skipped tracking.
+            /// </summary>
+            /// <param name="callingType">Type that was attempting to operate on the object.</param>
+            /// <param name="skippedTimeInUtc">Time of event in UTC.</param>
+            public void UpdateSkipped(Type callingType, DateTime skippedTimeInUtc)
+            {
+                this.skipped.Add(new TrackedSkipContainer(callingType, skippedTimeInUtc));
+            }
+        }
+
+        /// <summary>
+        /// Object to hold information about the tracking skips.
+        /// </summary>
+        public class TrackedSkipContainer
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="TrackedSkipContainer"/> class.
+            /// </summary>
+            /// <param name="callingType">Type that was attempting to operate on the object.</param>
+            /// <param name="skippedTimeInUtc">Time of event in UTC.</param>
+            public TrackedSkipContainer(Type callingType, DateTime skippedTimeInUtc)
+            {
+                this.CallingType = callingType;
+                this.SkippedTimeInUtc = skippedTimeInUtc;
+            }
+
+            /// <summary>
+            /// Gets type that operated on the object.
+            /// </summary>
+            public Type CallingType { get; private set; }
+
+            /// <summary>
+            /// Gets time of event in UTC.
+            /// </summary>
+            public DateTime SkippedTimeInUtc { get; private set; }
         }
     }
 
