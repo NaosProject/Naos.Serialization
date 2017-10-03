@@ -50,6 +50,26 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
+        public static void RoundtripSerializeDeserialize___Using_ClassWithPrivateSetter___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<ClassWithPrivateSetter>>();
+
+            var privateValue = A.Dummy<string>();
+            var expected = new ClassWithPrivateSetter(privateValue);
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as ClassWithPrivateSetter;
+                actual.Should().NotBeNull();
+                actual.PrivateValue.Should().Be(expected.PrivateValue);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestWrappedFields___Works()
         {
             // Arrange

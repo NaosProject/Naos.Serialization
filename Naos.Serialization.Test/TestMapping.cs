@@ -278,4 +278,14 @@ namespace Naos.Serialization.Test
 
         public override string GetMyStringFromBase => "MonkeyBusiness";
     }
+
+    public class ClassWithPrivateSetter
+    {
+        public ClassWithPrivateSetter(string privateValue)
+        {
+            this.PrivateValue = privateValue;
+        }
+
+        public string PrivateValue { get; private set; }
+    }
 }
