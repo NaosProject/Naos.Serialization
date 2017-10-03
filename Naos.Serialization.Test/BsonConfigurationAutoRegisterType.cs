@@ -9,8 +9,6 @@ namespace Naos.Serialization.Test
     using System;
     using System.Collections.Generic;
 
-    using FluentAssertions;
-
     using MongoDB.Bson.Serialization;
 
     using Naos.Serialization.Bson;

@@ -7,9 +7,7 @@
 namespace Naos.Serialization.Test
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
 
     using FakeItEasy;
@@ -27,6 +25,29 @@ namespace Naos.Serialization.Test
     public static class TestSerialization
     {
         private static readonly NaosJsonSerializer JsonSerializerToUse = new NaosJsonSerializer();
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_ClassWithGetterOnlysBase___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<ClassWithGetterOnlysBase>>();
+
+            var expected = new ClassWithGetterOnlys();
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as ClassWithGetterOnlys;
+                actual.Should().NotBeNull();
+                actual.GetMyEnumFromBase.Should().Be(expected.GetMyEnumFromBase);
+                actual.GetMyEnumFromThis.Should().Be(expected.GetMyEnumFromThis);
+                actual.GetMyStringFromBase.Should().Be(expected.GetMyStringFromBase);
+                actual.GetMyStringFromThis.Should().Be(expected.GetMyStringFromThis);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestWrappedFields___Works()

@@ -254,4 +254,28 @@ namespace Naos.Serialization.Test
             return $"Dunno.  You owe me ${this.Fee}";
         }
     }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
+    public abstract class ClassWithGetterOnlysBase
+    {
+        public AnotherEnumeration GetMyEnumOnlyBase { get; }
+
+        public string GetMyStringOnlyBase { get; }
+
+        public abstract AnotherEnumeration GetMyEnumFromBase { get; }
+
+        public abstract string GetMyStringFromBase { get; }
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
+    public class ClassWithGetterOnlys : ClassWithGetterOnlysBase
+    {
+        public AnotherEnumeration GetMyEnumFromThis => AnotherEnumeration.AnotherFirst;
+
+        public string GetMyStringFromThis => "TurtleBusiness";
+
+        public override AnotherEnumeration GetMyEnumFromBase => AnotherEnumeration.AnotherSecond;
+
+        public override string GetMyStringFromBase => "MonkeyBusiness";
+    }
 }

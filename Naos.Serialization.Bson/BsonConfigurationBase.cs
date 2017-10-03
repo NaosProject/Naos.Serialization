@@ -387,10 +387,24 @@ namespace Naos.Serialization.Bson
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
-            var allMembers = type.GetMembers(BsonMemberAutomapSelectionBindingFlags)
-                .Where(_ => _.MemberType == MemberTypes.Field || _.MemberType == MemberTypes.Property)
-                .Where(_ => !_.CustomAttributes.Select(s => s.AttributeType).Contains(typeof(CompilerGeneratedAttribute))).ToList();
-            return allMembers;
+            bool FilterCompilerGenerated(MemberInfo memberInfo) => !memberInfo.CustomAttributes.Select(s => s.AttributeType).Contains(typeof(CompilerGeneratedAttribute));
+
+            var allMembers = type.GetMembers(BsonMemberAutomapSelectionBindingFlags).Where(FilterCompilerGenerated).ToList();
+
+            var fields = allMembers
+                .Where(_ => _.MemberType == MemberTypes.Field)
+                .Cast<FieldInfo>()
+                .Where(_ => !_.IsInitOnly)
+                .ToList();
+
+            const bool ReturnIfSetMethodIsNotPublic = true;
+            var properties = allMembers
+                .Where(_ => _.MemberType == MemberTypes.Property)
+                .Cast<PropertyInfo>()
+                .Where(_ => _.CanWrite || _.GetSetMethod(ReturnIfSetMethodIsNotPublic) != null)
+                .ToList();
+
+            return new MemberInfo[0].Concat(fields).Concat(properties).ToList();
         }
 
         /// <summary>
