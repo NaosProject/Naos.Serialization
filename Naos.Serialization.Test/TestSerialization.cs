@@ -281,10 +281,62 @@ namespace Naos.Serialization.Test
             ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
         }
 
-        private static void ActAndAssertForRoundtripSerialization<T>(object expected, Action<object> throwIfObjectsDiffer, NaosBsonSerializer<BsonConfigurationAutoRegisterType<T>> bsonSerializer)
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_collection_of_Interface_type___Works()
         {
-            var stringSerializers = new IStringSerializeAndDeserialize[] { JsonSerializerToUse, bsonSerializer };
-            var binarySerializers = new IBinarySerializeAndDeserialize[] { JsonSerializerToUse, bsonSerializer };
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<InvestigationConfiguration>();
+
+            IDeduceWhoLetTheDogsOut investigator1 = new NamedInvestigator("bob", 2);
+            IDeduceWhoLetTheDogsOut investigator2 = new AnonymousInvestigator(4000);
+
+            var expected = new Investigation
+            {
+                Investigators = new[] { investigator1, investigator2 },
+            };
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as Investigation;
+                actual.Should().NotBeNull();
+                actual.Investigators.Count.Should().Be(2);
+
+                var namedInvestigator = actual.Investigators.ElementAt(0) as NamedInvestigator;
+                namedInvestigator.Should().NotBeNull();
+                namedInvestigator.Name.Should().Be("bob");
+                namedInvestigator.YearsOfPractice.Should().Be(2);
+
+                var anonymousInvestigator = actual.Investigators.ElementAt(1) as AnonymousInvestigator;
+                anonymousInvestigator.Should().NotBeNull();
+                anonymousInvestigator.Fee.Should().Be(4000);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer, testJson: false);
+        }
+
+        private static void ActAndAssertForRoundtripSerialization<T>(object expected, Action<object> throwIfObjectsDiffer, NaosBsonSerializer<T> bsonSerializer, bool testBson = true, bool testJson = true)
+            where T : BsonConfigurationBase, new()
+        {
+            var stringSerializers = new List<IStringSerializeAndDeserialize>();
+            var binarySerializers = new List<IBinarySerializeAndDeserialize>();
+
+            if (testJson)
+            {
+                stringSerializers.Add(JsonSerializerToUse);
+                binarySerializers.Add(JsonSerializerToUse);
+            }
+
+            if (testBson)
+            {
+                stringSerializers.Add(bsonSerializer);
+                binarySerializers.Add(bsonSerializer);
+            }
+
+            if (!stringSerializers.Any() || !binarySerializers.Any())
+            {
+                throw new InvalidOperationException("no serializers are being tested");
+            }
 
             foreach (var stringSerializer in stringSerializers)
             {

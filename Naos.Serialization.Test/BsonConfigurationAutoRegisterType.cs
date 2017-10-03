@@ -90,4 +90,9 @@ namespace Naos.Serialization.Test
 
         protected override TrackerCollisionStrategy TypeTrackerCollisionStrategy => this.SettableTypeTrackerCollisionStrategy;
     }
+
+    public class InvestigationConfiguration : BsonConfigurationBase
+    {
+        protected override IReadOnlyCollection<Type> TypesToAutoRegister => new[] { typeof(IDeduceWhoLetTheDogsOut), typeof(NamedInvestigator), typeof(AnonymousInvestigator) };
+    }
 }

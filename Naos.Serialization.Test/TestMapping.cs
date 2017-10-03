@@ -206,4 +206,48 @@ namespace Naos.Serialization.Test
         /// </summary>
         AnotherSecond,
     }
+
+    public class Investigation
+    {
+        public IReadOnlyCollection<IDeduceWhoLetTheDogsOut> Investigators { get; set; }
+    }
+
+    public interface IDeduceWhoLetTheDogsOut
+    {
+        string WhoLetTheDogsOut();
+    }
+
+    public class NamedInvestigator : IDeduceWhoLetTheDogsOut
+    {
+        public NamedInvestigator(string name, int yearsOfPractice)
+        {
+            this.Name = name;
+
+            this.YearsOfPractice = yearsOfPractice;
+        }
+
+        public string Name { get; private set; }
+
+        public int YearsOfPractice { get; private set; }
+
+        public string WhoLetTheDogsOut()
+        {
+            return $"I don't know.  I, {this.Name} quit!";
+        }
+    }
+
+    public class AnonymousInvestigator : IDeduceWhoLetTheDogsOut
+    {
+        public AnonymousInvestigator(int fee)
+        {
+            this.Fee = fee;
+        }
+
+        public int Fee { get; private set; }
+
+        public string WhoLetTheDogsOut()
+        {
+            return $"Dunno.  You owe me ${this.Fee}";
+        }
+    }
 }
