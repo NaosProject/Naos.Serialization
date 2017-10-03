@@ -282,7 +282,7 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
-        public static void RoundtripSerializeDeserialize___Using_collection_of_Interface_type___Works()
+        public static void RoundtripSerializeDeserialize___Using_collection_of_Interface_type___Works_using_Bson_serializer()
         {
             // Arrange
             var bsonSerializer = new NaosBsonSerializer<InvestigationConfiguration>();
@@ -313,6 +313,11 @@ namespace Naos.Serialization.Test
 
             // Act & Assert
             ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer, testJson: false);
+        }
+
+        [Fact(Skip = "The JSON serializer we are using does not yet support this scenario")]
+        public static void RoundtripSerializeDeserialize___Using_collection_of_Interface_type___Works_using_Json_serializer()
+        {
         }
 
         private static void ActAndAssertForRoundtripSerialization<T>(object expected, Action<object> throwIfObjectsDiffer, NaosBsonSerializer<T> bsonSerializer, bool testBson = true, bool testJson = true)
