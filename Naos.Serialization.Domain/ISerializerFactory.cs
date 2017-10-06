@@ -23,12 +23,5 @@ namespace Naos.Serialization.Domain
         /// <param name="multipleMatchStrategy">Optional multiple match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="MultipleMatchStrategy.ThrowOnMultiple" />.</param>
         /// <returns>Correct implementation of <see cref="ISerializeAndDeserialize" /> based on the description.</returns>
         ISerializeAndDeserialize BuildSerializer(SerializationDescription serializationDescription, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple);
-
-        /// <summary>
-        /// Builds the correct implementation of <see cref="ICompressAndDecompress" /> based on the description.
-        /// </summary>
-        /// <param name="serializationDescription">Description of the serializer.</param>
-        /// <returns>Correct implementation of <see cref="ICompressAndDecompress" /> based on the description.</returns>
-        ICompressAndDecompress BuildCompressor(SerializationDescription serializationDescription);
     }
 }

@@ -6,6 +6,7 @@
 
 namespace Naos.Serialization.Factory.Extensions
 {
+    using Naos.Compression.Domain;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Domain.Extensions;
 
@@ -31,10 +32,11 @@ namespace Naos.Serialization.Factory.Extensions
             TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName,
             MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            return DomainExtensions.ToDescribedSerializationWithSpecificFactory(
+            return DomainExtensions.ToDescribedSerializationUsingSpecificFactory(
                 objectToPackageIntoDescribedSerialization,
                 serializationDescription,
                 SerializerFactory.Instance,
+                CompressorFactory.Instance,
                 typeMatchStrategy,
                 multipleMatchStrategy);
         }
@@ -46,9 +48,14 @@ namespace Naos.Serialization.Factory.Extensions
         /// <param name="typeMatchStrategy">Optional type match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="TypeMatchStrategy.NamespaceAndName" />.</param>
         /// <param name="multipleMatchStrategy">Optional multiple match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="MultipleMatchStrategy.ThrowOnMultiple" />.</param>
         /// <returns>Orginally serialized object.</returns>
-        public static object FromDescribedSerialization(this DescribedSerialization describedSerialization, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
+        public static object DeserializePayload(this DescribedSerialization describedSerialization, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            return DomainExtensions.FromDescribedSerializationWithSpecificFactory(describedSerialization, SerializerFactory.Instance, typeMatchStrategy, multipleMatchStrategy);
+            return DomainExtensions.DeserializePayloadUsingSpecificFactory(
+                describedSerialization,
+                SerializerFactory.Instance,
+                CompressorFactory.Instance,
+                typeMatchStrategy,
+                multipleMatchStrategy);
         }
 
         /// <summary>
@@ -60,9 +67,14 @@ namespace Naos.Serialization.Factory.Extensions
         /// <typeparam name="T">Expected return type.</typeparam>
         /// <returns>Orginally serialized object.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "1", Justification = "Checked with Must and tested.")]
-        public static T FromDescribedSerialization<T>(this DescribedSerialization describedSerialization, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
+        public static T DeserializePayload<T>(this DescribedSerialization describedSerialization, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            return DomainExtensions.FromDescribedSerializationWithSpecificFactory<T>(describedSerialization, SerializerFactory.Instance, typeMatchStrategy, multipleMatchStrategy);
+            return DomainExtensions.DeserializePayloadUsingSpecificFactory<T>(
+                describedSerialization,
+                SerializerFactory.Instance,
+                CompressorFactory.Instance,
+                typeMatchStrategy,
+                multipleMatchStrategy);
         }
     }
 }

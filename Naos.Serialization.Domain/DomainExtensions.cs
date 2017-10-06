@@ -8,6 +8,8 @@ namespace Naos.Serialization.Domain.Extensions
 {
     using System;
 
+    using Naos.Compression.Domain;
+
     using OBeautifulCode.TypeRepresentation;
 
     using Spritely.Recipes;
@@ -25,23 +27,26 @@ namespace Naos.Serialization.Domain.Extensions
         /// <param name="objectToPackageIntoDescribedSerialization">Object to serialize.</param>
         /// <param name="serializationDescription">Description of the serializer to use.</param>
         /// <param name="serializerFactory">Implementation of <see cref="ISerializerFactory" /> that can resolve the serializer.</param>
+        /// <param name="compressorFactory">Implementation of <see cref="ICompressorFactory" /> that can resolve the compressor.</param>
         /// <param name="typeMatchStrategy">Optional type match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="TypeMatchStrategy.NamespaceAndName" />.</param>
         /// <param name="multipleMatchStrategy">Optional multiple match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="MultipleMatchStrategy.ThrowOnMultiple" />.</param>
         /// <returns>Self decribed serialization.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "1", Justification = "Checked with Must and tested.")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "2", Justification = "Checked with Must and tested.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "3", Justification = "Checked with Must and tested.")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "object", Justification = "Spelling/name is correct.")]
-        public static DescribedSerialization ToDescribedSerializationWithSpecificFactory(
+        public static DescribedSerialization ToDescribedSerializationUsingSpecificFactory(
             this object objectToPackageIntoDescribedSerialization,
             SerializationDescription serializationDescription,
             ISerializerFactory serializerFactory,
+            ICompressorFactory compressorFactory,
             TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName,
             MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            new { objectToPackageIntoDescribedSerialization, serializationDescription, serializerFactory }.Must().NotBeNull().OrThrowFirstFailure();
+            new { objectToPackageIntoDescribedSerialization, serializationDescription, serializerFactory, compressorFactory }.Must().NotBeNull().OrThrowFirstFailure();
 
             var serializer = serializerFactory.BuildSerializer(serializationDescription, typeMatchStrategy, multipleMatchStrategy);
-            var compressor = serializerFactory.BuildCompressor(serializationDescription);
+            var compressor = compressorFactory.BuildCompressor(serializationDescription.CompressionKind);
 
             string payload;
             switch (serializationDescription.SerializationRepresentation)
@@ -70,16 +75,23 @@ namespace Naos.Serialization.Domain.Extensions
         /// </summary>
         /// <param name="describedSerialization">Self described serialized object.</param>
         /// <param name="serializerFactory">Implementation of <see cref="ISerializerFactory" /> that can resolve the serializer.</param>
+        /// <param name="compressorFactory">Implementation of <see cref="ICompressorFactory" /> that can resolve the compressor.</param>
         /// <param name="typeMatchStrategy">Optional type match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="TypeMatchStrategy.NamespaceAndName" />.</param>
         /// <param name="multipleMatchStrategy">Optional multiple match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="MultipleMatchStrategy.ThrowOnMultiple" />.</param>
         /// <returns>Orginally serialized object.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "1", Justification = "Checked with Must and tested.")]
-        public static object FromDescribedSerializationWithSpecificFactory(this DescribedSerialization describedSerialization, ISerializerFactory serializerFactory, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "2", Justification = "Checked with Must and tested.")]
+        public static object DeserializePayloadUsingSpecificFactory(
+            this DescribedSerialization describedSerialization,
+            ISerializerFactory serializerFactory,
+            ICompressorFactory compressorFactory,
+            TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName,
+            MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            new { describedSerialization, serializerFactory }.Must().NotBeNull().OrThrowFirstFailure();
+            new { describedSerialization, serializerFactory, compressorFactory }.Must().NotBeNull().OrThrowFirstFailure();
 
             var serializer = serializerFactory.BuildSerializer(describedSerialization.SerializationDescription, typeMatchStrategy, multipleMatchStrategy);
-            var compressor = serializerFactory.BuildCompressor(describedSerialization.SerializationDescription);
+            var compressor = compressorFactory.BuildCompressor(describedSerialization.SerializationDescription.CompressionKind);
 
             var targetType = describedSerialization.PayloadTypeDescription.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
 
@@ -105,14 +117,20 @@ namespace Naos.Serialization.Domain.Extensions
         /// </summary>
         /// <param name="describedSerialization">Self described serialized object.</param>
         /// <param name="serializerFactory">Implementation of <see cref="ISerializerFactory" /> that can resolve the serializer.</param>
+        /// <param name="compressorFactory">Implementation of <see cref="ICompressorFactory" /> that can resolve the compressor.</param>
         /// <param name="typeMatchStrategy">Optional type match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="TypeMatchStrategy.NamespaceAndName" />.</param>
         /// <param name="multipleMatchStrategy">Optional multiple match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="MultipleMatchStrategy.ThrowOnMultiple" />.</param>
         /// <typeparam name="T">Expected return type.</typeparam>
         /// <returns>Orginally serialized object.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "1", Justification = "Checked with Must and tested.")]
-        public static T FromDescribedSerializationWithSpecificFactory<T>(this DescribedSerialization describedSerialization, ISerializerFactory serializerFactory, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
+        public static T DeserializePayloadUsingSpecificFactory<T>(
+            this DescribedSerialization describedSerialization,
+            ISerializerFactory serializerFactory,
+            ICompressorFactory compressorFactory,
+            TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName,
+            MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            return (T)FromDescribedSerializationWithSpecificFactory(describedSerialization, serializerFactory, typeMatchStrategy, multipleMatchStrategy);
+            return (T)DeserializePayloadUsingSpecificFactory(describedSerialization, serializerFactory, compressorFactory, typeMatchStrategy, multipleMatchStrategy);
         }
     }
 }

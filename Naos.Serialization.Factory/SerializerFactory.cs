@@ -55,13 +55,5 @@ namespace Naos.Serialization.Factory
                 }
             }
         }
-
-        /// <inheritdoc cref="ISerializerFactory" />
-        public ICompressAndDecompress BuildCompressor(SerializationDescription serializationDescription)
-        {
-            new { serializationDescription }.Must().NotBeNull().OrThrowFirstFailure();
-
-            return CompressorFactory.Instance.BuildCompressor(serializationDescription.CompressionKind);
-        }
     }
 }
