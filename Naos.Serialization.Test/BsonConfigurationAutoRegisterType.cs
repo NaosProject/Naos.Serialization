@@ -53,6 +53,14 @@ namespace Naos.Serialization.Test
         }
     }
 
+    public class CustomNoPublicConstructor : BsonConfigurationBase
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "notUsed", Justification = "Needed for testing.")]
+        public CustomNoPublicConstructor(string notUsed)
+        {
+        }
+    }
+
     public class TestConfigWithSettableFields : BsonConfigurationBase
     {
 #pragma warning disable SA1401 // Fields should be private

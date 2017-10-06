@@ -36,6 +36,12 @@
     <DocumentationFile>bin\Release\Naos.Serialization.Domain.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Naos.Compression.Domain, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Naos.Compression.Domain.1.0.3\lib\net461\Naos.Compression.Domain.dll</HintPath>
+    </Reference>
+    <Reference Include="OBeautifulCode.TypeRepresentation, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OBeautifulCode.TypeRepresentation.1.0.5\lib\net45\OBeautifulCode.TypeRepresentation.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,11 +52,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Math\HashCodeHelper.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\MakeRule.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\MustExtensions.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\RuleExtensions.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\Rules.cs" />
     <Compile Include=".Spritely.Recipes\MustValidation\ValidatedNotNullAttribute.cs" />
+    <Compile Include="DomainExtensions.cs" />
+    <Compile Include="DescribedSerialization.cs" />
+    <Compile Include="ISerializeAndDeserialize.cs" />
+    <Compile Include="ISerializerFactory.cs" />
+    <Compile Include="SerializationKind.cs" />
+    <Compile Include="SerializationDescription.cs" />
     <Compile Include="Tracker.cs" />
     <Compile Include="NaosSerializationException.cs" />
     <Compile Include="NaosDateTimeStringSerializer.cs" />

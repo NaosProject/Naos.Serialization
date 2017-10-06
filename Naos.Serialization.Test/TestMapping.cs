@@ -10,6 +10,7 @@ namespace Naos.Serialization.Test
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
 
     public class TestMapping
     {
@@ -216,6 +217,7 @@ namespace Naos.Serialization.Test
         public IReadOnlyCollection<IDeduceWhoLetTheDogsOut> Investigators { get; set; }
     }
 
+    [Bindable(BindableSupport.Default)]
     public interface IDeduceWhoLetTheDogsOut
     {
         string WhoLetTheDogsOut();
@@ -287,5 +289,10 @@ namespace Naos.Serialization.Test
         }
 
         public string PrivateValue { get; private set; }
+    }
+
+    public class VanillaClass
+    {
+        public string Something { get; set; }
     }
 }

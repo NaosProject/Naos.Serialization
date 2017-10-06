@@ -13,16 +13,38 @@ namespace Naos.Serialization.Json
 
     using Spritely.Recipes;
 
+    using static System.FormattableString;
+
     /// <summary>
     /// JSON serializer.
     /// </summary>
-    public sealed class NaosJsonSerializer : IBinarySerializeAndDeserialize, IStringSerializeAndDeserialize
+    public sealed class NaosJsonSerializer : ISerializeAndDeserialize
     {
+        private const string NameSplitString = "-";
+
         /// <summary>
         /// Encoding to use for conversion in and out of bytes.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is not mutable.")]
         public static readonly Encoding SerializationEncoding = Encoding.UTF8;
+
+        private readonly SerializationKind serializationKind;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Extensibility point, want to keep this assigned.")]
+        private readonly Type configurationType;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NaosJsonSerializer"/> class.
+        /// </summary>
+        /// <param name="serializationKind">Type of serialization to use.</param>
+        /// <param name="configurationType">Type of configuration to use.</param>
+        public NaosJsonSerializer(SerializationKind serializationKind = SerializationKind.Default, Type configurationType = null)
+        {
+            new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid).OrThrowFirstFailure();
+
+            this.serializationKind = serializationKind;
+            this.configurationType = configurationType;
+        }
 
         /// <summary>
         /// Converts JSON string into a byte array.
@@ -74,7 +96,22 @@ namespace Naos.Serialization.Json
         /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
         public string SerializeToString(object objectToSerialize)
         {
-            var ret = DefaultJsonSerializer.SerializeObject(objectToSerialize);
+            string ret;
+            switch (this.serializationKind)
+            {
+                case SerializationKind.Default:
+                    ret = DefaultJsonSerializer.SerializeObject(objectToSerialize);
+                    break;
+                case SerializationKind.Minimal:
+                    ret = MinimalJsonSerializer.SerializeObject(objectToSerialize);
+                    break;
+                case SerializationKind.Compact:
+                    ret = CompactJsonSerializer.SerializeObject(objectToSerialize);
+                    break;
+                default:
+                    throw new NotSupportedException(Invariant($"Value of {nameof(SerializationKind)} - {this.serializationKind} is not currently supported."));
+            }
+
             return ret;
         }
 
@@ -89,8 +126,57 @@ namespace Naos.Serialization.Json
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
-            var ret = DefaultJsonSerializer.DeserializeObject(serializedString, type);
+            object ret;
+            switch (this.serializationKind)
+            {
+                case SerializationKind.Default:
+                    ret = DefaultJsonSerializer.DeserializeObject(serializedString, type);
+                    break;
+                case SerializationKind.Minimal:
+                    ret = MinimalJsonSerializer.DeserializeObject(serializedString, type);
+                    break;
+                case SerializationKind.Compact:
+                    ret = CompactJsonSerializer.DeserializeObject(serializedString, type);
+                    break;
+                default:
+                    throw new NotSupportedException(Invariant($"Value of {nameof(SerializationKind)} - {this.serializationKind} is not currently supported."));
+            }
+
             return ret;
+        }
+
+        /// <inheritdoc cref="object" />
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
+        /// <summary>
+        /// Gets the name of the serializer, this can also be used in the factory method.
+        /// </summary>
+        public string Name => Invariant($"{nameof(NaosJsonSerializer)}{NameSplitString}{this.serializationKind}");
+
+        /// <summary>
+        /// Builds a new <see cref="NaosJsonSerializer" /> using the name its name.
+        /// </summary>
+        /// <param name="serializerName">Name provided from an instatiated serializer to communicate the one used and allow for rebuilding it.</param>
+        /// <returns>New <see cref="NaosJsonSerializer" /> using the name from a previous one.</returns>
+        public static NaosJsonSerializer BuildFromSerializerName(string serializerName)
+        {
+            new { serializerName }.Must().NotBeNull().And().NotBeWhiteSpace().OrThrowFirstFailure();
+
+            var splitOnChar = serializerName.Split(new[] { NameSplitString }, StringSplitOptions.None);
+            splitOnChar.Length.Named("splitOnExpectedDelimiterCount").Must().BeEqualTo(2).OrThrowFirstFailure();
+
+            var typeName = splitOnChar[0];
+            var kindString = splitOnChar[1];
+
+            typeName.Named(Invariant($"{typeName}-MustBe-{nameof(NaosJsonSerializer)}")).Must().BeEqualTo(nameof(NaosJsonSerializer)).OrThrowFirstFailure();
+
+            SerializationKind kind;
+            Enum.TryParse(kindString, false, out kind).Named(Invariant($"{kindString}-MustBeValid-{nameof(SerializationKind)}")).Must().BeTrue().OrThrowFirstFailure();
+
+            return new NaosJsonSerializer(kind);
         }
     }
 }

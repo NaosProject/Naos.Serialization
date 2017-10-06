@@ -20,6 +20,8 @@ namespace Naos.Serialization.Bson
     using Naos.Serialization.Domain;
 
     using OBeautifulCode.Reflection;
+    using OBeautifulCode.TypeRepresentation;
+
     using Spritely.Recipes;
 
     using static System.FormattableString;
@@ -96,6 +98,8 @@ namespace Naos.Serialization.Bson
                         var classTypes = this.ClassTypesToRegisterAlongWithInheritors.Concat(this.TypesToAutoRegister.Where(_ => _.IsClass)).ToList();
                         this.RegisterClassTypesAndTheirInheritedTypes(classTypes);
 
+                        this.InternalConfiguration();
+
                         this.CustomConfiguration();
 
                         this.configured = true;
@@ -140,6 +144,13 @@ namespace Naos.Serialization.Bson
         protected virtual void CustomConfiguration()
         {
             /* no-op - just for additional custom logic */
+        }
+
+        private void InternalConfiguration()
+        {
+            this.RegisterClassType<TypeDescription>();
+            this.RegisterClassType<SerializationDescription>();
+            this.RegisterClassType<DescribedSerialization>();
         }
 
         /// <summary>

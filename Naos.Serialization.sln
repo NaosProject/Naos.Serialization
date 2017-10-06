@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Naos.Serialization.Json", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Naos.Serialization.Test", "Naos.Serialization.Test\Naos.Serialization.Test.csproj", "{749AFD35-665A-45C5-8D89-65336BB98450}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Naos.Serialization.Factory", "Naos.Serialization.Factory\Naos.Serialization.Factory.csproj", "{448C06C6-9D43-4F8E-ADF4-062FA01BE1D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{749AFD35-665A-45C5-8D89-65336BB98450}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{749AFD35-665A-45C5-8D89-65336BB98450}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{749AFD35-665A-45C5-8D89-65336BB98450}.Release|Any CPU.Build.0 = Release|Any CPU
+		{448C06C6-9D43-4F8E-ADF4-062FA01BE1D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{448C06C6-9D43-4F8E-ADF4-062FA01BE1D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{448C06C6-9D43-4F8E-ADF4-062FA01BE1D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{448C06C6-9D43-4F8E-ADF4-062FA01BE1D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

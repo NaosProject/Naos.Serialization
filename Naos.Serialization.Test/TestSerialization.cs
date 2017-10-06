@@ -24,7 +24,7 @@ namespace Naos.Serialization.Test
 
     public static class TestSerialization
     {
-        private static readonly NaosJsonSerializer JsonSerializerToUse = new NaosJsonSerializer();
+        private static readonly NaosJsonSerializer JsonSerializerToUse = new NaosJsonSerializer(SerializationKind.Default);
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
         [Fact]
@@ -43,6 +43,26 @@ namespace Naos.Serialization.Test
                 actual.GetMyEnumFromThis.Should().Be(expected.GetMyEnumFromThis);
                 actual.GetMyStringFromBase.Should().Be(expected.GetMyStringFromBase);
                 actual.GetMyStringFromThis.Should().Be(expected.GetMyStringFromThis);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Unconfigured", Justification = "Spelling/name is correct.")]
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_Unconfigured_Bson___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer();
+
+            var expected = new VanillaClass { Something = A.Dummy<string>() };
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as VanillaClass;
+                actual.Should().NotBeNull();
+                actual.Something.Should().Be(expected.Something);
             }
 
             // Act & Assert
@@ -323,7 +343,7 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
-        public static void RoundtripSerializeDeserialize___Using_collection_of_Interface_type___Works_using_Bson_serializer()
+        public static void RoundtripSerializeDeserialize___Using_collection_of_Interface_type___Works()
         {
             // Arrange
             var bsonSerializer = new NaosBsonSerializer<InvestigationConfiguration>();
@@ -353,16 +373,27 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer, testJson: false);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
         }
 
-        [Fact(Skip = "The JSON serializer we are using does not yet support this scenario")]
-        public static void RoundtripSerializeDeserialize___Using_collection_of_Interface_type___Works_using_Json_serializer()
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_SerializationDescription___Works()
         {
+            // Arrange
+            var expected = A.Dummy<SerializationDescription>();
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as SerializationDescription;
+                actual.Should().NotBeNull();
+                actual.Should().Be(expected);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, new NaosBsonSerializer());
         }
 
-        private static void ActAndAssertForRoundtripSerialization<T>(object expected, Action<object> throwIfObjectsDiffer, NaosBsonSerializer<T> bsonSerializer, bool testBson = true, bool testJson = true)
-            where T : BsonConfigurationBase, new()
+        private static void ActAndAssertForRoundtripSerialization(object expected, Action<object> throwIfObjectsDiffer, NaosBsonSerializer bsonSerializer, bool testBson = true, bool testJson = true)
         {
             var stringSerializers = new List<IStringSerializeAndDeserialize>();
             var binarySerializers = new List<IBinarySerializeAndDeserialize>();

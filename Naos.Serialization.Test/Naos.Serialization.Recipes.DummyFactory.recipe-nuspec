@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" ?>
+﻿
+<package>
+  <metadata>
+    <id>Naos.Serialization.Recipes.DummyFactory</id>
+    <description>Naos.Serialization.Recipes.DummyFactory</description>
+    <dependencies>
+      <dependency id="Naos.Serialization.Domain" version="[$version$,)" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="SerializationDummyFactory.cs" target="content\net45\.Naos.Recipes\Serialization\SerializationDummyFactory.cs" />
+  </files>
+</package>

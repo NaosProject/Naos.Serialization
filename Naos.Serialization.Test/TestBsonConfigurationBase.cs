@@ -279,7 +279,7 @@ namespace Naos.Serialization.Test
                                  SettableClassTypesToRegister = new[] { typeof(TestConfigureActionSingle) },
                                  SettableInterfaceTypesToRegisterImplementationOf = new[] { typeof(ITestConfigureActionFromInterface) },
                                  SettableTypesToAutoRegister = new[] { typeof(ITestConfigureActionFromAuto), typeof(TestConfigureActionBaseFromAuto) },
-                                 SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Throw,
+                                 SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Skip,
                              };
 
             // Act
