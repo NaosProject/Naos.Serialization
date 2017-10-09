@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TestBsonConfigurationManager.cs" company="Naos">
+// <copyright file="BsonConfigurationManagerTest.cs" company="Naos">
 //    Copyright (c) Naos 2017. All Rights Reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -14,7 +14,7 @@ namespace Naos.Serialization.Test
 
     using Xunit;
 
-    public static class TestBsonConfigurationManager
+    public static class BsonConfigurationManagerTest
     {
         [Fact]
         public static void Configure___Type_not_BsonConfigurationBase___Throws()

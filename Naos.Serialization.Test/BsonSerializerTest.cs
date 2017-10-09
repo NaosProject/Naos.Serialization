@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TestBsonSerializer.cs" company="Naos">
+// <copyright file="BsonSerializerTest.cs" company="Naos">
 //    Copyright (c) Naos 2017. All Rights Reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ namespace Naos.Serialization.Test
 
     using Xunit;
 
-    public static class TestBsonSerializer
+    public static class BsonSerializerTest
     {
         [Fact]
         public static void NaosBsonSerializer___Invalid_SerializationKind___Throws()

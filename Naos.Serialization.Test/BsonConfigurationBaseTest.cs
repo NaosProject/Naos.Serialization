@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TestBsonConfigurationBase.cs" company="Naos">
+// <copyright file="BsonConfigurationBaseTest.cs" company="Naos">
 //    Copyright (c) Naos 2017. All Rights Reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ namespace Naos.Serialization.Test
 
     using Xunit;
 
-    public static class TestBsonConfigurationBase
+    public static class BsonConfigurationBaseTest
     {
         [Fact]
         public static void RegisterClassMapsTypeFullyAutomatic___Type_with_id_member___Works()

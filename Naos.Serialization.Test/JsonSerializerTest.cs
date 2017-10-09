@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TestJsonSerializer.cs" company="Naos">
+// <copyright file="JsonSerializerTest.cs" company="Naos">
 //    Copyright (c) Naos 2017. All Rights Reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ namespace Naos.Serialization.Test
 
     using static System.FormattableString;
 
-    public static class TestJsonSerializer
+    public static class JsonSerializerTest
     {
         [Fact]
         public static void NaosJsonSerializer___With_kind_Invalid___Throws()

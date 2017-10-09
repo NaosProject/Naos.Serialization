@@ -66,6 +66,7 @@
     <Compile Include="BsonConfigurationManager.cs" />
     <Compile Include="BsonConfigurationBase.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="NaosBsonEnumStringSerializer.cs" />
     <Compile Include="NaosBsonSerializer.cs" />
     <Compile Include="NaosBsonConventions.cs" />
     <Compile Include="BsonConfigurationException.cs" />

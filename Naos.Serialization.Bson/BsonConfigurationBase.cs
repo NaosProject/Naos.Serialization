@@ -346,7 +346,7 @@ namespace Naos.Serialization.Bson
             }
             else if (type.IsEnum)
             {
-                result = typeof(EnumSerializer<>).MakeGenericType(type).Construct<IBsonSerializer>(BsonType.String);
+                result = typeof(NaosBsonEnumStringSerializer<>).MakeGenericType(type).Construct<IBsonSerializer>();
             }
             else if (type == typeof(DateTime))
             {

@@ -100,13 +100,13 @@
     <Compile Include="DateTimeStringSerializerTest.cs" />
     <Compile Include="FactoryTest.cs" />
     <Compile Include="ExtensionsTest.cs" />
-    <Compile Include="TestBsonSerializer.cs" />
-    <Compile Include="TestJsonSerializer.cs" />
+    <Compile Include="BsonSerializerTest.cs" />
+    <Compile Include="JsonSerializerTest.cs" />
     <Compile Include="DescribedSerializationTest.cs" />
     <Compile Include="SerializerDescriptionTest.cs" />
-    <Compile Include="TestSerialization.cs" />
-    <Compile Include="TestBsonConfigurationBase.cs" />
-    <Compile Include="TestBsonConfigurationManager.cs" />
+    <Compile Include="RoundtripSerializationTest.cs" />
+    <Compile Include="BsonConfigurationBaseTest.cs" />
+    <Compile Include="BsonConfigurationManagerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestMapping.cs" />
   </ItemGroup>

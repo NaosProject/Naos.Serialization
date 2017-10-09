@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TestSerialization.cs" company="Naos">
+// <copyright file="RoundtripSerializationTest.cs" company="Naos">
 //    Copyright (c) Naos 2017. All Rights Reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -22,9 +22,9 @@ namespace Naos.Serialization.Test
 
     using static System.FormattableString;
 
-    public static class TestSerialization
+    public static class RoundtripSerializationTest
     {
-        private static readonly NaosJsonSerializer JsonSerializerToUse = new NaosJsonSerializer(SerializationKind.Default);
+        private static readonly NaosJsonSerializer JsonSerializerToUse = new NaosJsonSerializer();
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
         [Fact]
@@ -391,6 +391,25 @@ namespace Naos.Serialization.Test
 
             // Act & Assert
             ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, new NaosBsonSerializer());
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Spelling/name is correct.")]
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_ClassWithFlagsEnums___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<ClassWithFlagsEnums>>();
+            var expected = new ClassWithFlagsEnums { Flags = FlagsEnumeration.SecondValue | FlagsEnumeration.ThirdValue };
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as ClassWithFlagsEnums;
+                actual.Should().NotBeNull();
+                actual.Flags.Should().Be(expected.Flags);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
         }
 
         private static void ActAndAssertForRoundtripSerialization(object expected, Action<object> throwIfObjectsDiffer, NaosBsonSerializer bsonSerializer, bool testBson = true, bool testJson = true)

@@ -295,4 +295,33 @@ namespace Naos.Serialization.Test
     {
         public string Something { get; set; }
     }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1714:FlagsEnumsShouldHavePluralNames", Justification = "Spelling/name is correct.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Spelling/name is correct.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue", Justification = "Spelling/name is correct.")]
+    [Flags]
+    public enum FlagsEnumeration
+    {
+        /// <summary>
+        /// None value.
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Second value.
+        /// </summary>
+        SecondValue,
+
+        /// <summary>
+        /// Third value.
+        /// </summary>
+        ThirdValue,
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Spelling/name is correct.")]
+    public class ClassWithFlagsEnums
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Spelling/name is correct.")]
+        public FlagsEnumeration Flags { get; set; }
+    }
 }
