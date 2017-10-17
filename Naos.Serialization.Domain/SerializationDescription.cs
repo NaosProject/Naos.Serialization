@@ -7,10 +7,12 @@
 namespace Naos.Serialization.Domain
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     using Naos.Compression.Domain;
 
-    using OBeautifulCode.Math;
+    using OBeautifulCode.Math.Recipes;
     using OBeautifulCode.TypeRepresentation;
 
     using Spritely.Recipes;
@@ -27,8 +29,9 @@ namespace Naos.Serialization.Domain
         /// <param name="serializationRepresentation">The <see cref="SerializationRepresentation" /> to serialize into.</param>
         /// <param name="serializationKind">Optional <see cref="SerializationKind" /> to use; DEFAULT is Default.</param>
         /// <param name="compressionKind">Optional <see cref="CompressionKind" /> to use; DEFAULT is None.</param>
-        /// <param name="configurationTypeDescription">Optional configuration to use, default is null</param>
-        public SerializationDescription(SerializationFormat serializationFormat, SerializationRepresentation serializationRepresentation, SerializationKind serializationKind = SerializationKind.Default, TypeDescription configurationTypeDescription = null, CompressionKind compressionKind = CompressionKind.None)
+        /// <param name="configurationTypeDescription">Optional configuration to use; DEFAULT is null.</param>
+        /// <param name="metadata">Optional metadata to put, especially useful for customer serializer factory; DEFAULT is empty.</param>
+        public SerializationDescription(SerializationFormat serializationFormat, SerializationRepresentation serializationRepresentation, SerializationKind serializationKind = SerializationKind.Default, TypeDescription configurationTypeDescription = null, CompressionKind compressionKind = CompressionKind.None, IReadOnlyDictionary<string, string> metadata = null)
         {
             new { serializationFormat }.Must().NotBeEqualTo(SerializationFormat.Invalid).OrThrowFirstFailure();
             new { serializationRepresentation }.Must().NotBeEqualTo(SerializationRepresentation.Invalid).OrThrowFirstFailure();
@@ -40,6 +43,7 @@ namespace Naos.Serialization.Domain
             this.SerializationKind = serializationKind;
             this.ConfigurationTypeDescription = configurationTypeDescription;
             this.CompressionKind = compressionKind;
+            this.Metadata = metadata ?? new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -68,6 +72,11 @@ namespace Naos.Serialization.Domain
         public TypeDescription ConfigurationTypeDescription { get; private set; }
 
         /// <summary>
+        /// Gets a map of metadata for custom use.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> Metadata { get; private set; }
+
+        /// <summary>
         /// Equality operator.
         /// </summary>
         /// <param name="first">First parameter.</param>
@@ -85,9 +94,20 @@ namespace Naos.Serialization.Domain
                 return false;
             }
 
+            var metadataEqual = first.Metadata.Count == second.Metadata.Count;
+            foreach (var firstKey in first.Metadata.Keys)
+            {
+                if (!metadataEqual)
+                {
+                    break;
+                }
+
+                metadataEqual = second.Metadata.ContainsKey(firstKey) && second.Metadata[firstKey] == first.Metadata[firstKey];
+            }
+
             return first.SerializationFormat == second.SerializationFormat && first.SerializationRepresentation == second.SerializationRepresentation
                    && first.SerializationKind == second.SerializationKind && first.CompressionKind == second.CompressionKind
-                   && first.ConfigurationTypeDescription == second.ConfigurationTypeDescription;
+                   && first.ConfigurationTypeDescription == second.ConfigurationTypeDescription && metadataEqual;
         }
 
         /// <summary>
@@ -105,6 +125,8 @@ namespace Naos.Serialization.Domain
         public override bool Equals(object obj) => this == (obj as SerializationDescription);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCodeHelper.Initialize().Hash(this.SerializationFormat).Hash(this.SerializationRepresentation).Hash(this.SerializationKind).Hash(this.CompressionKind).Hash(this.ConfigurationTypeDescription).Value;
+        public override int GetHashCode() => HashCodeHelper.Initialize().Hash(this.SerializationFormat).Hash(this.SerializationRepresentation)
+            .Hash(this.SerializationKind).Hash(this.CompressionKind).Hash(this.ConfigurationTypeDescription)
+            .HashElements(this.Metadata.OrderBy(_ => _.Key).Select(_ => new Tuple<string, string>(_.Key, _.Value))).Value;
     }
 }

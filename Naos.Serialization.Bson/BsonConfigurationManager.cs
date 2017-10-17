@@ -10,7 +10,7 @@ namespace Naos.Serialization.Bson
     using System.Collections.Generic;
     using System.Linq;
 
-    using OBeautifulCode.Reflection;
+    using OBeautifulCode.Reflection.Recipes;
 
     using Spritely.Recipes;
 

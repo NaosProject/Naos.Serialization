@@ -7,6 +7,7 @@
 namespace Naos.Serialization.Test
 {
     using System;
+    using System.Linq;
 
     using FakeItEasy;
 
@@ -17,6 +18,8 @@ namespace Naos.Serialization.Test
     using OBeautifulCode.TypeRepresentation;
 
     using Xunit;
+
+    using static System.FormattableString;
 
     public static class DescribedSerializationTest
     {
@@ -96,6 +99,102 @@ namespace Naos.Serialization.Test
 
             // Assert
             actual.Should().Be(serializer);
+        }
+
+        [Fact]
+        public static void EqualityLogic___Should_be_valid___When_different_data()
+        {
+            // Arrange
+            var typeDescription1 = typeof(string).ToTypeDescription();
+            var typeDescription2 = typeof(decimal).ToTypeDescription();
+
+            var payload1 = A.Dummy<string>();
+            var payload2 = A.Dummy<string>();
+
+            var serializationDescription1 = A.Dummy<SerializationDescription>();
+            var serializationDescription2 = A.Dummy<SerializationDescription>();
+
+            var notEqualTests = new[]
+                                    {
+                                        new
+                                            {
+                                                First = new DescribedSerialization(typeDescription1, payload1, serializationDescription1),
+                                                Second = new DescribedSerialization(typeDescription2, payload1, serializationDescription1),
+                                            },
+                                        new
+                                            {
+                                                First = new DescribedSerialization(typeDescription1, payload1, serializationDescription1),
+                                                Second = new DescribedSerialization(typeDescription1, payload2, serializationDescription1),
+                                            },
+                                        new
+                                            {
+                                                First = new DescribedSerialization(typeDescription1, payload1, serializationDescription1),
+                                                Second = new DescribedSerialization(typeDescription1, payload1, serializationDescription2),
+                                            },
+                                        new
+                                            {
+                                                First = new DescribedSerialization(typeDescription1, payload1, serializationDescription1),
+                                                Second = (DescribedSerialization)null,
+                                            },
+                                        new
+                                            {
+                                                First = (DescribedSerialization)null,
+                                                Second = new DescribedSerialization(typeDescription1, payload1, serializationDescription1),
+                                            },
+                                    }.ToList();
+
+            // Act & Assert
+            notEqualTests.ForEach(
+                _ =>
+                    {
+                        if (_.First != null && _.Second != null)
+                        {
+                            (_.First.GetHashCode() == _.Second.GetHashCode()).Should().BeFalse(Invariant($"First: {_.First}; Second: {_.Second}"));
+                            _.First.Equals(_.Second).Should().BeFalse(Invariant($"First: {_.First}; Second: {_.Second}"));
+                            _.First.Equals((object)_.Second).Should().BeFalse(Invariant($"First: {_.First}; Second: {_.Second}"));
+                        }
+
+                        (_.First == _.Second).Should().BeFalse(Invariant($"First: {_.First}; Second: {_.Second}"));
+                        (_.First != _.Second).Should().BeTrue(Invariant($"First: {_.First}; Second: {_.Second}"));
+                    });
+        }
+
+        [Fact]
+        public static void EqualityLogic___Should_be_valid___When_same_data()
+        {
+            // Arrange
+            var typeDescription = typeof(string).ToTypeDescription();
+            var serializedPayload = A.Dummy<string>();
+            var serializationDescription = A.Dummy<SerializationDescription>();
+
+            var notEqualTests = new[]
+                                    {
+                                        new
+                                            {
+                                                First = new DescribedSerialization(typeDescription, serializedPayload, serializationDescription),
+                                                Second = new DescribedSerialization(typeDescription, serializedPayload, serializationDescription),
+                                            },
+                                        new
+                                            {
+                                                First = (DescribedSerialization)null,
+                                                Second = (DescribedSerialization)null,
+                                            },
+                                    }.ToList();
+
+            // Act & Assert
+            notEqualTests.ForEach(
+                _ =>
+                    {
+                        if (_.First != null && _.Second != null)
+                        {
+                            _.First.Equals(_.Second).Should().BeTrue(Invariant($"First: {_.First}; Second: {_.Second}"));
+                            _.First.Equals((object)_.Second).Should().BeTrue(Invariant($"First: {_.First}; Second: {_.Second}"));
+                            (_.First.GetHashCode() == _.Second.GetHashCode()).Should().BeTrue(Invariant($"First: {_.First}; Second: {_.Second}"));
+                        }
+
+                        (_.First == _.Second).Should().BeTrue(Invariant($"First: {_.First}; Second: {_.Second}"));
+                        (_.First != _.Second).Should().BeFalse(Invariant($"First: {_.First}; Second: {_.Second}"));
+                    });
         }
     }
 }

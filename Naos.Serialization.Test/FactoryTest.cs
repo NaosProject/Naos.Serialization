@@ -16,12 +16,10 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Factory;
     using Naos.Serialization.Json;
 
-    using OBeautifulCode.Reflection;
+    using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.TypeRepresentation;
 
     using Xunit;
-
-    using static System.FormattableString;
 
     public static class FactoryTest
     {

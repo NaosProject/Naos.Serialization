@@ -9,6 +9,7 @@ namespace Naos.Serialization.Domain
     using System;
     using System.Text;
 
+    using OBeautifulCode.Math.Recipes;
     using OBeautifulCode.TypeRepresentation;
 
     using Spritely.Recipes;
@@ -16,7 +17,7 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Represents a serialized object along with a description of the type of the object.
     /// </summary>
-    public class DescribedSerialization
+    public class DescribedSerialization : IEquatable<DescribedSerialization>
     {
         /// <summary>
         /// Encoding to use when converting binary data into a string to be used in the payload.
@@ -59,5 +60,45 @@ namespace Naos.Serialization.Domain
         /// Gets the description of the serializer used to generate the payload.
         /// </summary>
         public SerializationDescription SerializationDescription { get; }
+
+        /// <summary>
+        /// Equality operator.
+        /// </summary>
+        /// <param name="first">First parameter.</param>
+        /// <param name="second">Second parameter.</param>
+        /// <returns>A value indicating whether or not the two items are equal.</returns>
+        public static bool operator ==(DescribedSerialization first, DescribedSerialization second)
+        {
+            if (ReferenceEquals(first, second))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(first, null) || ReferenceEquals(second, null))
+            {
+                return false;
+            }
+
+            return first.PayloadTypeDescription == second.PayloadTypeDescription
+                   && first.SerializedPayload == second.SerializedPayload
+                   && first.SerializationDescription == second.SerializationDescription;
+        }
+
+        /// <summary>
+        /// Inequality operator.
+        /// </summary>
+        /// <param name="first">First parameter.</param>
+        /// <param name="second">Second parameter.</param>
+        /// <returns>A value indicating whether or not the two items are inequal.</returns>
+        public static bool operator !=(DescribedSerialization first, DescribedSerialization second) => !(first == second);
+
+        /// <inheritdoc />
+        public bool Equals(DescribedSerialization other) => this == other;
+
+        /// <inheritdoc />
+        public override bool Equals(object obj) => this == (obj as DescribedSerialization);
+
+        /// <inheritdoc />
+        public override int GetHashCode() => HashCodeHelper.Initialize().Hash(this.PayloadTypeDescription).Hash(this.SerializedPayload).Hash(this.SerializationDescription).Value;
     }
 }

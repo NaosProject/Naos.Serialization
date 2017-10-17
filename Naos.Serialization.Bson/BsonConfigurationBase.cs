@@ -12,14 +12,14 @@ namespace Naos.Serialization.Bson
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-    using MongoDB.Bson;
+
     using MongoDB.Bson.Serialization;
     using MongoDB.Bson.Serialization.Options;
     using MongoDB.Bson.Serialization.Serializers;
 
     using Naos.Serialization.Domain;
 
-    using OBeautifulCode.Reflection;
+    using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.TypeRepresentation;
 
     using Spritely.Recipes;

@@ -25,25 +25,6 @@ namespace Naos.Serialization.Test
     public static class ExtensionsTest
     {
         [Fact]
-        public static void ToDescribedSerializationWithSpecificFactory___Null_object___Throws()
-        {
-            // Arrange
-            Action action = () => DomainExtensions.ToDescribedSerializationUsingSpecificFactory(
-                null,
-                A.Dummy<SerializationDescription>(),
-                SerializerFactory.Instance,
-                CompressorFactory.Instance);
-
-            // Act
-            var exception = Record.Exception(action);
-
-            // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: objectToPackageIntoDescribedSerialization");
-        }
-
-        [Fact]
         public static void ToDescribedSerializationWithSpecificFactory___Null_serializer_description___Throws()
         {
             // Arrange
@@ -101,6 +82,26 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
+        public static void ToDescribedSerializationWithSpecificFactory___Null_object___Works()
+        {
+            // Arrange
+            string objectToPackageIntoDescribedSerialization = null;
+            var serializerDescription = new SerializationDescription(SerializationFormat.Json, SerializationRepresentation.String, SerializationKind.Minimal, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+
+            // Act
+            var describedSerialization = objectToPackageIntoDescribedSerialization.ToDescribedSerializationUsingSpecificFactory(
+                serializerDescription,
+                SerializerFactory.Instance,
+                CompressorFactory.Instance);
+
+            // Assert
+            describedSerialization.Should().NotBeNull();
+            describedSerialization.PayloadTypeDescription.Should().Be(typeof(string).ToTypeDescription());
+            describedSerialization.SerializedPayload.Should().Be("null");
+            describedSerialization.SerializationDescription.Should().Be(serializerDescription);
+        }
+
+        [Fact]
         public static void ToDescribedSerializationWithSpecificFactory___All_valid___Works()
         {
             // Arrange
@@ -119,6 +120,28 @@ namespace Naos.Serialization.Test
             describedSerialization.PayloadTypeDescription.Should().Be(objectToPackageIntoDescribedSerialization.GetType().ToTypeDescription());
             describedSerialization.SerializedPayload.Should().Be("\"" + objectToPackageIntoDescribedSerialization + "\"");
             describedSerialization.SerializationDescription.Should().Be(serializerDescription);
+        }
+
+        [Fact]
+        public static void FromDescribedSerializationWithSpecificFactory___Null_object___Works()
+        {
+            // Arrange
+            string expected = null;
+            var serializerDescription = new SerializationDescription(SerializationFormat.Json, SerializationRepresentation.String, SerializationKind.Minimal, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+            var payload = "null";
+            var describedSerialization = new DescribedSerialization(
+                typeof(string).ToTypeDescription(),
+                payload,
+                serializerDescription);
+
+            // Act
+            var actual = DomainExtensions.DeserializePayloadUsingSpecificFactory(
+                describedSerialization,
+                SerializerFactory.Instance,
+                CompressorFactory.Instance);
+
+            // Assert
+            actual.Should().Be(expected);
         }
 
         [Fact]

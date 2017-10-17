@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FakeItEasy, Version=4.0.0.0, Culture=neutral, PublicKeyToken=eff28e2146d5fd2c, processorArchitecture=MSIL">
-      <HintPath>..\packages\FakeItEasy.4.0.0\lib\net45\FakeItEasy.dll</HintPath>
+      <HintPath>..\packages\FakeItEasy.4.1.0\lib\net45\FakeItEasy.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions, Version=4.19.4.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentAssertions.4.19.4\lib\net45\FluentAssertions.dll</HintPath>
@@ -50,14 +50,14 @@
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="OBeautifulCode.AutoFakeItEasy, Version=1.0.87.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OBeautifulCode.AutoFakeItEasy.1.0.87\lib\net45\OBeautifulCode.AutoFakeItEasy.dll</HintPath>
+    <Reference Include="OBeautifulCode.AutoFakeItEasy, Version=1.0.96.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OBeautifulCode.AutoFakeItEasy.1.0.96\lib\net45\OBeautifulCode.AutoFakeItEasy.dll</HintPath>
     </Reference>
     <Reference Include="OBeautifulCode.TypeRepresentation, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\OBeautifulCode.TypeRepresentation.1.0.5\lib\net45\OBeautifulCode.TypeRepresentation.dll</HintPath>
     </Reference>
-    <Reference Include="Ploeh.AutoFixture, Version=3.50.0.0, Culture=neutral, PublicKeyToken=b24654c590009d4f, processorArchitecture=MSIL">
-      <HintPath>..\packages\AutoFixture.3.50.3\lib\net40\Ploeh.AutoFixture.dll</HintPath>
+    <Reference Include="Ploeh.AutoFixture, Version=3.51.0.0, Culture=neutral, PublicKeyToken=b24654c590009d4f, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoFixture.3.51.0\lib\net40\Ploeh.AutoFixture.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -81,19 +81,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include=".Naos.Recipes\InitializeTestProject\ExampleDummyFactory.cs" />
-    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.AutoFakeItEasy\AutoFakeItEasyBootstrapper.cs" />
-    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Enum\EnumExtensions.cs" />
-    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Reflection\ReflectionHelper.Attribute.cs" />
-    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Reflection\ReflectionHelper.cs" />
-    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Reflection\ReflectionHelper.Enum.cs" />
-    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Reflection\ReflectionHelper.Field.cs" />
-    <Compile Include=".OBeautifulCode.Recipes\OBeautifulCode.Reflection\ReflectionHelper.Property.cs" />
-    <Compile Include=".Spritely.Recipes\MustValidation\MakeRule.cs" />
-    <Compile Include=".Spritely.Recipes\MustValidation\MustExtensions.cs" />
-    <Compile Include=".Spritely.Recipes\MustValidation\RuleExtensions.cs" />
-    <Compile Include=".Spritely.Recipes\MustValidation\Rules.cs" />
-    <Compile Include=".Spritely.Recipes\MustValidation\ValidatedNotNullAttribute.cs" />
+    <Compile Include=".recipes\Naos.InitializeTestProject\ExampleDummyFactory.cs" />
+    <Compile Include=".recipes\OBeautifulCode.AutoFakeItEasy\AutoFakeItEasyBootstrapper.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Enum\EnumExtensions.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Attribute.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Enum.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Field.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Property.cs" />
+    <Compile Include=".recipes\Spritely.MustValidation\MakeRule.cs" />
+    <Compile Include=".recipes\Spritely.MustValidation\MustExtensions.cs" />
+    <Compile Include=".recipes\Spritely.MustValidation\RuleExtensions.cs" />
+    <Compile Include=".recipes\Spritely.MustValidation\Rules.cs" />
+    <Compile Include=".recipes\Spritely.MustValidation\ValidatedNotNullAttribute.cs" />
     <Compile Include="BsonConfigurationAutoRegisterType.cs" />
     <Compile Include="SerializationDummyFactory.cs" />
     <Compile Include="GlobalSuppressions.cs" />

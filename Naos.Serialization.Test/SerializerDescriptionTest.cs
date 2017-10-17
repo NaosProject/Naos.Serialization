@@ -7,7 +7,10 @@
 namespace Naos.Serialization.Test
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+
+    using FakeItEasy;
 
     using FluentAssertions;
 
@@ -106,8 +109,28 @@ namespace Naos.Serialization.Test
             // Arrange
             var typeDescription1 = typeof(string).ToTypeDescription();
             var typeDescription2 = typeof(decimal).ToTypeDescription();
+
+            var metadata1 = new Dictionary<string, string> { { A.Dummy<string>(), A.Dummy<string>() } };
+            var metadata1Plus = new Dictionary<string, string> { { A.Dummy<string>(), A.Dummy<string>() } };
+            var metadata2 = new Dictionary<string, string> { { A.Dummy<string>(), A.Dummy<string>() } };
+
             var notEqualTests = new[]
                                     {
+                                        new
+                                            {
+                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.DotNetZip, metadata1),
+                                                Second = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.DotNetZip, metadata1Plus),
+                                            },
+                                        new
+                                            {
+                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.DotNetZip, metadata1),
+                                                Second = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.DotNetZip, metadata2),
+                                            },
+                                        new
+                                            {
+                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.DotNetZip),
+                                                Second = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.None),
+                                            },
                                         new
                                             {
                                                 First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1),

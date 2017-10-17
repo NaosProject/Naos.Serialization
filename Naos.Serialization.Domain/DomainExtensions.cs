@@ -24,6 +24,7 @@ namespace Naos.Serialization.Domain.Extensions
         /// <summary>
         /// Converts an object to a self described serialization to persist or share.
         /// </summary>
+        /// <typeparam name="T">Type of object to serialize.</typeparam>
         /// <param name="objectToPackageIntoDescribedSerialization">Object to serialize.</param>
         /// <param name="serializationDescription">Description of the serializer to use.</param>
         /// <param name="serializerFactory">Implementation of <see cref="ISerializerFactory" /> that can resolve the serializer.</param>
@@ -35,15 +36,15 @@ namespace Naos.Serialization.Domain.Extensions
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "2", Justification = "Checked with Must and tested.")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "3", Justification = "Checked with Must and tested.")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "object", Justification = "Spelling/name is correct.")]
-        public static DescribedSerialization ToDescribedSerializationUsingSpecificFactory(
-            this object objectToPackageIntoDescribedSerialization,
+        public static DescribedSerialization ToDescribedSerializationUsingSpecificFactory<T>(
+            this T objectToPackageIntoDescribedSerialization,
             SerializationDescription serializationDescription,
             ISerializerFactory serializerFactory,
             ICompressorFactory compressorFactory,
             TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName,
             MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            new { objectToPackageIntoDescribedSerialization, serializationDescription, serializerFactory, compressorFactory }.Must().NotBeNull().OrThrowFirstFailure();
+            new { serializationDescription, serializerFactory, compressorFactory }.Must().NotBeNull().OrThrowFirstFailure();
 
             var serializer = serializerFactory.BuildSerializer(serializationDescription, typeMatchStrategy, multipleMatchStrategy);
             var compressor = compressorFactory.BuildCompressor(serializationDescription.CompressionKind);
@@ -63,7 +64,7 @@ namespace Naos.Serialization.Domain.Extensions
             }
 
             var ret = new DescribedSerialization(
-                objectToPackageIntoDescribedSerialization.GetType().ToTypeDescription(),
+                (objectToPackageIntoDescribedSerialization?.GetType() ?? typeof(T)).ToTypeDescription(),
                 payload,
                 serializationDescription);
 
