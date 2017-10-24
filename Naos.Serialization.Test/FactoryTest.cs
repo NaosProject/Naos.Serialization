@@ -74,9 +74,8 @@ namespace Naos.Serialization.Test
             // Assert
             serializer.Should().NotBeNull();
             serializer.Should().BeOfType<NaosBsonSerializer>();
-            var configType = ((NaosBsonSerializer)serializer).GetFieldValue<Type>("BsonConfigurationType");
-            configType.Should().NotBeNull();
-            configType.Should().Be(expectedConfigType);
+            serializer.ConfigurationType.Should().NotBeNull();
+            serializer.ConfigurationType.Should().Be(expectedConfigType);
         }
     }
 }

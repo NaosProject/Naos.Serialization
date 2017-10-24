@@ -18,7 +18,7 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Interface to serialize to a string.
     /// </summary>
-    public interface IStringSerialize
+    public interface IStringSerialize : IHaveSerializationKind, IHaveConfigurationType
     {
         /// <summary>
         /// Serializes an object into a string.
@@ -32,7 +32,7 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Interface to deserialize from a string.
     /// </summary>
-    public interface IStringDeserialize
+    public interface IStringDeserialize : IHaveSerializationKind, IHaveConfigurationType
     {
         /// <summary>
         /// Deserializes the string into an object.

@@ -21,6 +21,12 @@ namespace Naos.Serialization.Domain
     /// </summary>
     public class NaosDateTimeStringSerializer : IStringSerializeAndDeserialize
     {
+        /// <inheritdoc cref="IHaveSerializationKind" />
+        public SerializationKind SerializationKind => SerializationKind.Default;
+
+        /// <inheritdoc cref="IHaveConfigurationType" />
+        public Type ConfigurationType => null;
+
         /// <summary>
         /// Map of <see cref="DateTimeKind"/> to a format string used for serialization.
         /// </summary>
@@ -87,8 +93,7 @@ namespace Naos.Serialization.Domain
             }
 
             var dateTime = (DateTime)objectToSerialize;
-            string formatString;
-            DateTimeKindToFormatStringMap.TryGetValue(dateTime.Kind, out formatString)
+            DateTimeKindToFormatStringMap.TryGetValue(dateTime.Kind, out string formatString)
                 .Named(Invariant($"DidNotFindValueIn{nameof(DateTimeKindToFormatStringMap)}ForKind{dateTime.Kind}")).Must().BeTrue().OrThrowFirstFailure();
 
             return dateTime.ToString(formatString, FormatProvider);
@@ -117,16 +122,13 @@ namespace Naos.Serialization.Domain
 
                 var kind = DiscoverKindInSerializedString(serializedString);
 
-                string formatString;
-                DateTimeKindToFormatStringMap.TryGetValue(kind, out formatString)
+                DateTimeKindToFormatStringMap.TryGetValue(kind, out string formatString)
                     .Named(Invariant($"DidNotFindValueIn{nameof(DateTimeKindToFormatStringMap)}ForKind{kind}")).Must().BeTrue().OrThrowFirstFailure();
 
-                DateTimeStyles styles;
-                DateTimeKindToStylesMap.TryGetValue(kind, out styles).Named(Invariant($"DidNotFindValueIn{nameof(DateTimeKindToStylesMap)}ForKind{kind}"))
+                DateTimeKindToStylesMap.TryGetValue(kind, out DateTimeStyles styles).Named(Invariant($"DidNotFindValueIn{nameof(DateTimeKindToStylesMap)}ForKind{kind}"))
                     .Must().BeTrue().OrThrowFirstFailure();
 
-                DateTimeParseMethod parseMethod;
-                DateTimeKindToParseMethodMap.TryGetValue(kind, out parseMethod).Named(Invariant($"DidNotFindValueIn{nameof(DateTimeKindToParseMethodMap)}ForKind{kind}"))
+                DateTimeKindToParseMethodMap.TryGetValue(kind, out DateTimeParseMethod parseMethod).Named(Invariant($"DidNotFindValueIn{nameof(DateTimeKindToParseMethodMap)}ForKind{kind}"))
                     .Must().BeTrue().OrThrowFirstFailure();
 
                 var ret = parseMethod(serializedString, formatString, FormatProvider, styles);

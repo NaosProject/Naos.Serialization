@@ -15,8 +15,6 @@ namespace Naos.Serialization.Json
 
     using Spritely.Recipes;
 
-    using static System.FormattableString;
-
     /// <summary>
     /// JSON serializer.
     /// </summary>
@@ -37,8 +35,19 @@ namespace Naos.Serialization.Json
         /// <param name="configurationType">Type of configuration to use.</param>
         public NaosJsonSerializer(SerializationKind serializationKind = SerializationKind.Default, Type configurationType = null)
         {
-            this.serializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(serializationKind, configurationType);
+            new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid).OrThrowFirstFailure();
+
+            this.SerializationKind = serializationKind;
+            this.ConfigurationType = configurationType;
+
+            this.serializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(this.SerializationKind, this.ConfigurationType);
         }
+
+        /// <inheritdoc cref="IHaveSerializationKind" />
+        public SerializationKind SerializationKind { get; private set; }
+
+        /// <inheritdoc cref="IHaveConfigurationType" />
+        public Type ConfigurationType { get; private set; }
 
         /// <summary>
         /// Converts JSON string into a byte array.

@@ -102,6 +102,26 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
+        public static void ToDescribedSerializationWithSpecificSerializer___Valid_object_and_serializer___Works()
+        {
+            // Arrange
+            string objectToPackageIntoDescribedSerialization = null;
+            var serializerDescription = new SerializationDescription(SerializationFormat.Json, SerializationRepresentation.String, SerializationKind.Minimal, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+
+            // Act
+            var describedSerialization = objectToPackageIntoDescribedSerialization.ToDescribedSerializationUsingSpecificFactory(
+                serializerDescription,
+                SerializerFactory.Instance,
+                CompressorFactory.Instance);
+
+            // Assert
+            describedSerialization.Should().NotBeNull();
+            describedSerialization.PayloadTypeDescription.Should().Be(typeof(string).ToTypeDescription());
+            describedSerialization.SerializedPayload.Should().Be("null");
+            describedSerialization.SerializationDescription.Should().Be(serializerDescription);
+        }
+
+        [Fact]
         public static void ToDescribedSerializationWithSpecificFactory___All_valid___Works()
         {
             // Arrange
