@@ -8,7 +8,6 @@ namespace Naos.Serialization.Factory
 {
     using System;
 
-    using Naos.Compression.Domain;
     using Naos.Serialization.Bson;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;

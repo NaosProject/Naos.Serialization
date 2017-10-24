@@ -42,11 +42,11 @@ namespace Naos.Serialization.Bson
         /// <summary>
         /// Initializes a new instance of the <see cref="NaosBsonSerializer"/> class.
         /// </summary>
-        /// <param name="serializationKind">Optional kind of serialization to use; default is <see cref="Domain.SerializationKind.Default"/>.</param>
+        /// <param name="serializationKind">Optional kind of serialization to use; default is <see cref="Domain.SerializationKind.Custom"/>.</param>
         /// <param name="configurationType">Optional <see cref="BsonConfigurationBase"/> implmentation to use; default is <see cref="NullBsonConfiguration"/>.</param>
-        public NaosBsonSerializer(SerializationKind serializationKind = SerializationKind.Default, Type configurationType = null)
+        public NaosBsonSerializer(SerializationKind serializationKind = SerializationKind.Custom, Type configurationType = null)
         {
-            new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid).OrThrowFirstFailure();
+            new { serializationKind }.Must().BeEqualTo(SerializationKind.Custom).OrThrowFirstFailure();
 
             if (configurationType != null)
             {
@@ -130,7 +130,7 @@ namespace Naos.Serialization.Bson
         /// Initializes a new instance of the <see cref="NaosBsonSerializer{TBsonConfiguration}"/> class.
         /// </summary>
         /// <param name="serializationKind">Type of serialization to use.</param>
-        public NaosBsonSerializer(SerializationKind serializationKind = SerializationKind.Default)
+        public NaosBsonSerializer(SerializationKind serializationKind = SerializationKind.Custom)
             : base(serializationKind, typeof(TBsonConfiguration))
         {
         }

@@ -27,6 +27,11 @@ namespace Naos.Serialization.Domain
         Minimal,
 
         /// <summary>
+        /// Custom option.
+        /// </summary>
+        Custom,
+
+        /// <summary>
         /// Invalid option.
         /// </summary>
         Invalid,

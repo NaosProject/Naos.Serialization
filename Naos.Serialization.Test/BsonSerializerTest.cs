@@ -7,6 +7,8 @@
 namespace Naos.Serialization.Test
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     using FluentAssertions;
 
@@ -15,28 +17,46 @@ namespace Naos.Serialization.Test
 
     using Xunit;
 
+    using static System.FormattableString;
+
     public static class BsonSerializerTest
     {
         [Fact]
-        public static void NaosBsonSerializer___Invalid_SerializationKind___Throws()
+        public static void NaosBsonSerializer___Not_Custom_SerializationKind___Throws()
         {
             // Arrange
-            Action action = () => new NaosBsonSerializer(SerializationKind.Invalid);
+            Action action1 = () => new NaosBsonSerializer(SerializationKind.Invalid);
+            Action action2 = () => new NaosBsonSerializer(SerializationKind.Default);
+            Action action3 = () => new NaosBsonSerializer(SerializationKind.Compact);
+            Action action4 = () => new NaosBsonSerializer(SerializationKind.Minimal);
 
             // Act
-            var exception = Record.Exception(action);
+            var exception1 = Record.Exception(action1);
+            var exception2 = Record.Exception(action2);
+            var exception3 = Record.Exception(action3);
+            var exception4 = Record.Exception(action4);
 
             // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must not be equal to Invalid.\r\nParameter name: serializationKind");
+            new Dictionary<SerializationKind, Exception>
+                {
+                    { SerializationKind.Invalid, exception1 },
+                    { SerializationKind.Default, exception2 },
+                    { SerializationKind.Compact, exception3 },
+                    { SerializationKind.Minimal, exception4 },
+                }.ToList().ForEach(
+                _ =>
+                    {
+                        _.Value.Should().NotBeNull();
+                        _.Value.Should().BeOfType<ArgumentException>();
+                        _.Value.Message.Should().Be(Invariant($"Value must be equal to Custom.\r\nParameter name: serializationKind"));
+                    });
         }
 
         [Fact]
         public static void NaosBsonSerializer___Invalid_configuration_type___Throws()
         {
             // Arrange
-            Action action = () => new NaosBsonSerializer(SerializationKind.Default, typeof(string));
+            Action action = () => new NaosBsonSerializer(SerializationKind.Custom, typeof(string));
 
             // Act
             var exception = Record.Exception(action);
@@ -51,7 +71,7 @@ namespace Naos.Serialization.Test
         public static void Constructor___Type_without_default_constructor___Throws()
         {
             // Arrange
-            Action action = () => new NaosBsonSerializer(SerializationKind.Default, typeof(CustomNoPublicConstructor));
+            Action action = () => new NaosBsonSerializer(SerializationKind.Custom, typeof(CustomNoPublicConstructor));
 
             // Act
             var exception = Record.Exception(action);

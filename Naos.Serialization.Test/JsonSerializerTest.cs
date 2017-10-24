@@ -39,6 +39,22 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Newtonsoft", Justification = "Spelling/name is correct.")]
+        public static void NaosJsonSerializer___With_kind_Custom_and_null_Configuration_type___Throws()
+        {
+            // Arrange
+            Action action = () => new NaosJsonSerializer(SerializationKind.Custom, null);
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentException>();
+            exception.Message.Should().Be("Must specify configurationType if using serializationKind of SerializationKind.Custom");
+        }
+
+        [Fact]
         public static void NaosJsonSerializer___With_type_Default___Uses_default()
         {
             // Arrange

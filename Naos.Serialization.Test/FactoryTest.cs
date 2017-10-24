@@ -65,7 +65,7 @@ namespace Naos.Serialization.Test
             var serializerDescription = new SerializationDescription(
                 SerializationFormat.Bson,
                 SerializationRepresentation.String,
-                SerializationKind.Default,
+                SerializationKind.Custom,
                 expectedConfigType.ToTypeDescription());
 
             // Act

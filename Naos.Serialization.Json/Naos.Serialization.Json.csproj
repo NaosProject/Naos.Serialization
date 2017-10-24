@@ -67,6 +67,7 @@
     <Compile Include=".recipes\Spritely.SecureString\SecureString.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="NaosJsonSerializer.cs" />
+    <Compile Include="NewtonsoftJsonSerializerSettingsFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
