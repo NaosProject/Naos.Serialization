@@ -52,6 +52,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include=".recipes\OBeautifulCode.Enum\EnumExtensions.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Attribute.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Enum.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Field.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Property.cs" />
     <Compile Include=".recipes\Spritely.CamelStrictConstructorContractResolver\CamelStrictConstructorContractResolver.cs" />
     <Compile Include=".recipes\Spritely.InheritedTypeJsonConverter\InheritedTypeJsonConverter.cs" />
     <Compile Include=".recipes\Spritely.JsonConfiguration\CompactJsonSerializer.cs" />
@@ -65,7 +71,11 @@
     <Compile Include=".recipes\Spritely.MustValidation\ValidatedNotNullAttribute.cs" />
     <Compile Include=".recipes\Spritely.SecureStringJsonConverter\SecureStringJsonConverter.cs" />
     <Compile Include=".recipes\Spritely.SecureString\SecureString.cs" />
+    <Compile Include="JsonConfigurationException.cs" />
+    <Compile Include="JsonConfigurationManager.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="JsonConfigurationBase.cs" />
+    <Compile Include="JsonSerializerFactory.cs" />
     <Compile Include="NaosJsonSerializer.cs" />
     <Compile Include="NewtonsoftJsonSerializerSettingsFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

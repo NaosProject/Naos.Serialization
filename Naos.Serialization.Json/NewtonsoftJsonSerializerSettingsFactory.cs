@@ -39,27 +39,12 @@ namespace Naos.Serialization.Json
                     throw new ArgumentException(Invariant($"Must specify {nameof(configurationType)} if using {nameof(serializationKind)} of {nameof(SerializationKind)}.{SerializationKind.Custom}"));
                 }
 
-                throw new NotImplementedException("Still need to implement custom Type creation of settings.");
+                var settings = JsonConfigurationManager.Configure(configurationType);
+                return settings.SerializationSettings;
             }
             else
             {
-                return GetSettingsBySerializationKind(serializationKind);
-            }
-        }
-
-        /// <summary>
-        /// Gets the settings to use from the <see cref="SerializationKind" /> provided.
-        /// </summary>
-        /// <param name="serializationKind">Kind to determine the settings.</param>
-        /// <returns><see cref="JsonSerializerSettings" /> to use with <see cref="Newtonsoft" /> when serializing.</returns>
-        public static JsonSerializerSettings GetSettingsBySerializationKind(SerializationKind serializationKind)
-        {
-            switch (serializationKind)
-            {
-                case SerializationKind.Default: return JsonConfiguration.DefaultSerializerSettings;
-                case SerializationKind.Compact: return JsonConfiguration.CompactSerializerSettings;
-                case SerializationKind.Minimal: return JsonConfiguration.MinimalSerializerSettings;
-                default: throw new NotSupportedException(Invariant($"Value of {nameof(SerializationKind)} - {serializationKind} is not currently supported."));
+                return JsonConfigurationBase.GetSettingsBySerializationKind(serializationKind);
             }
         }
     }

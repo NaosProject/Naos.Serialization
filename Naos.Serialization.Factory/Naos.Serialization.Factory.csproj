@@ -62,8 +62,8 @@
     <Compile Include=".recipes\Spritely.MustValidation\ValidatedNotNullAttribute.cs" />
     <Compile Include="FactoryExtensions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="SerializerFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializerFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Naos.Serialization.Bson\Naos.Serialization.Bson.csproj">
