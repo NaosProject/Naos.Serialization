@@ -95,6 +95,7 @@
     <Compile Include=".recipes\Spritely.MustValidation\Rules.cs" />
     <Compile Include=".recipes\Spritely.MustValidation\ValidatedNotNullAttribute.cs" />
     <Compile Include="BsonConfigurationAutoRegisterType.cs" />
+    <Compile Include="DoubleInterfaceTest.cs" />
     <Compile Include="JsonConfigurationBaseTest.cs" />
     <Compile Include="SerializationDummyFactory.cs" />
     <Compile Include="GlobalSuppressions.cs" />
