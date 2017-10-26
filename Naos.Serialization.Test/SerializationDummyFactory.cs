@@ -10,13 +10,11 @@
 namespace Naos.Serialization.Recipes
 {
     using System;
-    using System.Collections.Generic;
 
     using FakeItEasy;
 
     using Naos.Compression.Domain;
     using Naos.Serialization.Domain;
-    using Naos.Serialization.Test;
 
     using OBeautifulCode.AutoFakeItEasy;
 
