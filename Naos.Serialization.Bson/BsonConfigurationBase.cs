@@ -243,8 +243,18 @@ namespace Naos.Serialization.Bson
             new { types }.Must().NotBeNull().OrThrowFirstFailure();
 
             var allTypes = types.SelectMany(this.GetInterfaceImplementations).Distinct().ToList();
+            var interfaceTypes = allTypes.Where(_ => _.IsInterface).ToList();
+            var classTypes = allTypes.Where(_ => _.IsClass).ToList();
 
-            this.RegisterClassTypes(allTypes);
+            if (classTypes.Any())
+            {
+                this.RegisterClassTypes(classTypes);
+            }
+
+            if (interfaceTypes.Any())
+            {
+                this.RegisterImplementationsOfInterfaceTypes(interfaceTypes);
+            }
         }
 
         /// <summary>
