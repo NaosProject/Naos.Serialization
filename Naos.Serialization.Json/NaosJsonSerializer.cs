@@ -26,8 +26,6 @@ namespace Naos.Serialization.Json
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is not mutable.")]
         public static readonly Encoding SerializationEncoding = Encoding.UTF8;
 
-        private readonly JsonSerializerSettings serializationSettings;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="NaosJsonSerializer"/> class.
         /// </summary>
@@ -40,7 +38,7 @@ namespace Naos.Serialization.Json
             this.SerializationKind = serializationKind;
             this.ConfigurationType = configurationType;
 
-            this.serializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(this.SerializationKind, this.ConfigurationType);
+            this.SerializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(this.SerializationKind, this.ConfigurationType);
         }
 
         /// <inheritdoc cref="IHaveSerializationKind" />
@@ -48,6 +46,11 @@ namespace Naos.Serialization.Json
 
         /// <inheritdoc cref="IHaveConfigurationType" />
         public Type ConfigurationType { get; private set; }
+
+        /// <summary>
+        /// Gets the serialization settings to use.
+        /// </summary>
+        public JsonSerializerSettings SerializationSettings { get; private set; }
 
         /// <summary>
         /// Converts JSON string into a byte array.
@@ -99,7 +102,7 @@ namespace Naos.Serialization.Json
         /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
         public string SerializeToString(object objectToSerialize)
         {
-            var ret = JsonConvert.SerializeObject(objectToSerialize, this.serializationSettings);
+            var ret = JsonConvert.SerializeObject(objectToSerialize, this.SerializationSettings);
 
             return ret;
         }
@@ -107,7 +110,7 @@ namespace Naos.Serialization.Json
         /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
         public T Deserialize<T>(string serializedString)
         {
-            var ret = JsonConvert.DeserializeObject<T>(serializedString, this.serializationSettings);
+            var ret = JsonConvert.DeserializeObject<T>(serializedString, this.SerializationSettings);
 
             return ret;
         }
@@ -117,7 +120,7 @@ namespace Naos.Serialization.Json
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
-            var ret = JsonConvert.DeserializeObject(serializedString, type, this.serializationSettings);
+            var ret = JsonConvert.DeserializeObject(serializedString, type, this.SerializationSettings);
 
             return ret;
         }
