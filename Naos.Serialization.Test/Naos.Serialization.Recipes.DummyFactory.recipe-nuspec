@@ -8,6 +8,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="SerializationDummyFactory.cs" target="content\net45\.Naos.Recipes\Serialization\SerializationDummyFactory.cs" />
+    <file src="SerializationDummyFactory.cs" target="content\net45\.recipes\Naos.Serialization\SerializationDummyFactory.cs" />
   </files>
 </package>
