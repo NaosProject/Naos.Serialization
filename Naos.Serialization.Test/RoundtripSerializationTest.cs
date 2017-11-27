@@ -9,6 +9,7 @@ namespace Naos.Serialization.Test
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Security.Cryptography;
 
     using FakeItEasy;
 
@@ -31,18 +32,54 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_ClassWithGetterOnlysBase___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<ClassWithGetterOnlysBase>>();
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<ClassWithGetterOnlyBase>>();
 
-            var expected = new ClassWithGetterOnlys();
+            var expected = new ClassWithGetterOnly();
 
             void ThrowIfObjectsDiffer(object actualAsObject)
             {
-                var actual = actualAsObject as ClassWithGetterOnlys;
+                var actual = actualAsObject as ClassWithGetterOnly;
                 actual.Should().NotBeNull();
                 actual.GetMyEnumFromBase.Should().Be(expected.GetMyEnumFromBase);
                 actual.GetMyEnumFromThis.Should().Be(expected.GetMyEnumFromThis);
                 actual.GetMyStringFromBase.Should().Be(expected.GetMyStringFromBase);
                 actual.GetMyStringFromThis.Should().Be(expected.GetMyStringFromThis);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_ClassWithHashAlgorithmName___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<ClassWithHashAlgorithmName>>();
+
+            var expected = new ClassWithHashAlgorithmName
+                               {
+                                   HashAlgorithmNameSomething = HashAlgorithmName.SHA1,
+                                   HashAlgorithmNameDefault = default(HashAlgorithmName),
+                                   DictionaryKeyedOnHashAlgorithmName =
+                                       new Dictionary<HashAlgorithmName, string>
+                                           {
+                                               { HashAlgorithmName.MD5, "MD5-string" },
+                                               { HashAlgorithmName.SHA1, "SHA1-string" },
+                                           },
+                               };
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as ClassWithHashAlgorithmName;
+                actual.Should().NotBeNull();
+                actual.HashAlgorithmNameSomething.Should().Be(expected.HashAlgorithmNameSomething);
+                actual.HashAlgorithmNameDefault.Should().Be(expected.HashAlgorithmNameDefault);
+                actual.HashAlgorithmNameDefault.Should().Be(default(HashAlgorithmName));
+                actual.DictionaryKeyedOnHashAlgorithmName.Count.Should().Be(expected.DictionaryKeyedOnHashAlgorithmName.Count);
+                actual.DictionaryKeyedOnHashAlgorithmName.First().Key.Should().Be(expected.DictionaryKeyedOnHashAlgorithmName.First().Key);
+                actual.DictionaryKeyedOnHashAlgorithmName.First().Value.Should().Be(expected.DictionaryKeyedOnHashAlgorithmName.First().Value);
+                actual.DictionaryKeyedOnHashAlgorithmName.Last().Key.Should().Be(expected.DictionaryKeyedOnHashAlgorithmName.Last().Key);
+                actual.DictionaryKeyedOnHashAlgorithmName.Last().Value.Should().Be(expected.DictionaryKeyedOnHashAlgorithmName.Last().Value);
             }
 
             // Act & Assert

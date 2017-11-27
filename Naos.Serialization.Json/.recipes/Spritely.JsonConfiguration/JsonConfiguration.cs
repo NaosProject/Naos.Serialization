@@ -11,6 +11,8 @@
 namespace Spritely.Recipes
 {
     using System.Collections.Generic;
+    using System.Security.Cryptography;
+
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
     using Newtonsoft.Json.Serialization;
@@ -45,7 +47,8 @@ namespace Spritely.Recipes
                         new StringEnumConverter { CamelCaseText = true },
                         new SecureStringJsonConverter(),
                         new InheritedTypeReaderJsonConverter(),
-                        new InheritedTypeWriterJsonConverter()
+                        new InheritedTypeWriterJsonConverter(),
+                        new HashAlgorithmNameJsonConverter(),
                     }
                 };
             }
@@ -71,7 +74,8 @@ namespace Spritely.Recipes
                         new StringEnumConverter { CamelCaseText = true },
                         new SecureStringJsonConverter(),
                         new InheritedTypeReaderJsonConverter(),
-                        new InheritedTypeWriterJsonConverter()
+                        new InheritedTypeWriterJsonConverter(),
+                        new HashAlgorithmNameJsonConverter(),
                     }
                 };
             }
@@ -97,7 +101,8 @@ namespace Spritely.Recipes
                         new StringEnumConverter { CamelCaseText = true },
                         new SecureStringJsonConverter(),
                         new InheritedTypeReaderJsonConverter(),
-                        new InheritedTypeWriterJsonConverter()
+                        new InheritedTypeWriterJsonConverter(),
+                        new HashAlgorithmNameJsonConverter(),
                     }
                 };
             }

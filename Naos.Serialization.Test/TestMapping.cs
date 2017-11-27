@@ -11,6 +11,7 @@ namespace Naos.Serialization.Test
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Security.Cryptography;
 
     public class TestMapping
     {
@@ -257,8 +258,16 @@ namespace Naos.Serialization.Test
         }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
-    public abstract class ClassWithGetterOnlysBase
+    public class ClassWithHashAlgorithmName
+    {
+        public HashAlgorithmName HashAlgorithmNameSomething { get; set; }
+
+        public HashAlgorithmName HashAlgorithmNameDefault { get; set; }
+
+        public IReadOnlyDictionary<HashAlgorithmName, string> DictionaryKeyedOnHashAlgorithmName { get; set; }
+    }
+
+    public abstract class ClassWithGetterOnlyBase
     {
         public AnotherEnumeration GetMyEnumOnlyBase { get; }
 
@@ -269,8 +278,7 @@ namespace Naos.Serialization.Test
         public abstract string GetMyStringFromBase { get; }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
-    public class ClassWithGetterOnlys : ClassWithGetterOnlysBase
+    public class ClassWithGetterOnly : ClassWithGetterOnlyBase
     {
         public AnotherEnumeration GetMyEnumFromThis => AnotherEnumeration.AnotherFirst;
 
