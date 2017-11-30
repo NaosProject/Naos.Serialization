@@ -12,7 +12,6 @@ namespace Naos.Serialization.Bson
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-    using System.Security.Cryptography;
 
     using MongoDB.Bson.Serialization;
     using MongoDB.Bson.Serialization.Options;
@@ -362,10 +361,6 @@ namespace Naos.Serialization.Bson
             else if (type == typeof(DateTime))
             {
                 result = new NaosBsonDateTimeSerializer();
-            }
-            else if (type == typeof(HashAlgorithmName))
-            {
-                result = new NaosBsonHashAlgorithmNameStringSerializer();
             }
             else if (type == typeof(DateTime?))
             {
