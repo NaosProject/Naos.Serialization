@@ -74,15 +74,21 @@ namespace Naos.Serialization.Test
                                 CustomWithAttribute = new CustomWithAttribute(),
                                 CustomWithoutInterface = new CustomWithoutInterface(),
                                 CustomWithInterface = new CustomWithInterface(),
-                                StringArray = new[] { A.Dummy<string>() },
-                                StringCollection = new[] { A.Dummy<string>() }.ToList(),
-                                IntCollection = new[] { A.Dummy<int>() }.ToList(),
-                                TimeSpanCollection = new[] { A.Dummy<TimeSpan>() }.ToList(),
-                                DateTimeCollection = new[] { A.Dummy<DateTime>() }.ToList(),
+                                StringArray = new[] { A.Dummy<string>(), },
+                                StringCollection = new[] { A.Dummy<string>(), }.ToList(),
+                                IntCollection = new[] { A.Dummy<int>(), }.ToList(),
+                                TimeSpanCollection = new[] { A.Dummy<TimeSpan>(), }.ToList(),
+                                DateTimeCollection = new[] { A.Dummy<DateTime>(), }.ToList(),
                                 CustomWithoutInterfaceCollection = new[] { new CustomWithoutInterface(), new CustomWithoutInterface(), }.ToList(),
                                 CustomWithInterfaceCollection = new[] { new CustomWithInterface(), new CustomWithInterface(), }.ToList(),
                                 CustomElementArray = new[] { new CustomElement(), new CustomElement(), },
                                 CustomElementCollection = new[] { new CustomElement(), new CustomElement(), }.ToList(),
+                                EnumParseCollection = new[] { EnumParse.Default, EnumParse.Value, },
+                                EnumAttributeCollection = new[] { EnumAttribute.Default, EnumAttribute.Value, },
+                                EnumAttributePropertyCollection = new[] { EnumAttributeProperty.Default, EnumAttributeProperty.Value, },
+                                EnumParse = EnumParse.Value,
+                                EnumAttribute = EnumAttribute.Value,
+                                EnumAttributeProperty = EnumAttributeProperty.Value,
                             };
 
             // Act
@@ -120,6 +126,17 @@ namespace Naos.Serialization.Test
                 actual.DateTimeCollection.Should().Equal(input.DateTimeCollection);
                 actual.CustomWithoutInterfaceCollection.Should().HaveCount(input.CustomWithoutInterfaceCollection.Count());
                 actual.CustomWithInterfaceCollection.Should().HaveCount(input.CustomWithInterfaceCollection.Count());
+                actual.CustomElementArray.Length.Should().Be(input.CustomElementArray.Length);
+                actual.CustomElementArray.Any(_ => _ == null).Should().BeFalse();
+                actual.CustomElementCollection.Count().Should().Be(input.CustomElementCollection.Count());
+                actual.CustomElementCollection.Any(_ => _ == null).Should().BeFalse();
+                actual.EnumParseCollection.Should().Equal(input.EnumParseCollection);
+                actual.EnumAttributeCollection.Should().BeEquivalentTo(Enumerable.Range(0, input.EnumAttributeCollection.Count).Select(_ => EnumAttributeProperty.Replaced));
+                actual.EnumAttributePropertyCollection.Should().BeEquivalentTo(Enumerable.Range(0, input.EnumAttributePropertyCollection.Count).Select(_ => EnumAttributeProperty.Replaced));
+                actual.EnumDefault.Should().Be(EnumParse.Default);
+                actual.EnumParse.Should().Be(input.EnumParse);
+                actual.EnumAttribute.Should().Be(EnumAttribute.Replaced);
+                actual.EnumAttributeProperty.Should().Be(EnumAttributeProperty.Replaced);
             }
 
             AssertCorrect(actualPropertyBag);
@@ -146,18 +163,16 @@ namespace Naos.Serialization.Test
             public CustomWithInterface CustomWithInterface { get; set; }
 
             [NaosElementStringSerializer(typeof(CustomElementSerializer))]
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
             public CustomElement[] CustomElementArray { get; set; }
 
             [NaosElementStringSerializer(typeof(CustomElementSerializer))]
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
             public IEnumerable<CustomElement> CustomElementCollection { get; set; }
-
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
-            public string StringDefault { get; set; }
 
             [NaosStringSerializer(typeof(CustomStringSerializer))]
             public string StringAttributed { get; set; }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            public string StringDefault { get; set; }
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
             public int IntDefault { get; set; }
@@ -190,7 +205,38 @@ namespace Naos.Serialization.Test
             public IReadOnlyList<CustomWithoutInterface> CustomWithoutInterfaceCollection { get; set; }
 
             public IEnumerable<CustomWithInterface> CustomWithInterfaceCollection { get; set; }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            public EnumParse EnumDefault { get; set; }
+
+            public EnumParse EnumParse { get; set; }
+
+            public EnumAttribute EnumAttribute { get; set; }
+
+            [NaosStringSerializer(typeof(EnumAttributePropertySerializer))]
+            public EnumAttributeProperty EnumAttributeProperty { get; set; }
+
+            public IReadOnlyCollection<EnumParse> EnumParseCollection { get; set; }
+
+            public IReadOnlyCollection<EnumAttribute> EnumAttributeCollection { get; set; }
+
+            [NaosElementStringSerializer(typeof(EnumAttributePropertySerializer))]
+            public IReadOnlyCollection<EnumAttributeProperty> EnumAttributePropertyCollection { get; set; }
         }
+
+#pragma warning disable SA1602 // Enumeration items should be documented
+#pragma warning disable SA1136 // Enum values should be on separate lines
+#pragma warning disable SA1502 // Element should not be on a single line
+        public enum EnumParse { Default, Value, }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "Name/spelling is correct.")]
+        [NaosStringSerializer(typeof(EnumAttributeSerializer))]
+        public enum EnumAttribute { Default, Value, Replaced, }
+
+        public enum EnumAttributeProperty { Default, Value, Replaced, }
+#pragma warning restore SA1502 // Element should not be on a single line
+#pragma warning restore SA1136 // Enum values should be on separate lines
+#pragma warning restore SA1602 // Enumeration items should be documented
 
         [NaosStringSerializer(typeof(CustomWithAttributeSerializer))]
         private class CustomWithAttribute
@@ -285,6 +331,60 @@ namespace Naos.Serialization.Test
                 new { type }.Must().BeEqualTo(typeof(CustomElement)).OrThrowFirstFailure();
 
                 return new CustomElement();
+            }
+        }
+
+        private class EnumAttributeSerializer : IStringSerializeAndDeserialize
+        {
+            public const string CustomSerializedString = "Enum attribute.";
+
+            public SerializationKind SerializationKind => SerializationKind.Default;
+
+            public Type ConfigurationType => null;
+
+            public string SerializeToString(object objectToSerialize)
+            {
+                return CustomSerializedString;
+            }
+
+            public T Deserialize<T>(string serializedString)
+            {
+                return (T)this.Deserialize(serializedString, typeof(T));
+            }
+
+            public object Deserialize(string serializedString, Type type)
+            {
+                new { serializedString }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
+                new { type }.Must().BeEqualTo(typeof(EnumAttribute)).OrThrowFirstFailure();
+
+                return EnumAttribute.Replaced;
+            }
+        }
+
+        private class EnumAttributePropertySerializer : IStringSerializeAndDeserialize
+        {
+            public const string CustomSerializedString = "Enum attribute on property.";
+
+            public SerializationKind SerializationKind => SerializationKind.Default;
+
+            public Type ConfigurationType => null;
+
+            public string SerializeToString(object objectToSerialize)
+            {
+                return CustomSerializedString;
+            }
+
+            public T Deserialize<T>(string serializedString)
+            {
+                return (T)this.Deserialize(serializedString, typeof(T));
+            }
+
+            public object Deserialize(string serializedString, Type type)
+            {
+                new { serializedString }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
+                new { type }.Must().BeEqualTo(typeof(EnumAttributeProperty)).OrThrowFirstFailure();
+
+                return EnumAttributeProperty.Replaced;
             }
         }
 

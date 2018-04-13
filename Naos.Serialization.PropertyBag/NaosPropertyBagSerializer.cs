@@ -244,6 +244,10 @@ namespace Naos.Serialization.PropertyBag
                 var ret = serializerType.Construct<IStringSerializeAndDeserialize>().Deserialize(serializedString, type);
                 return ret;
             }
+            else if (type.IsEnum)
+            {
+                return Enum.Parse(type, serializedString);
+            }
             else if (type.IsArray)
             {
                 var arrayItemType = type.GetElementType() ?? throw new ArgumentException(Invariant($"Found array type that cannot extract element type: {type}"));
