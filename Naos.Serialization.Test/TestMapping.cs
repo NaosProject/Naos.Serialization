@@ -12,6 +12,8 @@ namespace Naos.Serialization.Test
     using System.Collections.ObjectModel;
     using System.ComponentModel;
 
+    using Naos.Serialization.Bson;
+
     public class TestMapping
     {
         public string StringProperty { get; set; }
@@ -170,6 +172,43 @@ namespace Naos.Serialization.Test
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public Collection<Guid> CollectionGuid { get; set; }
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "Just need a type to test.")]
+    public class TestWithDictionaryKeyedOnEnum
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public IDictionary<TestEnumeration, string> TestDictionary { get; set; }
+    }
+
+    public class TestWithReadOnlyCollectionOfBaseClass
+    {
+        public IReadOnlyCollection<TestBase> TestCollection { get; set; }
+
+        public TestImplementationOne RootOne { get; set; }
+
+        public TestImplementationTwo RootTwo { get; set; }
+    }
+
+    public class TestWithReadOnlyCollectionOfBaseClassConfig : BsonConfigurationBase
+    {
+        protected override IReadOnlyCollection<Type> ClassTypesToRegisterAlongWithInheritors => new[] { typeof(TestBase), typeof(TestWithReadOnlyCollectionOfBaseClass) };
+    }
+
+    [Bindable(BindableSupport.Default)]
+    public abstract class TestBase
+    {
+        public string Message { get; set; }
+    }
+
+    public class TestImplementationOne : TestBase
+    {
+        public string One { get; set; }
+    }
+
+    public class TestImplementationTwo : TestBase
+    {
+        public string Two { get; set; }
     }
 
     public struct TestStruct

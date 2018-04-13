@@ -11,6 +11,7 @@ namespace Naos.Serialization.Factory
     using Naos.Serialization.Bson;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
+    using Naos.Serialization.PropertyBag;
 
     using OBeautifulCode.TypeRepresentation;
 
@@ -50,6 +51,7 @@ namespace Naos.Serialization.Factory
                 {
                     case SerializationFormat.Bson: return new NaosBsonSerializer(serializationDescription.SerializationKind, configurationType);
                     case SerializationFormat.Json: return new NaosJsonSerializer(serializationDescription.SerializationKind, configurationType);
+                    case SerializationFormat.PropertyBag: return new NaosPropertyBagSerializer(serializationDescription.SerializationKind, configurationType);
                     default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationFormat)} of {serializationDescription.SerializationFormat} is not supported."));
                 }
             }

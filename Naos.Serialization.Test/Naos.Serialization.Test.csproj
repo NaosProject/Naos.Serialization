@@ -95,6 +95,7 @@
     <Compile Include=".recipes\Spritely.MustValidation\Rules.cs" />
     <Compile Include=".recipes\Spritely.MustValidation\ValidatedNotNullAttribute.cs" />
     <Compile Include="BsonConfigurationAutoRegisterType.cs" />
+    <Compile Include="PropertyBagSerializerTest.cs" />
     <Compile Include="DoubleInterfaceTest.cs" />
     <Compile Include="JsonConfigurationBaseTest.cs" />
     <Compile Include="SerializationDummyFactory.cs" />
@@ -141,6 +142,10 @@
     <ProjectReference Include="..\Naos.Serialization.Json\Naos.Serialization.Json.csproj">
       <Project>{A9A03CEC-794F-4FB0-8425-0DB6D4F3CF68}</Project>
       <Name>Naos.Serialization.Json</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Naos.Serialization.PropertyBag\Naos.Serialization.PropertyBag.csproj">
+      <Project>{7FF4B814-CC5E-48AC-B770-067B588DDB81}</Project>
+      <Name>Naos.Serialization.PropertyBag</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

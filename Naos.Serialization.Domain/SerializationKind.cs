@@ -77,5 +77,10 @@ namespace Naos.Serialization.Domain
         /// BSON format.
         /// </summary>
         Bson,
+
+        /// <summary>
+        /// Property bag (Dictionary{string, string} format.
+        /// </summary>
+        PropertyBag,
     }
 }

@@ -78,6 +78,10 @@
       <Project>{A9A03CEC-794F-4FB0-8425-0DB6D4F3CF68}</Project>
       <Name>Naos.Serialization.Json</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Naos.Serialization.PropertyBag\Naos.Serialization.PropertyBag.csproj">
+      <Project>{7ff4b814-cc5e-48ac-b770-067b588ddb81}</Project>
+      <Name>Naos.Serialization.PropertyBag</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include=".analyzers\stylecop.json" />

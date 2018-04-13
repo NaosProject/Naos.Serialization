@@ -412,6 +412,77 @@ namespace Naos.Serialization.Test
             ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
         }
 
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestWithDictionaryKeyedOnEnum___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestWithDictionaryKeyedOnEnum>>();
+
+            var expected = A.Dummy<TestWithDictionaryKeyedOnEnum>();
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestWithDictionaryKeyedOnEnum;
+                actual.Should().NotBeNull();
+                actual.TestDictionary.Should().NotBeNull();
+                actual.TestDictionary.Count.Should().NotBe(0);
+                actual.TestDictionary.Should().Equal(expected.TestDictionary);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestWithEmptyReadOnlyCollectionOfBaseClass___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<TestWithReadOnlyCollectionOfBaseClassConfig>();
+
+            var expected = new TestWithReadOnlyCollectionOfBaseClass { TestCollection = new List<TestBase>() };
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestWithReadOnlyCollectionOfBaseClass;
+                actual.Should().NotBeNull();
+                actual.TestCollection.Should().NotBeNull();
+                actual.TestCollection.Count.Should().Be(0);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestWithReadOnlyCollectionOfBaseClass___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<TestWithReadOnlyCollectionOfBaseClassConfig>();
+
+            var expected = new TestWithReadOnlyCollectionOfBaseClass
+                               {
+                                   TestCollection =
+                                       new TestBase[]
+                                           {
+                                               new TestImplementationOne { One = "1", Message = "1 one" },
+                                               new TestImplementationTwo { Two = "2", Message = "2 two" },
+                                           },
+                               };
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestWithReadOnlyCollectionOfBaseClass;
+                actual.Should().NotBeNull();
+                actual.TestCollection.Should().NotBeNull();
+                actual.TestCollection.Count.Should().Be(2);
+                actual.TestCollection.First().GetType().Should().Be(expected.TestCollection.First().GetType());
+                actual.TestCollection.Skip(1).First().GetType().Should().Be(expected.TestCollection.Skip(1).First().GetType());
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
         private static void ActAndAssertForRoundtripSerialization(object expected, Action<object> throwIfObjectsDiffer, NaosBsonSerializer bsonSerializer, bool testBson = true, bool testJson = true)
         {
             var stringSerializers = new List<IStringSerializeAndDeserialize>();
