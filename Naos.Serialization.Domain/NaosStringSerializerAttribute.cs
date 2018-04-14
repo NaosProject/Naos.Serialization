@@ -17,7 +17,7 @@ namespace Naos.Serialization.Domain.Extensions
     /// <summary>
     /// Attribute to specify the type of <see cref="IStringSerializeAndDeserialize" /> to use for this type during serializations that support this override.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class NaosStringSerializerAttribute : Attribute
     {
         /// <summary>
@@ -44,7 +44,7 @@ namespace Naos.Serialization.Domain.Extensions
     /// <summary>
     /// Attribute to specify the type of <see cref="IStringSerializeAndDeserialize" /> to use for elements in a collection or array.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class NaosElementStringSerializerAttribute : Attribute
     {
         /// <summary>

@@ -149,11 +149,16 @@ namespace Naos.Serialization.PropertyBag
                         var pi = specificType.GetProperty(v.Name, bindingFlags);
                         pi.Named(Invariant($"Could not find {nameof(PropertyInfo)} on type: {specificType} by name: {v.Name}")).Must().NotBeNull().OrThrowFirstFailure();
 
-                        var propertyValue = pi?.GetValue(objectToSerialize);
+                        var propertyValue = pi.GetValue(objectToSerialize);
+                        var propertyType = propertyValue?.GetType() ?? pi.PropertyType;
                         var serializerType = pi.GetCustomAttribute<NaosStringSerializerAttribute>()?.SerializerType
-                                             ?? propertyValue?.GetType().GetAttribute<NaosStringSerializerAttribute>()?.SerializerType;
+                                             ?? ((NaosStringSerializerAttribute)Attribute.GetCustomAttribute(
+                                                        propertyType,
+                                                        typeof(NaosStringSerializerAttribute)))?.SerializerType;
 
-                        var elementSerializerType = pi.GetCustomAttribute<NaosElementStringSerializerAttribute>()?.ElementSerializerType;
+                        var elementSerializerType =
+                            ((NaosElementStringSerializerAttribute)Attribute.GetCustomAttribute(pi, typeof(NaosElementStringSerializerAttribute)))
+                            ?.ElementSerializerType;
 
                         return propertyValue == null ? null : MakeStringFromPropertyValue(propertyValue, serializerType, elementSerializerType);
                     });
@@ -224,12 +229,17 @@ namespace Naos.Serialization.PropertyBag
                 var pi = specificType.GetProperty(property.Key, bindingFlags);
                 pi.Named(Invariant($"Could not find {nameof(PropertyInfo)} on type: {specificType} by name: {property.Key}")).Must().NotBeNull().OrThrowFirstFailure();
 
-                var targetType = pi.PropertyType;
+                var propertyType = pi.PropertyType;
                 var serializerType = pi.GetCustomAttribute<NaosStringSerializerAttribute>()?.SerializerType
-                                     ?? targetType.GetAttribute<NaosStringSerializerAttribute>()?.SerializerType;
-                var elementSerializerType = pi.GetCustomAttribute<NaosElementStringSerializerAttribute>()?.ElementSerializerType;
+                                     ?? ((NaosStringSerializerAttribute)Attribute.GetCustomAttribute(
+                                                propertyType,
+                                                typeof(NaosStringSerializerAttribute)))?.SerializerType;
 
-                var targetValue = property.Value == null ? null : MakeObjectFromString(property.Value, targetType, serializerType, elementSerializerType);
+                var elementSerializerType =
+                    ((NaosElementStringSerializerAttribute)Attribute.GetCustomAttribute(pi, typeof(NaosElementStringSerializerAttribute)))
+                    ?.ElementSerializerType;
+
+                var targetValue = property.Value == null ? null : MakeObjectFromString(property.Value, propertyType, serializerType, elementSerializerType);
                 pi.SetValue(objectToFill, targetValue);
             }
         }
@@ -273,7 +283,7 @@ namespace Naos.Serialization.PropertyBag
                     var itemValue = MakeObjectFromString(
                         stringValue,
                         itemType,
-                        elementSerializerType ?? itemType.GetAttribute<NaosStringSerializerAttribute>()?.SerializerType,
+                        elementSerializerType ?? ((NaosStringSerializerAttribute)Attribute.GetCustomAttribute(itemType, typeof(NaosStringSerializerAttribute)))?.SerializerType,
                         null);
                     values.Add(itemValue);
                 }
@@ -323,7 +333,7 @@ namespace Naos.Serialization.PropertyBag
                 {
                     var serializedItem = MakeStringFromPropertyValue(
                         item,
-                        elementSerializerType ?? item.GetType().GetAttribute<NaosStringSerializerAttribute>()?.SerializerType,
+                        elementSerializerType ?? ((NaosStringSerializerAttribute)Attribute.GetCustomAttribute(item.GetType(), typeof(NaosStringSerializerAttribute)))?.SerializerType,
                         null);
                     values.Add(serializedItem);
                 }
@@ -344,7 +354,7 @@ namespace Naos.Serialization.PropertyBag
         {
             var loadedAssemblies = AssemblyLoader.GetLoadedAssemblies().Distinct().ToList();
             var allTypes = new List<Type>();
-            var reflectionTypeLoadExceptions = new List<ReflectionTypeLoadException>();
+            var reflectionTypeLoadExceptions = new List<ReflectionTypeLoadException>(); // suppress for now, maybe throw later
             foreach (var assembly in loadedAssemblies)
             {
                 try

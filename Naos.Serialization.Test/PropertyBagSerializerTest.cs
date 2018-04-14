@@ -65,6 +65,10 @@ namespace Naos.Serialization.Test
             var serializer = new NaosPropertyBagSerializer();
             var input = new NoConstrutorWithPropertyOfStringIntTimeSpanDateTimeAndIEnumerable
                             {
+                                BaseVersion = new InheritTypeDerive(),
+                                DeriveVersion = new InheritTypeDerive(),
+                                DeriveVersionArray = new[] { new InheritTypeDerive(), },
+                                DeriveVersionCollection = new[] { new InheritTypeDerive(), }.ToList(),
                                 String = A.Dummy<string>(),
                                 Int = A.Dummy<int>(),
                                 TimeSpan = A.Dummy<TimeSpan>(),
@@ -103,6 +107,10 @@ namespace Naos.Serialization.Test
             // Assert
             void AssertCorrect(NoConstrutorWithPropertyOfStringIntTimeSpanDateTimeAndIEnumerable actual)
             {
+                actual.BaseVersion.Should().NotBeNull();
+                actual.DeriveVersion.Should().NotBeNull();
+                actual.DeriveVersionArray.Count().Should().Be(input.DeriveVersionArray.Count());
+                actual.DeriveVersionCollection.Count().Should().Be(input.DeriveVersionCollection.Count());
                 actual.String.Should().Be(input.String);
                 actual.Int.Should().Be(input.Int);
                 actual.TimeSpan.Should().Be(input.TimeSpan);
@@ -146,6 +154,14 @@ namespace Naos.Serialization.Test
 
         private class NoConstrutorWithPropertyOfStringIntTimeSpanDateTimeAndIEnumerable
         {
+            public InheritTypeBase BaseVersion { get; set; }
+
+            public InheritTypeDerive DeriveVersion { get; set; }
+
+            public InheritTypeDerive[] DeriveVersionArray { get; set; }
+
+            public IReadOnlyCollection<InheritTypeDerive> DeriveVersionCollection { get; set; }
+
             public string String { get; set; }
 
             public int Int { get; set; }
@@ -426,6 +442,50 @@ namespace Naos.Serialization.Test
             {
                 new { input }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
                 return new CustomWithInterface();
+            }
+        }
+
+        [NaosStringSerializer(typeof(InheritTestSerializer))]
+        private abstract class InheritTypeBase
+        {
+            public override string ToString()
+            {
+                return this.GetType().Name;
+            }
+        }
+
+        private class InheritTypeDerive : InheritTypeBase
+        {
+            public override string ToString()
+            {
+                return this.GetType().Name;
+            }
+        }
+
+        private class InheritTestSerializer : IStringSerializeAndDeserialize
+        {
+            public const string CustomSerializedString = "We have a serializer inherited.";
+
+            public SerializationKind SerializationKind => SerializationKind.Default;
+
+            public Type ConfigurationType => null;
+
+            public string SerializeToString(object objectToSerialize)
+            {
+                return CustomSerializedString;
+            }
+
+            public T Deserialize<T>(string serializedString)
+            {
+                return (T)this.Deserialize(serializedString, typeof(T));
+            }
+
+            public object Deserialize(string serializedString, Type type)
+            {
+                new { serializedString }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
+                (type == typeof(InheritTypeBase) || type == typeof(InheritTypeDerive)).Must().BeTrue().OrThrowFirstFailure();
+
+                return new InheritTypeDerive();
             }
         }
     }
