@@ -7,6 +7,9 @@
 namespace Naos.Serialization.Domain.Extensions
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
 
     using Naos.Compression.Domain;
 
@@ -193,6 +196,59 @@ namespace Naos.Serialization.Domain.Extensions
             MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
             return (T)DeserializePayloadUsingSpecificFactory(describedSerialization, serializerFactory, compressorFactory, typeMatchStrategy, multipleMatchStrategy);
+        }
+
+        /// <summary>
+        /// Interrogates the type for a parameterless constructor.
+        /// </summary>
+        /// <param name="type">Type to check.</param>
+        /// <returns>A value indicating whether or not the type has a parameterless constructor.</returns>
+        public static bool HasParameterlessConstructor(this Type type)
+        {
+            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            var paramterlessConstructor = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance).SingleOrDefault(_ => _.GetParameters().Length == 0);
+            return paramterlessConstructor != null;
+        }
+
+        /// <summary>
+        /// Interrogates the type to see if it implements a specified interface.
+        /// </summary>
+        /// <param name="type">Type to check.</param>
+        /// <typeparam name="T">Type of interface to check for.</typeparam>
+        /// <returns>A value indicating whether or not the type implements the interface.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Like this usage.")]
+        public static bool ImplementsInterface<T>(this Type type)
+            where T : class
+        {
+            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+
+            var interfaceType = typeof(T);
+            return ImplementsInterface(type, interfaceType);
+        }
+
+        /// <summary>
+        /// Interrogates the type to see if it implements a specified interface.
+        /// </summary>
+        /// <param name="type">Type to check.</param>
+        /// <param name="interfaceType">Type to check.Type of interface to check for.</param>
+        /// <returns>A value indicating whether or not the type implements the interface.</returns>
+        public static bool ImplementsInterface(this Type type, Type interfaceType)
+        {
+            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { interfaceType }.Must().NotBeNull().OrThrowFirstFailure();
+
+            var iteratingType = type;
+            while (iteratingType != null)
+            {
+                if (type.GetInterfaces().Any(_ => _ == interfaceType))
+                {
+                    return true;
+                }
+
+                iteratingType = iteratingType.BaseType;
+            }
+
+            return false;
         }
     }
 }

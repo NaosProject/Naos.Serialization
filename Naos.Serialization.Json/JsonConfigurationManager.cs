@@ -10,6 +10,8 @@ namespace Naos.Serialization.Json
     using System.Collections.Generic;
     using System.Linq;
 
+    using Naos.Serialization.Domain.Extensions;
+
     using OBeautifulCode.Reflection.Recipes;
 
     using Spritely.Recipes;
@@ -49,7 +51,7 @@ namespace Naos.Serialization.Json
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
             type.IsSubclassOf(typeof(JsonConfigurationBase)).Named(Invariant($"typeMustBeSubclassOf{nameof(JsonConfigurationBase)}")).Must().BeTrue().OrThrowFirstFailure();
-            type.GetConstructors().Any(_ => _.GetParameters().Length == 0).Named("typeHasParameterLessConstructor").Must().BeTrue().OrThrowFirstFailure();
+            type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue().OrThrowFirstFailure();
 
             var instance = Instance(type, () => (JsonConfigurationBase)type.Construct());
             instance.Configure();

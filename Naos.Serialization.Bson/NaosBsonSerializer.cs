@@ -13,6 +13,7 @@ namespace Naos.Serialization.Bson
     using MongoDB.Bson;
 
     using Naos.Serialization.Domain;
+    using Naos.Serialization.Domain.Extensions;
 
     using Spritely.Recipes;
 
@@ -35,11 +36,12 @@ namespace Naos.Serialization.Bson
             if (configurationType != null)
             {
                 configurationType.IsSubclassOf(typeof(BsonConfigurationBase))
-                    .Named(Invariant($"Configuration type - {configurationType.FullName} - must derive from {nameof(BsonConfigurationBase)}")).Must().BeTrue()
+                    .Named(Invariant($"Configuration type - {configurationType.FullName} - must derive from {nameof(BsonConfigurationBase)}.")).Must().BeTrue()
                     .OrThrowFirstFailure();
 
-                configurationType.GetConstructors(BindingFlags.Public | BindingFlags.Instance).SingleOrDefault(_ => _.GetParameters().Length == 0)
-                    .Named(Invariant($"{nameof(configurationType)} must contain a default constructor to use in {nameof(NaosBsonSerializer)}.")).Must().NotBeNull().OrThrowFirstFailure();
+                configurationType.HasParameterlessConstructor()
+                    .Named(Invariant($"{nameof(configurationType)} must contain a default constructor to use in {nameof(NaosBsonSerializer)}.")).Must().BeTrue()
+                    .OrThrowFirstFailure();
             }
 
             this.SerializationKind = serializationKind;

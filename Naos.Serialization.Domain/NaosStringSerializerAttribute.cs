@@ -7,6 +7,8 @@
 namespace Naos.Serialization.Domain.Extensions
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     using OBeautifulCode.Reflection.Recipes;
 
@@ -17,7 +19,7 @@ namespace Naos.Serialization.Domain.Extensions
     /// <summary>
     /// Attribute to specify the type of <see cref="IStringSerializeAndDeserialize" /> to use for this type during serializations that support this override.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
     public sealed class NaosStringSerializerAttribute : Attribute
     {
         /// <summary>
@@ -27,9 +29,11 @@ namespace Naos.Serialization.Domain.Extensions
         public NaosStringSerializerAttribute(Type serializerType)
         {
             new { serializerType }.Must().NotBeNull().OrThrowFirstFailure();
-            var canContruct = serializerType.Construct();
-            (canContruct is IStringSerializeAndDeserialize)
-                .Named(Invariant($"Type specified {serializerType} was not an implementer of {typeof(IStringSerializeAndDeserialize)}")).Must().NotBeNull()
+
+            serializerType.HasParameterlessConstructor().Named(Invariant($"Type specified {serializerType} must have a paramerterless constructor.")).Must()
+                .BeTrue().OrThrowFirstFailure();
+            serializerType.ImplementsInterface<IStringSerializeAndDeserialize>()
+                .Named(Invariant($"Type specified {serializerType} was not an implementer of {typeof(IStringSerializeAndDeserialize)}")).Must().BeTrue()
                 .OrThrowFirstFailure();
 
             this.SerializerType = serializerType;
@@ -44,7 +48,7 @@ namespace Naos.Serialization.Domain.Extensions
     /// <summary>
     /// Attribute to specify the type of <see cref="IStringSerializeAndDeserialize" /> to use for elements in a collection or array.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
     public sealed class NaosElementStringSerializerAttribute : Attribute
     {
         /// <summary>
@@ -53,10 +57,10 @@ namespace Naos.Serialization.Domain.Extensions
         /// <param name="elementSerializerType">Type of <see cref="IStringSerializeAndDeserialize" /> to use when string serializing where supported.</param>
         public NaosElementStringSerializerAttribute(Type elementSerializerType)
         {
-            new { serializerType = elementSerializerType }.Must().NotBeNull().OrThrowFirstFailure();
-            var canContruct = elementSerializerType.Construct();
-            (canContruct is IStringSerializeAndDeserialize)
-                .Named(Invariant($"Type specified {elementSerializerType} was not an implementer of {typeof(IStringSerializeAndDeserialize)}")).Must().NotBeNull()
+            elementSerializerType.HasParameterlessConstructor().Named(Invariant($"Type specified {elementSerializerType} must have a paramerterless constructor.")).Must()
+                .BeTrue().OrThrowFirstFailure();
+            elementSerializerType.ImplementsInterface<IStringSerializeAndDeserialize>()
+                .Named(Invariant($"Type specified {elementSerializerType} was not an implementer of {typeof(IStringSerializeAndDeserialize)}")).Must().BeTrue()
                 .OrThrowFirstFailure();
 
             this.ElementSerializerType = elementSerializerType;

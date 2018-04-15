@@ -23,14 +23,38 @@ namespace Naos.Serialization.Domain
     public class NaosDictionaryStringStringSerializer : IStringSerializeAndDeserialize
     {
         /// <summary>
-        /// For specifying a key and value in a string.
+        /// Default delimiter for specifying a key and value in a string.
         /// </summary>
-        public const string KeyValueDelimiter = "=";
+        public const string DefaultKeyValueDelimiter = "=";
 
         /// <summary>
-        /// For specifying multiple entries in a single string.
+        /// Default delimiter for specifying multiple entries in a single string.
         /// </summary>
-        public static readonly string LineDelimiter = Environment.NewLine;
+        public const string DefaultLineDelimiter = "\r\n";
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NaosDictionaryStringStringSerializer"/> class.
+        /// </summary>
+        /// <param name="keyValueDelimiter">Delimiter for the key and value.</param>
+        /// <param name="lineDelimiter">Delimiter for the lines.</param>
+        public NaosDictionaryStringStringSerializer(string keyValueDelimiter = DefaultKeyValueDelimiter, string lineDelimiter = DefaultLineDelimiter)
+        {
+            new { keyValueDelimiter }.Must().NotBeNull().OrThrowFirstFailure();
+            new { lineDelimiter }.Must().NotBeNull().OrThrowFirstFailure();
+
+            this.KeyValueDelimiter = keyValueDelimiter;
+            this.LineDelimiter = lineDelimiter;
+        }
+
+        /// <summary>
+        /// Gets the key value delimiter.
+        /// </summary>
+        public string KeyValueDelimiter { get; private set; }
+
+        /// <summary>
+        /// Gets the line delimiter.
+        /// </summary>
+        public string LineDelimiter { get; private set; }
 
         /// <inheritdoc cref="IHaveSerializationKind" />
         public SerializationKind SerializationKind => SerializationKind.Default;
@@ -50,7 +74,7 @@ namespace Naos.Serialization.Domain
             dictionary.Named(Invariant($"typeMustBeConvertableTo-{nameof(IReadOnlyDictionary<string, string>)}-found-{objectToSerialize.GetType()}")).Must()
                 .NotBeNull().OrThrowFirstFailure();
 
-            return SerializeDictionaryToString(dictionary);
+            return this.SerializeDictionaryToString(dictionary);
         }
 
         /// <summary>
@@ -58,7 +82,7 @@ namespace Naos.Serialization.Domain
         /// </summary>
         /// <param name="dictionary">Dictionary to serialize.</param>
         /// <returns>String serialized dictionary.</returns>
-        public static string SerializeDictionaryToString(IReadOnlyDictionary<string, string> dictionary)
+        public string SerializeDictionaryToString(IReadOnlyDictionary<string, string> dictionary)
         {
             if (dictionary == null)
             {
@@ -77,24 +101,24 @@ namespace Naos.Serialization.Domain
                 var key = keyValuePair.Key;
                 var value = keyValuePair.Value;
 
-                key.Contains(KeyValueDelimiter).Named(Invariant($"Key-cannot-contain-{nameof(KeyValueDelimiter)}--{KeyValueDelimiter}--found-on-key--{key}")).Must()
+                key.Contains(this.KeyValueDelimiter).Named(Invariant($"Key-cannot-contain-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}--found-on-key--{key}")).Must()
                     .BeFalse().OrThrowFirstFailure();
-                (value ?? string.Empty).Contains(KeyValueDelimiter).Named(Invariant($"Key-cannot-contain-{nameof(KeyValueDelimiter)}--{KeyValueDelimiter}--found-on-value--{value}"))
+                (value ?? string.Empty).Contains(this.KeyValueDelimiter).Named(Invariant($"Key-cannot-contain-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}--found-on-value--{value}"))
                     .Must().BeFalse().OrThrowFirstFailure();
 
-                key.Contains(LineDelimiter)
+                key.Contains(this.LineDelimiter)
                     .Named(
                         Invariant(
-                            $"Key-cannot-contain-{nameof(LineDelimiter)}--{(Environment.NewLine == LineDelimiter ? "NEWLINE" : LineDelimiter)}--found-on-key--{key}"))
+                            $"Key-cannot-contain-{nameof(this.LineDelimiter)}--{(Environment.NewLine == this.LineDelimiter ? "NEWLINE" : this.LineDelimiter)}--found-on-key--{key}"))
                     .Must().BeFalse().OrThrowFirstFailure();
-                (value ?? string.Empty).Contains(LineDelimiter)
+                (value ?? string.Empty).Contains(this.LineDelimiter)
                     .Named(
                         Invariant(
-                            $"Key-cannot-contain-{nameof(LineDelimiter)}--{(Environment.NewLine == LineDelimiter ? "NEWLINE" : LineDelimiter)}--found-on-value--{value}"))
+                            $"Key-cannot-contain-{nameof(this.LineDelimiter)}--{(Environment.NewLine == this.LineDelimiter ? "NEWLINE" : this.LineDelimiter)}--found-on-value--{value}"))
                     .Must().BeFalse().OrThrowFirstFailure();
 
-                stringBuilder.Append(Invariant($"{key}{KeyValueDelimiter}{value ?? string.Empty}"));
-                stringBuilder.Append(LineDelimiter);
+                stringBuilder.Append(Invariant($"{key}{this.KeyValueDelimiter}{value ?? string.Empty}"));
+                stringBuilder.Append(this.LineDelimiter);
             }
 
             var ret = stringBuilder.ToString();
@@ -125,7 +149,7 @@ namespace Naos.Serialization.Domain
             var dictionary = type.Construct() as IReadOnlyDictionary<string, string>;
             dictionary.Named(Invariant($"typeMustBeConvertableTo-{nameof(IReadOnlyDictionary<string, string>)}-found-{type}")).Must().NotBeNull().OrThrowFirstFailure();
 
-            return DeserializeToDictionary(serializedString);
+            return this.DeserializeToDictionary(serializedString);
         }
 
         /// <summary>
@@ -134,7 +158,7 @@ namespace Naos.Serialization.Domain
         /// <param name="serializedString">String to deserialize.</param>
         /// <returns>Deserialized dictionary.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string", Justification = "Name/spelling is correct.")]
-        public static Dictionary<string, string> DeserializeToDictionary(string serializedString)
+        public Dictionary<string, string> DeserializeToDictionary(string serializedString)
         {
             if (serializedString == null)
             {
@@ -149,11 +173,11 @@ namespace Naos.Serialization.Domain
             try
             {
                 var ret = new Dictionary<string, string>();
-                var lines = serializedString.Split(new[] { LineDelimiter }, StringSplitOptions.RemoveEmptyEntries);
+                var lines = serializedString.Split(new[] { this.LineDelimiter }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var line in lines)
                 {
-                    var items = line.Split(new[] { KeyValueDelimiter }, StringSplitOptions.RemoveEmptyEntries);
-                    items.Length.Named(Invariant($"Line-must-split-on-{nameof(KeyValueDelimiter)}--{KeyValueDelimiter}-to-1-or-2-items-this-did-not--{line}"))
+                    var items = line.Split(new[] { this.KeyValueDelimiter }, StringSplitOptions.RemoveEmptyEntries);
+                    items.Length.Named(Invariant($"Line-must-split-on-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}-to-1-or-2-items-this-did-not--{line}"))
                         .Must().BeInRange(1, 2).OrThrowFirstFailure();
                     var key = items[0];
                     var value = items.Length == 2 ? items[1] : null;

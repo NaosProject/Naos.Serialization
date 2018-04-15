@@ -10,6 +10,8 @@ namespace Naos.Serialization.Bson
     using System.Collections.Generic;
     using System.Linq;
 
+    using Naos.Serialization.Domain.Extensions;
+
     using OBeautifulCode.Reflection.Recipes;
 
     using Spritely.Recipes;
@@ -46,7 +48,7 @@ namespace Naos.Serialization.Bson
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
             type.IsSubclassOf(typeof(BsonConfigurationBase)).Named(Invariant($"typeMustBeSubclassOf{nameof(BsonConfigurationBase)}")).Must().BeTrue().OrThrowFirstFailure();
-            type.GetConstructors().Any(_ => _.GetParameters().Length == 0).Named("typeHasParameterLessConstructor").Must().BeTrue().OrThrowFirstFailure();
+            type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue().OrThrowFirstFailure();
 
             var instance = Instance(type, () => (BsonConfigurationBase)type.Construct());
             instance.Configure();

@@ -64,7 +64,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must be true.\r\nParameter name: Configuration type - System.String - must derive from BsonConfigurationBase");
+            exception.Message.Should().Be("Value must be true.\r\nParameter name: Configuration type - System.String - must derive from BsonConfigurationBase.");
         }
 
         [Fact]
@@ -78,8 +78,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: configurationType must contain a default constructor to use in NaosBsonSerializer.");
+            exception.Should().BeOfType<ArgumentException>();
+            exception.Message.Should().Be("Value must be true.\r\nParameter name: configurationType must contain a default constructor to use in NaosBsonSerializer.");
         }
     }
 }

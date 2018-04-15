@@ -54,7 +54,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must be true.\r\nParameter name: Param-configurationType must be null but was: System.String");
+            exception.Message.Should().Be("Value must be true.\r\nParameter name: Configuration type - System.String - must derive from PropertyBagConfigurationBase.");
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "RoundTrip", Justification = "Name/spelling is correct.")]
@@ -150,6 +150,40 @@ namespace Naos.Serialization.Test
             AssertCorrect(actualPropertyBag);
             AssertCorrect(actualString);
             AssertCorrect(actualBytes);
+        }
+
+        [Fact]
+        public static void Configuration___Specifying_type___Works()
+        {
+            // Arrange
+            var configurationType = typeof(PropertyBagConfig);
+            var serializer = new NaosPropertyBagSerializer(SerializationKind.Default, configurationType);
+            var input = new StringProperty { StringItem = A.Dummy<string>() };
+
+            // Act
+            var serializedString = serializer.SerializeToString(input);
+            var actual = serializer.Deserialize<StringProperty>(serializedString);
+
+            // Act
+            actual.StringItem.Should().Be(CustomStringSerializer.CustomReplacementString);
+        }
+
+        private class PropertyBagConfig : PropertyBagConfigurationBase
+        {
+            protected override IReadOnlyCollection<Type> DependentConfigurationTypes => new[] { typeof(PropertyBagConfigDepend) };
+        }
+
+        private class PropertyBagConfigDepend : PropertyBagConfigurationBase
+        {
+            protected override IReadOnlyDictionary<Type, IStringSerializeAndDeserialize> CustomTypeToSerializerMappings()
+            {
+                return new Dictionary<Type, IStringSerializeAndDeserialize> { { typeof(string), new CustomStringSerializer() } };
+            }
+        }
+
+        private class StringProperty
+        {
+            public string StringItem { get; set; }
         }
 
         private class NoConstrutorWithPropertyOfStringIntTimeSpanDateTimeAndIEnumerable
