@@ -13,7 +13,6 @@ namespace Naos.Serialization.PropertyBag
     using System.Reflection;
     using System.Runtime.Serialization;
     using System.Text;
-    using System.Text.RegularExpressions;
 
     using Naos.Serialization.Domain;
     using Naos.Serialization.Domain.Extensions;
@@ -294,8 +293,7 @@ namespace Naos.Serialization.PropertyBag
                 _ => new { NameUpper = _.Name.ToUpperInvariant(), Value = propertyNameUpperToObjectsMap[_.Name.ToUpperInvariant()] }).ToList();
 
             var parameterObjects = parameterNameUpperAndObjects.Select(_ => _.Value).ToArray();
-
-            var ret = parameterObjects.Length == 0 ? specificType.Construct() : specificType.Construct(parameterObjects);
+            var ret = discoveredConstructorToUse.Invoke(parameterObjects);
             foreach (var nameToPropertyInfoAndObject in propertyNameToObjectMap)
             {
                 var propertyInfo = specificType.GetProperty(nameToPropertyInfoAndObject.Key, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty);
@@ -371,8 +369,14 @@ namespace Naos.Serialization.PropertyBag
             }
             else
             {
-                var bindingFlags = BindingFlags.Static | BindingFlags.Public;
-                var parseMethod = type.GetMethods(bindingFlags).SingleOrDefault(
+                var bindingFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.Instance;
+                var typeToSearchForParse = type;
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    typeToSearchForParse = type.GetGenericArguments().Single();
+                }
+
+                var parseMethod = typeToSearchForParse.GetMethods(bindingFlags).SingleOrDefault(
                     _ =>
                         {
                             var parameters = _.GetParameters();

@@ -9,6 +9,7 @@ namespace Naos.Serialization.Test
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
 
     using FakeItEasy;
 
@@ -63,8 +64,9 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var serializer = new NaosPropertyBagSerializer();
-            var input = new NoConstrutorWithPropertyOfStringIntTimeSpanDateTimeAndIEnumerable
+            var input = new ComplicatedObject
                             {
+                                NullableDecimal = 29m,
                                 BaseVersion = new InheritTypeDerive(),
                                 DeriveVersion = new InheritTypeDerive(),
                                 DeriveVersionArray = new[] { new InheritTypeDerive(), },
@@ -102,12 +104,12 @@ namespace Naos.Serialization.Test
             var serializedString = serializer.SerializeToString(input);
             var serializedBytes = serializer.SerializeToBytes(input);
 
-            var actualPropertyBag = serializer.Deserialize<NoConstrutorWithPropertyOfStringIntTimeSpanDateTimeAndIEnumerable>(serializedPropertyBag);
-            var actualString = serializer.Deserialize<NoConstrutorWithPropertyOfStringIntTimeSpanDateTimeAndIEnumerable>(serializedString);
-            var actualBytes = serializer.Deserialize<NoConstrutorWithPropertyOfStringIntTimeSpanDateTimeAndIEnumerable>(serializedBytes);
+            var actualPropertyBag = serializer.Deserialize<ComplicatedObject>(serializedPropertyBag);
+            var actualString = serializer.Deserialize<ComplicatedObject>(serializedString);
+            var actualBytes = serializer.Deserialize<ComplicatedObject>(serializedBytes);
 
             // Assert
-            void AssertCorrect(NoConstrutorWithPropertyOfStringIntTimeSpanDateTimeAndIEnumerable actual)
+            void AssertCorrect(ComplicatedObject actual)
             {
                 actual.BaseVersion.Should().NotBeNull();
                 actual.DeriveVersion.Should().NotBeNull();
@@ -268,8 +270,10 @@ namespace Naos.Serialization.Test
             public string StringItem { get; set; }
         }
 
-        private class NoConstrutorWithPropertyOfStringIntTimeSpanDateTimeAndIEnumerable
+        private class ComplicatedObject
         {
+            public decimal? NullableDecimal { get; set; }
+
             public InheritTypeBase BaseVersion { get; set; }
 
             public InheritTypeDerive DeriveVersion { get; set; }
