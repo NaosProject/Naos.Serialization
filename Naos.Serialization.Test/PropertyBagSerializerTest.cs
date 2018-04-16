@@ -93,6 +93,8 @@ namespace Naos.Serialization.Test
                                 EnumParse = EnumParse.Value,
                                 EnumAttribute = EnumAttribute.Value,
                                 EnumAttributeProperty = EnumAttributeProperty.Value,
+                                StringCollectionWithSingleEmptyString = new[] { string.Empty },
+                                StringCollectionWithNulls = new[] { string.Empty, A.Dummy<string>(), null, string.Empty, null, A.Dummy<string>() },
                             };
 
             // Act
@@ -145,6 +147,9 @@ namespace Naos.Serialization.Test
                 actual.EnumParse.Should().Be(input.EnumParse);
                 actual.EnumAttribute.Should().Be(EnumAttribute.Replaced);
                 actual.EnumAttributeProperty.Should().Be(EnumAttributeProperty.Replaced);
+                actual.StringCollectionDefault.Should().BeNull();
+                actual.StringCollectionWithSingleEmptyString.Should().Equal(input.StringCollectionWithSingleEmptyString);
+                actual.StringCollectionWithNulls.Should().Equal(input.StringCollectionWithNulls);
             }
 
             AssertCorrect(actualPropertyBag);
@@ -167,6 +172,22 @@ namespace Naos.Serialization.Test
             actual.PropertyGetOnly.Should().Be(input.PropertyGetOnly);
             actual.PropertyPrivateSet.Should().Be(input.PropertyPrivateSet);
             actual.PropertyPublicSet.Should().Be(input.PropertyPublicSet);
+        }
+
+        [Fact]
+        public static void Deserializing_collections___When_serialized_string_has_a_comma___Works()
+        {
+            // Arrange
+            var serializer = new NaosPropertyBagSerializer();
+            var input = new HasSerializesWithComma { WithCommas = new[] { new SerializesWithComma(), new SerializesWithComma() }.ToList() };
+
+            // Act
+            var serializedString = serializer.SerializeToString(input);
+            var actual = serializer.Deserialize<HasSerializesWithComma>(serializedString);
+
+            // Act
+            actual.WithCommas.Count.Should().Be(input.WithCommas.Count);
+            actual.WithCommas.ToList().ForEach(_ => _.Should().NotBeNull());
         }
 
         [Fact]
@@ -282,25 +303,25 @@ namespace Naos.Serialization.Test
             [NaosStringSerializer(typeof(CustomStringSerializer))]
             public string StringAttributed { get; set; }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for default value testing.")]
             public string StringDefault { get; set; }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for default value testing.")]
             public int IntDefault { get; set; }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for default value testing.")]
             public TimeSpan TimeSpanDefault { get; set; }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for default value testing.")]
             public DateTime DateTimeDefault { get; set; }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for default value testing.")]
             public DateTime? DateTimeNullableDefault { get; set; }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for default value testing.")]
             public CustomWithoutInterface CustomWithoutInterfaceDefault { get; set; }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for default value testing.")]
             public CustomWithInterface CustomWithInterfaceDefault { get; set; }
 
             public string[] StringArray { get; set; }
@@ -317,7 +338,7 @@ namespace Naos.Serialization.Test
 
             public IEnumerable<CustomWithInterface> CustomWithInterfaceCollection { get; set; }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for default value testing.")]
             public EnumParse EnumDefault { get; set; }
 
             public EnumParse EnumParse { get; set; }
@@ -333,6 +354,13 @@ namespace Naos.Serialization.Test
 
             [NaosElementStringSerializer(typeof(EnumAttributePropertySerializer))]
             public IReadOnlyCollection<EnumAttributeProperty> EnumAttributePropertyCollection { get; set; }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for default value testing.")]
+            public IReadOnlyCollection<string> StringCollectionDefault { get; set; }
+
+            public IReadOnlyCollection<string> StringCollectionWithSingleEmptyString { get; set; }
+
+            public IReadOnlyCollection<string> StringCollectionWithNulls { get; set; }
         }
 
 #pragma warning disable SA1602 // Enumeration items should be documented
@@ -499,6 +527,28 @@ namespace Naos.Serialization.Test
             }
         }
 
+        private class HasSerializesWithComma
+        {
+            public IReadOnlyCollection<SerializesWithComma> WithCommas { get; set; }
+        }
+
+        private class SerializesWithComma
+        {
+            public const string CustomToString = "This is my tostring with a , comma...";
+
+            public override string ToString()
+            {
+                return CustomToString;
+            }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for reflection call.")]
+            public static SerializesWithComma Parse(string input)
+            {
+                new { input }.Must().BeEqualTo(CustomToString).OrThrowFirstFailure();
+                return new SerializesWithComma();
+            }
+        }
+
         private class CustomWithoutInterface
         {
             public const string CustomToString = "This is my default tostring.";
@@ -508,7 +558,7 @@ namespace Naos.Serialization.Test
                 return CustomToString;
             }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for reflection call.")]
             public static CustomWithoutInterface Parse(string input)
             {
                 new { input }.Must().BeEqualTo(CustomToString).OrThrowFirstFailure();

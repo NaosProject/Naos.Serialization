@@ -33,17 +33,24 @@ namespace Naos.Serialization.Domain
         public const string DefaultLineDelimiter = "\r\n";
 
         /// <summary>
+        /// Default encoding of NULLs.
+        /// </summary>
+        public const string DefaultNullValueEncoding = "<null>";
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="NaosDictionaryStringStringSerializer"/> class.
         /// </summary>
         /// <param name="keyValueDelimiter">Delimiter for the key and value.</param>
         /// <param name="lineDelimiter">Delimiter for the lines.</param>
-        public NaosDictionaryStringStringSerializer(string keyValueDelimiter = DefaultKeyValueDelimiter, string lineDelimiter = DefaultLineDelimiter)
+        /// <param name="nullValueEncoding">Encoding for NULLs.</param>
+        public NaosDictionaryStringStringSerializer(string keyValueDelimiter = DefaultKeyValueDelimiter, string lineDelimiter = DefaultLineDelimiter, string nullValueEncoding = DefaultNullValueEncoding)
         {
             new { keyValueDelimiter }.Must().NotBeNull().OrThrowFirstFailure();
             new { lineDelimiter }.Must().NotBeNull().OrThrowFirstFailure();
 
             this.KeyValueDelimiter = keyValueDelimiter;
             this.LineDelimiter = lineDelimiter;
+            this.NullValueEncoding = nullValueEncoding;
         }
 
         /// <summary>
@@ -55,6 +62,11 @@ namespace Naos.Serialization.Domain
         /// Gets the line delimiter.
         /// </summary>
         public string LineDelimiter { get; private set; }
+
+        /// <summary>
+        /// Gets the null encoding.
+        /// </summary>
+        public string NullValueEncoding { get; private set; }
 
         /// <inheritdoc cref="IHaveSerializationKind" />
         public SerializationKind SerializationKind => SerializationKind.Default;
@@ -99,7 +111,7 @@ namespace Naos.Serialization.Domain
             foreach (var keyValuePair in dictionary)
             {
                 var key = keyValuePair.Key;
-                var value = keyValuePair.Value;
+                var value = keyValuePair.Value ?? this.NullValueEncoding;
 
                 key.Contains(this.KeyValueDelimiter).Named(Invariant($"Key-cannot-contain-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}--found-on-key--{key}")).Must()
                     .BeFalse().OrThrowFirstFailure();
@@ -180,7 +192,8 @@ namespace Naos.Serialization.Domain
                     items.Length.Named(Invariant($"Line-must-split-on-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}-to-1-or-2-items-this-did-not--{line}"))
                         .Must().BeInRange(1, 2).OrThrowFirstFailure();
                     var key = items[0];
-                    var value = items.Length == 2 ? items[1] : null;
+                    var value = items.Length == 2 ? items[1] : string.Empty;
+                    value = value == this.NullValueEncoding ? null : value;
                     ret.Add(key, value);
                 }
 

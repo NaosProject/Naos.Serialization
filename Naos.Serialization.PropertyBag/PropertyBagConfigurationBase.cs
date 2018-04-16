@@ -8,15 +8,10 @@ namespace Naos.Serialization.PropertyBag
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Reflection;
-    using System.Runtime.CompilerServices;
 
     using Naos.Serialization.Domain;
 
     using OBeautifulCode.Reflection.Recipes;
-    using OBeautifulCode.TypeRepresentation;
 
     using Spritely.Recipes;
 
@@ -41,6 +36,11 @@ namespace Naos.Serialization.PropertyBag
         /// Gets the line delimiter to use for string serialization of the property bag.
         /// </summary>
         public virtual string StringSerializationLineDelimiter { get; private set; } = NaosDictionaryStringStringSerializer.DefaultLineDelimiter;
+
+        /// <summary>
+        /// Gets the null value encoding to use for string serialization of the property bag.
+        /// </summary>
+        public virtual string StringSerializationNullValueEncoding { get; private set; } = NaosDictionaryStringStringSerializer.DefaultNullValueEncoding;
 
         /// <summary>
         /// Gets the strategy for collisions in type to serializer registrations.

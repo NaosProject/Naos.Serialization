@@ -13,12 +13,14 @@ namespace Naos.Serialization.PropertyBag
     using System.Reflection;
     using System.Runtime.Serialization;
     using System.Text;
+    using System.Text.RegularExpressions;
 
     using Naos.Serialization.Domain;
     using Naos.Serialization.Domain.Extensions;
 
     using OBeautifulCode.Collection.Recipes;
     using OBeautifulCode.Reflection.Recipes;
+    using OBeautifulCode.String.Recipes;
 
     using Spritely.Recipes;
 
@@ -27,6 +29,7 @@ namespace Naos.Serialization.PropertyBag
     /// <summary>
     /// Serializer for moving in and out of a <see cref="Dictionary{TKey,TValue} "/> for string, string.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "This is not a problem.")]
     public class NaosPropertyBagSerializer : ISerializeAndDeserialize, IPropertyBagSerializeAndDeserialize
     {
         /// <summary>
@@ -75,7 +78,10 @@ namespace Naos.Serialization.PropertyBag
             this.ConfigurationType = configurationType ?? typeof(NullPropertyBagConfiguration);
 
             var configuration = this.ConfigurationType.Construct<PropertyBagConfigurationBase>();
-            this.dictionaryStringSerializer = new NaosDictionaryStringStringSerializer(configuration.StringSerializationKeyValueDelimiter, configuration.StringSerializationLineDelimiter);
+            this.dictionaryStringSerializer = new NaosDictionaryStringStringSerializer(
+                configuration.StringSerializationKeyValueDelimiter,
+                configuration.StringSerializationLineDelimiter,
+                configuration.StringSerializationNullValueEncoding);
             this.configuredTypeToSerializerMap = configuration.BuildTypeToSerializerMap();
             this.cachedAttributeSerializerTypeToObjectMap = new Dictionary<Type, IStringSerializeAndDeserialize>();
         }
@@ -347,15 +353,17 @@ namespace Naos.Serialization.PropertyBag
             else if (type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type))
             {
                 var itemType = type.GetGenericArguments().SingleOrDefault() ?? throw new ArgumentException(Invariant($"Found {typeof(IEnumerable)} type that cannot extract element type: {type}"));
-                var stringValues = serializedString.Split(',');
+                var stringValues = serializedString.FromCsv(this.dictionaryStringSerializer.NullValueEncoding);
                 IList values = (IList)typeof(List<>).MakeGenericType(itemType).Construct();
                 foreach (var stringValue in stringValues)
                 {
-                    var itemValue = this.MakeObjectFromString(
-                        stringValue,
-                        itemType,
-                        elementSerializerType ?? itemType.GetSerializerTypeFromAttribute(),
-                        null);
+                    var itemValue = stringValue == null
+                                        ? null
+                                        : this.MakeObjectFromString(
+                                            stringValue,
+                                            itemType,
+                                            elementSerializerType ?? itemType.GetSerializerTypeFromAttribute(),
+                                            null);
                     values.Add(itemValue);
                 }
 
@@ -419,14 +427,16 @@ namespace Naos.Serialization.PropertyBag
                     var values = new List<string>();
                     foreach (var item in propertyValueAsEnumerable)
                     {
-                        var serializedItem = this.MakeStringFromPropertyValue(
-                            item,
-                            elementSerializerType ?? item.GetType().GetSerializerTypeFromAttribute(),
-                            null);
+                        var serializedItem = item == null
+                                                 ? null
+                                                 : this.MakeStringFromPropertyValue(
+                                                     item,
+                                                     elementSerializerType ?? item?.GetType().GetSerializerTypeFromAttribute(),
+                                                     null);
                         values.Add(serializedItem);
                     }
 
-                    return values.ToCsv();
+                    return values.ToCsv(this.dictionaryStringSerializer.NullValueEncoding);
                 }
                 else if (propertyValue is ISerializeToString propertyValueAsSerializeToString)
                 {
