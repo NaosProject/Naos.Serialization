@@ -153,6 +153,39 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
+        public static void Deserializing_constructors___When_properties_exist___Works()
+        {
+            // Arrange
+            var serializer = new NaosPropertyBagSerializer();
+            var input = new ConstructorWithProperties(A.Dummy<string>(), A.Dummy<string>(), A.Dummy<string>());
+
+            // Act
+            var serializedString = serializer.SerializeToString(input);
+            var actual = serializer.Deserialize<ConstructorWithProperties>(serializedString);
+
+            // Act
+            actual.PropertyGetOnly.Should().Be(input.PropertyGetOnly);
+            actual.PropertyPrivateSet.Should().Be(input.PropertyPrivateSet);
+            actual.PropertyPublicSet.Should().Be(input.PropertyPublicSet);
+        }
+
+        [Fact]
+        public static void Deserializing_constructors___When_properties_do_not_exist___Throws()
+        {
+            // Arrange
+            var serializer = new NaosPropertyBagSerializer();
+            var input = new ConstructorWithoutProperties(A.Dummy<string>(), A.Dummy<string>());
+
+            // Act
+            var serializedString = serializer.SerializeToString(input);
+            var exception = Record.Exception(() => serializer.Deserialize<ConstructorWithProperties>(serializedString));
+
+            // Act
+            exception.Should().NotBeNull();
+            exception.Message.Should().Be("Could not find a parameterless constructor or a constructor whose parameter names matched the properties provided; type: Naos.Serialization.Test.PropertyBagSerializerTest+ConstructorWithoutProperties, properties: Property,ToString,GetType.");
+        }
+
+        [Fact]
         public static void Configuration___Specifying_type___Works()
         {
             // Arrange
@@ -166,6 +199,34 @@ namespace Naos.Serialization.Test
 
             // Act
             actual.StringItem.Should().Be(CustomStringSerializer.CustomReplacementString);
+        }
+
+        private class ConstructorWithProperties
+        {
+            public string PropertyGetOnly { get; }
+
+            public string PropertyPrivateSet { get; private set; }
+
+            public string PropertyPublicSet { get; set; }
+
+            public ConstructorWithProperties(string propertyGetOnly, string propertyPrivateSet, string propertyPublicSet)
+            {
+                this.PropertyGetOnly = propertyGetOnly;
+                this.PropertyPrivateSet = propertyPrivateSet;
+                this.PropertyPublicSet = propertyPublicSet;
+            }
+        }
+
+        private class ConstructorWithoutProperties
+        {
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Here to test reflection.")]
+            public string Property { get; }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "propertyDoesNotExist", Justification = "Here to test reflection.")]
+            public ConstructorWithoutProperties(string property, string propertyDoesNotExist)
+            {
+                this.Property = property;
+            }
         }
 
         private class PropertyBagConfig : PropertyBagConfigurationBase

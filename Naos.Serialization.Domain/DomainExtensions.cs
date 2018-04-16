@@ -250,5 +250,51 @@ namespace Naos.Serialization.Domain.Extensions
 
             return false;
         }
+
+        /// <summary>
+        /// Get the serializer by inspecting attribute on the property and optionally the specific type if known.
+        /// </summary>
+        /// <param name="propertyInfo">Property info.</param>
+        /// <param name="specificType">Specific type if known.</param>
+        /// <returns>Type of serializer if found, otherwise null.</returns>
+        public static Type GetSerializerTypeFromAttribute(this PropertyInfo propertyInfo, Type specificType = null)
+        {
+            new { propertyInfo }.Must().NotBeNull().OrThrowFirstFailure();
+
+            var propertyType = specificType ?? propertyInfo.PropertyType;
+            var ret = ((NaosStringSerializerAttribute)Attribute.GetCustomAttribute(propertyInfo, typeof(NaosStringSerializerAttribute)))?.SerializerType
+                      ?? ((NaosStringSerializerAttribute)Attribute.GetCustomAttribute(propertyType, typeof(NaosStringSerializerAttribute)))?.SerializerType;
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Get the serializer by inspecting attribute on the type.
+        /// </summary>
+        /// <param name="type">Type to check.</param>
+        /// <returns>Type of serializer if found, otherwise null.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "Prefer this for clarity of purpose.")]
+        public static Type GetSerializerTypeFromAttribute(this Type type)
+        {
+            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+
+            var ret = ((NaosStringSerializerAttribute)Attribute.GetCustomAttribute(type, typeof(NaosStringSerializerAttribute)))?.SerializerType;
+            return ret;
+        }
+
+        /// <summary>
+        /// Get the element serializer by inspecting attribute on the property.
+        /// </summary>
+        /// <param name="propertyInfo">Property info.</param>
+        /// <returns>Type of element serializer if found, otherwise null.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "Prefer this for clarity of purpose.")]
+        public static Type GetElementSerializerTypeFromAttribute(this PropertyInfo propertyInfo)
+        {
+            new { propertyInfo }.Must().NotBeNull().OrThrowFirstFailure();
+
+            var ret = ((NaosElementStringSerializerAttribute)Attribute.GetCustomAttribute(propertyInfo, typeof(NaosElementStringSerializerAttribute)))
+                ?.ElementSerializerType;
+            return ret;
+        }
     }
 }

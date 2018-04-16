@@ -7,10 +7,7 @@
 namespace Naos.Serialization.Domain.Extensions
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using OBeautifulCode.Reflection.Recipes;
+    using System.Reflection;
 
     using Spritely.Recipes;
 
