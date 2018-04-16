@@ -111,6 +111,8 @@ namespace Naos.Serialization.Test
             // Assert
             void AssertCorrect(ComplicatedObject actual)
             {
+                actual.NullableDecimal.Should().Be(input.NullableDecimal);
+                actual.NullableDecimalDefault.Should().BeNull();
                 actual.BaseVersion.Should().NotBeNull();
                 actual.DeriveVersion.Should().NotBeNull();
                 actual.DeriveVersionArray.Count().Should().Be(input.DeriveVersionArray.Count());
@@ -273,6 +275,9 @@ namespace Naos.Serialization.Test
         private class ComplicatedObject
         {
             public decimal? NullableDecimal { get; set; }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for default value testing.")]
+            public decimal? NullableDecimalDefault { get; set; }
 
             public InheritTypeBase BaseVersion { get; set; }
 
