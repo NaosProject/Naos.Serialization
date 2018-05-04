@@ -58,6 +58,7 @@
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Enum.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Field.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Property.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\TypeHelper.cs" />
     <Compile Include=".recipes\Spritely.CamelStrictConstructorContractResolver\CamelStrictConstructorContractResolver.cs" />
     <Compile Include=".recipes\Spritely.InheritedTypeJsonConverter\InheritedTypeJsonConverter.cs" />
     <Compile Include=".recipes\Spritely.JsonConfiguration\CompactJsonSerializer.cs" />

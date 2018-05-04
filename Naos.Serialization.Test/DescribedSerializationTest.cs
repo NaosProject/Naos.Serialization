@@ -14,6 +14,8 @@ namespace Naos.Serialization.Test
     using FluentAssertions;
 
     using Naos.Serialization.Domain;
+    using Naos.Serialization.Domain.Extensions;
+    using Naos.Serialization.Factory.Extensions;
 
     using OBeautifulCode.TypeRepresentation;
 
@@ -195,6 +197,31 @@ namespace Naos.Serialization.Test
                         (_.First == _.Second).Should().BeTrue(Invariant($"First: {_.First}; Second: {_.Second}"));
                         (_.First != _.Second).Should().BeFalse(Invariant($"First: {_.First}; Second: {_.Second}"));
                     });
+        }
+
+        [Fact]
+        public static void AnonymousObject___Can_be_round_tripped_back_into_a_dynamic()
+        {
+            // Arrange
+            var input = new { Item = "item", Items = new[] { "item1", "item2" } };
+            var serializationDescriptionJson = new SerializationDescription(SerializationFormat.Json, SerializationRepresentation.String, SerializationKind.Compact);
+            var serializationDescriptionBson = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.String, SerializationKind.Custom);
+
+            // Act
+            var serializedJson = input.ToDescribedSerialization(serializationDescriptionJson);
+            dynamic deserializedJson = serializedJson.DeserializePayload();
+
+            var serializedBson = input.ToDescribedSerialization(serializationDescriptionBson);
+            dynamic deserializedBson = serializedBson.DeserializePayload();
+
+            // Assert
+            ((string)deserializedJson.Item).Should().Be(input.Item);
+            ((string)deserializedJson.Items[0]).Should().Be(input.Items[0]);
+            ((string)deserializedJson.Items[1]).Should().Be(input.Items[1]);
+
+            ((string)deserializedBson.Item).Should().Be(input.Item);
+            ((string)deserializedBson.Items[0]).Should().Be(input.Items[0]);
+            ((string)deserializedBson.Items[1]).Should().Be(input.Items[1]);
         }
     }
 }

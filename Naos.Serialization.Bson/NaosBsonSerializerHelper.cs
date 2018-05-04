@@ -13,6 +13,8 @@ namespace Naos.Serialization.Bson
     using MongoDB.Bson.IO;
     using MongoDB.Bson.Serialization;
 
+    using Naos.Serialization.Domain;
+
     using Spritely.Recipes;
 
     /// <summary>
@@ -77,7 +79,15 @@ namespace Naos.Serialization.Bson
         {
             new { bsonDocumentToDeserialize }.Must().NotBeNull().OrThrowFirstFailure();
 
-            var ret = BsonSerializer.Deserialize(bsonDocumentToDeserialize, type);
+            object ret;
+            if (type == typeof(DynamicTypePlaceholder))
+            {
+                ret = BsonSerializer.Deserialize<dynamic>(bsonDocumentToDeserialize);
+            }
+            else
+            {
+                ret = BsonSerializer.Deserialize(bsonDocumentToDeserialize, type);
+            }
 
             return ret;
         }

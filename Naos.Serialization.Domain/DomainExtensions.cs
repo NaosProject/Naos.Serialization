@@ -13,6 +13,7 @@ namespace Naos.Serialization.Domain.Extensions
 
     using Naos.Compression.Domain;
 
+    using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.TypeRepresentation;
 
     using Spritely.Recipes;
@@ -99,8 +100,14 @@ namespace Naos.Serialization.Domain.Extensions
                 default: throw new NotSupportedException(Invariant($"{nameof(SerializationRepresentation)} - {serializationDescription.SerializationRepresentation} is not supported."));
             }
 
+            var payloadType = objectToPackageIntoDescribedSerialization?.GetType() ?? typeof(T);
+            if (payloadType.IsAnonymous())
+            {
+                payloadType = typeof(DynamicTypePlaceholder);
+            }
+
             var ret = new DescribedSerialization(
-                (objectToPackageIntoDescribedSerialization?.GetType() ?? typeof(T)).ToTypeDescription(),
+                payloadType.ToTypeDescription(),
                 payload,
                 serializationDescription);
 

@@ -12,6 +12,10 @@ namespace Naos.Serialization.Json
     using Naos.Serialization.Domain;
 
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+    using Newtonsoft.Json.Serialization;
+
+    using OBeautifulCode.Reflection.Recipes;
 
     using Spritely.Recipes;
 
@@ -102,7 +106,15 @@ namespace Naos.Serialization.Json
         /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
         public string SerializeToString(object objectToSerialize)
         {
-            var ret = JsonConvert.SerializeObject(objectToSerialize, this.SerializationSettings);
+            var localSerializationSettings = this.SerializationSettings;
+            if (objectToSerialize != null && objectToSerialize.GetType().IsAnonymous())
+            {
+                // this is a hack to not mess with casing since the case must match for dynamic deserialization...
+                localSerializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(this.SerializationKind, this.ConfigurationType);
+                localSerializationSettings.ContractResolver = new DefaultContractResolver();
+            }
+
+            var ret = JsonConvert.SerializeObject(objectToSerialize, localSerializationSettings);
 
             return ret;
         }
@@ -120,7 +132,16 @@ namespace Naos.Serialization.Json
         {
             new { type }.Must().NotBeNull().OrThrowFirstFailure();
 
-            var ret = JsonConvert.DeserializeObject(serializedString, type, this.SerializationSettings);
+            object ret;
+            if (type == typeof(DynamicTypePlaceholder))
+            {
+                dynamic dyn = JObject.Parse(serializedString);
+                ret = dyn;
+            }
+            else
+            {
+                ret = JsonConvert.DeserializeObject(serializedString, type, this.SerializationSettings);
+            }
 
             return ret;
         }

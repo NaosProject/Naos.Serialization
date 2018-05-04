@@ -59,6 +59,7 @@
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Enum.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Field.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Property.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\TypeHelper.cs" />
     <Compile Include=".recipes\Spritely.MustValidation\MakeRule.cs" />
     <Compile Include=".recipes\Spritely.MustValidation\MustExtensions.cs" />
     <Compile Include=".recipes\Spritely.MustValidation\RuleExtensions.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="IPropertyBagSerializeAndDeserialize.cs" />
     <Compile Include="ISerializeAndDeserialize.cs" />
     <Compile Include="ISerializerFactory.cs" />
+    <Compile Include="DynamicTypePlaceholder.cs" />
     <Compile Include="ISerializeToString.cs" />
     <Compile Include="NaosDictionaryStringStringSerializer.cs" />
     <Compile Include="NaosStringSerializerAttribute.cs" />
