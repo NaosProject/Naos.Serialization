@@ -110,7 +110,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must be true.\r\nParameter name: typeMustBeDateTimeOrNullableDateTime-System.String");
+            exception.Message.Should().Be("Parameter 'typeMustBeDateTimeOrNullableDateTime-System.String' is not true.  Parameter value is 'False'.");
         }
 
         [Fact]
@@ -126,7 +126,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: type");
+            exception.Message.Should().Be("Parameter 'type' is null.");
         }
     }
 }

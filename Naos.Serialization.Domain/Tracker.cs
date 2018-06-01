@@ -12,7 +12,7 @@ namespace Naos.Serialization.Domain
     using System.Linq;
     using System.Runtime.Serialization;
 
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -40,7 +40,7 @@ namespace Naos.Serialization.Domain
         /// <param name="equalityFunction">Custom equality function to use.</param>
         public Tracker(TrackedObjectEqualityFunction equalityFunction)
         {
-            new { equalityFunction }.Must().NotBeNull().OrThrowFirstFailure();
+            new { equalityFunction }.Must().NotBeNull();
 
             this.equalityFunction = equalityFunction;
         }
@@ -55,8 +55,9 @@ namespace Naos.Serialization.Domain
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "1", Justification = "Is validated.")]
         public void RunTrackedOperation(T trackedObject, Action<T> trackedOperation, TrackerCollisionStrategy trackerCollisionStrategy, Type callingType)
         {
-            new { trackedObject, trackedOperation }.Must().NotBeNull().OrThrowFirstFailure();
-            new { trackerCollisionStrategy }.Must().NotBeEqualTo(TrackerCollisionStrategy.Invalid).OrThrowFirstFailure();
+            new { trackedObject }.Must().NotBeNull();
+            new { trackedOperation }.Must().NotBeNull();
+            new { trackerCollisionStrategy }.Must().NotBeEqualTo(TrackerCollisionStrategy.Invalid);
 
             lock (this.syncTracking)
             {

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <description>Serialization logic used by Naos assets, provides both Binary and String serialization in JSON using Newtonsoft as the underlying work.</description>
+  </metadata>
+</package>

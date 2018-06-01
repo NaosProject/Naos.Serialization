@@ -16,8 +16,7 @@ namespace Naos.Serialization.Json
     using Newtonsoft.Json.Serialization;
 
     using OBeautifulCode.Reflection.Recipes;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
     /// JSON serializer.
@@ -37,7 +36,7 @@ namespace Naos.Serialization.Json
         /// <param name="configurationType">Type of configuration to use.</param>
         public NaosJsonSerializer(SerializationKind serializationKind = SerializationKind.Default, Type configurationType = null)
         {
-            new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid).OrThrowFirstFailure();
+            new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
 
             this.SerializationKind = serializationKind;
             this.ConfigurationType = configurationType;
@@ -45,10 +44,10 @@ namespace Naos.Serialization.Json
             this.SerializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(this.SerializationKind, this.ConfigurationType);
         }
 
-        /// <inheritdoc cref="IHaveSerializationKind" />
+        /// <inheritdoc />
         public SerializationKind SerializationKind { get; private set; }
 
-        /// <inheritdoc cref="IHaveConfigurationType" />
+        /// <inheritdoc />
         public Type ConfigurationType { get; private set; }
 
         /// <summary>
@@ -79,7 +78,7 @@ namespace Naos.Serialization.Json
             return ret;
         }
 
-        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
+        /// <inheritdoc />
         public byte[] SerializeToBytes(object objectToSerialize)
         {
             var jsonString = this.SerializeToString(objectToSerialize);
@@ -87,23 +86,23 @@ namespace Naos.Serialization.Json
             return jsonBytes;
         }
 
-        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
+        /// <inheritdoc />
         public T Deserialize<T>(byte[] serializedBytes)
         {
             var ret = this.Deserialize(serializedBytes, typeof(T));
             return (T)ret;
         }
 
-        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
+        /// <inheritdoc />
         public object Deserialize(byte[] serializedBytes, Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             var jsonString = ConvertByteArrayToJson(serializedBytes);
             return this.Deserialize(jsonString, type);
         }
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public string SerializeToString(object objectToSerialize)
         {
             var localSerializationSettings = this.SerializationSettings;
@@ -119,7 +118,7 @@ namespace Naos.Serialization.Json
             return ret;
         }
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
             var ret = JsonConvert.DeserializeObject<T>(serializedString, this.SerializationSettings);
@@ -127,10 +126,10 @@ namespace Naos.Serialization.Json
             return ret;
         }
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public object Deserialize(string serializedString, Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             object ret;
             if (type == typeof(DynamicTypePlaceholder))

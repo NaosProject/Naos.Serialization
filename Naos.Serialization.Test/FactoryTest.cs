@@ -36,10 +36,10 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: serializationDescription");
+            exception.Message.Should().Be("Parameter 'serializationDescription' is null.");
             jsonException.Should().NotBeNull();
             jsonException.Should().BeOfType<ArgumentNullException>();
-            jsonException.Message.Should().Be("\r\nParameter name: serializationDescription");
+            jsonException.Message.Should().Be("Parameter 'serializationDescription' is null.");
         }
 
         [Fact]
@@ -78,10 +78,10 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: serializationDescription");
+            exception.Message.Should().Be("Parameter 'serializationDescription' is null.");
             bsonException.Should().NotBeNull();
             bsonException.Should().BeOfType<ArgumentNullException>();
-            bsonException.Message.Should().Be("\r\nParameter name: serializationDescription");
+            bsonException.Message.Should().Be("Parameter 'serializationDescription' is null.");
         }
 
         [Fact]

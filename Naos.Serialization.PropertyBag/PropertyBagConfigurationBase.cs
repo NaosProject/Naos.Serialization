@@ -12,8 +12,7 @@ namespace Naos.Serialization.PropertyBag
     using Naos.Serialization.Domain;
 
     using OBeautifulCode.Reflection.Recipes;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -55,7 +54,7 @@ namespace Naos.Serialization.PropertyBag
         {
             var ret = new Dictionary<Type, IStringSerializeAndDeserialize>();
             var customTypeToSerializerMappings = this.CustomTypeToSerializerMappings();
-            new { customTypeToSerializerMappings }.Must().NotBeNull().OrThrowFirstFailure();
+            new { customTypeToSerializerMappings }.Must().NotBeNull();
 
             foreach (var customMapping in customTypeToSerializerMappings)
             {

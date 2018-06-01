@@ -1,0 +1,6 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <description>Serialization logic used by Naos assets, provides generic interfaces as well as a DateTimeStringSerializer that will work with all DateTimeKinds.</description>
+  </metadata>
+</package>

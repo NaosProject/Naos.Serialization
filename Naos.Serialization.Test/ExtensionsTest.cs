@@ -40,7 +40,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: serializationDescription");
+            exception.Message.Should().Be("Parameter 'serializationDescription' is null.");
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: serializerFactory");
+            exception.Message.Should().Be("Parameter 'serializerFactory' is null.");
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: compressorFactory");
+            exception.Message.Should().Be("Parameter 'compressorFactory' is null.");
         }
 
         [Fact]

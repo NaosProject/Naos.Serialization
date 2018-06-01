@@ -13,6 +13,8 @@ namespace Naos.Serialization.Json
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
 
+    using OBeautifulCode.Validation.Recipes;
+
     using Spritely.Recipes;
 
     using static System.FormattableString;
@@ -37,7 +39,7 @@ namespace Naos.Serialization.Json
                 {
                     if (!this.configured)
                     {
-                        new { this.InheritSettingsFromKind }.Must().NotBeEqualTo(SerializationKind.Invalid).OrThrowFirstFailure();
+                        new { this.InheritSettingsFromKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
 
                         var baseSettings = GetSettingsBySerializationKind(this.InheritSettingsFromKind);
 

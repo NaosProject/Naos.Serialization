@@ -19,7 +19,7 @@ namespace Naos.Serialization.Bson
     using MongoDB.Bson.Serialization.Options;
     using MongoDB.Bson.Serialization.Serializers;
 
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -74,7 +74,7 @@ namespace Naos.Serialization.Bson
         /// <param name="valueSerializer">The value serializer.</param>
         public NaosDictionarySerializer(DictionaryRepresentation dictionaryRepresentation, IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
         {
-            DeserializationConverterFuncBySerializedType.ContainsKey(typeof(TDictionary)).Named(Invariant($"{typeof(TDictionary)}-mustBeSupportedDictionaryType")).Must().BeTrue().OrThrow();
+            DeserializationConverterFuncBySerializedType.ContainsKey(typeof(TDictionary)).Named(Invariant($"{typeof(TDictionary)}-mustBeSupportedDictionaryType")).Must().BeTrue();
 
             this.underlyingSerializer = new DictionaryInterfaceImplementerSerializer<Dictionary<TKey, TValue>>(dictionaryRepresentation, keySerializer, valueSerializer);
         }
@@ -82,7 +82,7 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
-            new { context }.Must().NotBeNull().OrThrow();
+            new { context }.Must().NotBeNull();
 
             if (value == null)
             {
@@ -104,7 +104,7 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override TDictionary Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            new { context }.Must().NotBeNull().OrThrow();
+            new { context }.Must().NotBeNull();
 
             if (context.Reader.State != BsonReaderState.Type && context.Reader.CurrentBsonType == BsonType.Null)
             {
@@ -150,7 +150,7 @@ namespace Naos.Serialization.Bson
         /// <returns>true if the specified type is supported; otherwise, false.</returns>
         public static bool IsSupportedUnboundedGenericDictionaryType(Type type)
         {
-            new { type }.Must().NotBeNull().OrThrow();
+            new { type }.Must().NotBeNull();
 
             var result = SupportedUnboundedGenericDictionaryTypes.Contains(type);
             return result;

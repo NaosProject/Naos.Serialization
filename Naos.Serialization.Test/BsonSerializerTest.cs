@@ -47,8 +47,8 @@ namespace Naos.Serialization.Test
                 _ =>
                     {
                         _.Value.Should().NotBeNull();
-                        _.Value.Should().BeOfType<ArgumentException>();
-                        _.Value.Message.Should().Be(Invariant($"Value must be equal to Custom.\r\nParameter name: serializationKind"));
+                        _.Value.Should().BeOfType<ArgumentOutOfRangeException>();
+                        _.Value.Message.Should().StartWith("Parameter 'serializationKind' is not equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationKind.");
                     });
         }
 
@@ -64,7 +64,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must be true.\r\nParameter name: Configuration type - System.String - must derive from BsonConfigurationBase.");
+            exception.Message.Should().Be("Parameter 'Configuration type - System.String - must derive from BsonConfigurationBase.' is not true.  Parameter value is 'False'.");
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must be true.\r\nParameter name: configurationType must contain a default constructor to use in NaosBsonSerializer.");
+            exception.Message.Should().Be("Parameter 'configurationType must contain a default constructor to use in NaosBsonSerializer.' is not true.  Parameter value is 'False'.");
         }
     }
 }

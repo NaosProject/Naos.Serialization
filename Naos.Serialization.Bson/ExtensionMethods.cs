@@ -11,7 +11,7 @@ namespace Naos.Serialization.Bson
 
     using MongoDB.Bson.Serialization;
 
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
     /// Extension methods for use with Bson serialization.
@@ -26,7 +26,7 @@ namespace Naos.Serialization.Bson
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
         public static BsonMemberMap SetNaosSerializer(this BsonMemberMap map)
         {
-            new { map }.Must().NotBeNull().OrThrowFirstFailure();
+            new { map }.Must().NotBeNull();
 
             var serializer = BsonConfigurationBase.GetSerializer(map.MemberType);
 

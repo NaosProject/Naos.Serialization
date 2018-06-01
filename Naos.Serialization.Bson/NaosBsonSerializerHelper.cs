@@ -15,7 +15,7 @@ namespace Naos.Serialization.Bson
 
     using Naos.Serialization.Domain;
 
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
     /// Helper class for using <see cref="BsonSerializer"/>.
@@ -31,7 +31,7 @@ namespace Naos.Serialization.Bson
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It should not actually be an issue.")]
         public static byte[] SerializeToBytes(object objectToSerialize)
         {
-            new { objectToSerialize }.Must().NotBeNull().OrThrow();
+            new { objectToSerialize }.Must().NotBeNull();
 
             using (var memoryStream = new MemoryStream())
             {
@@ -54,7 +54,7 @@ namespace Naos.Serialization.Bson
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It should not actually be an issue.")]
         public static BsonDocument SerializeToDocument(object objectToSerialize)
         {
-            new { objectToSerialize }.Must().NotBeNull().OrThrow();
+            new { objectToSerialize }.Must().NotBeNull();
 
             var document = new BsonDocument();
 
@@ -77,7 +77,7 @@ namespace Naos.Serialization.Bson
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It should not actually be an issue.")]
         public static object DeserializeFromDocument(BsonDocument bsonDocumentToDeserialize, Type type)
         {
-            new { bsonDocumentToDeserialize }.Must().NotBeNull().OrThrowFirstFailure();
+            new { bsonDocumentToDeserialize }.Must().NotBeNull();
 
             object ret;
             if (type == typeof(DynamicTypePlaceholder))
@@ -102,7 +102,7 @@ namespace Naos.Serialization.Bson
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It should not actually be an issue.")]
         public static T DeserializeFromDocument<T>(BsonDocument bsonDocumentToDeserialize)
         {
-            new { bsonDocumentToDeserialize }.Must().NotBeNull().OrThrowFirstFailure();
+            new { bsonDocumentToDeserialize }.Must().NotBeNull();
 
             var ret = BsonSerializer.Deserialize<T>(bsonDocumentToDeserialize);
 
@@ -132,7 +132,7 @@ namespace Naos.Serialization.Bson
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It should not actually be an issue.")]
         public static object Deserialize(byte[] serializedBytes, Type type)
         {
-            new { serializedBytes }.Must().NotBeNull().OrThrow();
+            new { serializedBytes }.Must().NotBeNull();
 
             using (var memoryStream = new MemoryStream(serializedBytes))
             {

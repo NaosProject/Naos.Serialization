@@ -14,8 +14,7 @@ namespace Naos.Serialization.Factory
     using Naos.Serialization.PropertyBag;
 
     using OBeautifulCode.TypeRepresentation;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -38,10 +37,10 @@ namespace Naos.Serialization.Factory
             /* no-op to make sure this can only be accessed via instance property */
         }
 
-        /// <inheritdoc cref="ISerializerFactory" />
+        /// <inheritdoc />
         public ISerializeAndDeserialize BuildSerializer(SerializationDescription serializationDescription, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            new { serializationDescription }.Must().NotBeNull().OrThrowFirstFailure();
+            new { serializationDescription }.Must().NotBeNull();
 
             lock (this.sync)
             {

@@ -21,8 +21,7 @@ namespace Naos.Serialization.Bson
 
     using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.TypeRepresentation;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -76,14 +75,11 @@ namespace Naos.Serialization.Bson
                 {
                     if (!this.configured)
                     {
-                        new
-                            {
-                                this.DependentConfigurationTypes,
-                                this.TypesToAutoRegister,
-                                this.ClassTypesToRegister,
-                                this.ClassTypesToRegisterAlongWithInheritors,
-                                this.InterfaceTypesToRegisterImplementationOf,
-                            }.Must().NotBeNull().OrThrowFirstFailure();
+                        new { this.DependentConfigurationTypes }.Must().NotBeNull();
+                        new { this.TypesToAutoRegister }.Must().NotBeNull();
+                        new { this.ClassTypesToRegister }.Must().NotBeNull();
+                        new { this.ClassTypesToRegisterAlongWithInheritors }.Must().NotBeNull();
+                        new { this.InterfaceTypesToRegisterImplementationOf }.Must().NotBeNull();
 
                         foreach (var dependantConfigurationType in this.DependentConfigurationTypes)
                         {
@@ -160,7 +156,7 @@ namespace Naos.Serialization.Bson
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
         protected void RegisterClassMapForTypeUsingMongoGeneric(Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             try
             {
@@ -187,7 +183,7 @@ namespace Naos.Serialization.Bson
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
         protected void RegisterClassType(Type type, IReadOnlyCollection<string> constrainToProperties = null)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             try
             {
@@ -225,7 +221,7 @@ namespace Naos.Serialization.Bson
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
         protected void RegisterClassTypes(IReadOnlyCollection<Type> types)
         {
-            new { types }.Must().NotBeNull().OrThrowFirstFailure();
+            new { types }.Must().NotBeNull();
 
             foreach (var type in types)
             {
@@ -240,7 +236,7 @@ namespace Naos.Serialization.Bson
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
         protected void RegisterImplementationsOfInterfaceTypes(IReadOnlyCollection<Type> types)
         {
-            new { types }.Must().NotBeNull().OrThrowFirstFailure();
+            new { types }.Must().NotBeNull();
 
             var allTypes = types.SelectMany(this.GetInterfaceImplementations).Distinct().ToList();
             var interfaceTypes = allTypes.Where(_ => _.IsInterface).ToList();
@@ -264,7 +260,7 @@ namespace Naos.Serialization.Bson
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
         protected void RegisterClassTypesAndTheirInheritedTypes(IReadOnlyCollection<Type> types)
         {
-            new { types }.Must().NotBeNull().OrThrowFirstFailure();
+            new { types }.Must().NotBeNull();
 
             // ReSharper disable once ArgumentsStyleLiteral - it is clearer with a boolean to have the name of the parameter
             var allTypes = types.SelectMany(_ => this.GetSubclassTypes(_, includeSpecifiedTypeInReturnList: true)).Distinct().ToList();
@@ -282,7 +278,7 @@ namespace Naos.Serialization.Bson
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
         protected BsonClassMap AutomaticallyBuildBsonClassMap(Type type, IReadOnlyCollection<string> constrainToProperties)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             var bsonClassMap = new BsonClassMap(type);
 
@@ -295,13 +291,13 @@ namespace Naos.Serialization.Bson
             if (!constraintsAreNullOrEmpty)
             {
                 var allMemberNames = allMembers.Select(_ => _.Name).ToList();
-                constrainToProperties.Any(_ => !allMemberNames.Contains(_)).Named("constrainedPropertyDoesNotExistOnType").Must().BeFalse().OrThrowFirstFailure();
+                constrainToProperties.Any(_ => !allMemberNames.Contains(_)).Named("constrainedPropertyDoesNotExistOnType").Must().BeFalse();
             }
 
             foreach (var member in members)
             {
                 var memberType = member.GetUnderlyingType();
-                memberType.Named(Invariant($"{member.Name}-{nameof(MemberInfo.DeclaringType)}")).Must().NotBeNull().OrThrowFirstFailure();
+                memberType.Named(Invariant($"{member.Name}-{nameof(MemberInfo.DeclaringType)}")).Must().NotBeNull();
 
                 try
                 {
@@ -406,7 +402,7 @@ namespace Naos.Serialization.Bson
         /// <returns>Collection of members to map.</returns>
         public static IReadOnlyCollection<MemberInfo> GetMembersToAutomap(Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             bool FilterCompilerGenerated(MemberInfo memberInfo) => !memberInfo.CustomAttributes.Select(s => s.AttributeType).Contains(typeof(CompilerGeneratedAttribute));
 
@@ -437,8 +433,8 @@ namespace Naos.Serialization.Bson
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
         protected IReadOnlyCollection<Type> GetSubclassTypes(Type classType, bool includeSpecifiedTypeInReturnList = false)
         {
-            new { classType }.Must().NotBeNull().OrThrowFirstFailure();
-            new { classType.IsClass }.Must().BeTrue().OrThrowFirstFailure();
+            new { classType }.Must().NotBeNull();
+            new { classType.IsClass }.Must().BeTrue();
 
             var derivativeTypes = GetAllTypesToConsiderForRegistration().Where(_ => _.IsSubclassOf(classType)).ToList();
 
@@ -458,8 +454,8 @@ namespace Naos.Serialization.Bson
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
         protected IReadOnlyCollection<Type> GetInterfaceImplementations(Type interfaceType)
         {
-            new { interfaceType }.Must().NotBeNull().OrThrowFirstFailure();
-            new { interfaceType.IsInterface }.Must().BeTrue().OrThrowFirstFailure();
+            new { interfaceType }.Must().NotBeNull();
+            new { interfaceType.IsInterface }.Must().BeTrue();
 
             var derivativeTypes = GetAllTypesToConsiderForRegistration().Where(_ => _.GetInterfaces().Contains(interfaceType)).ToList();
 
@@ -496,7 +492,7 @@ namespace Naos.Serialization.Bson
     /// </summary>
     public sealed class NullBsonConfiguration : BsonConfigurationBase
     {
-        /// <inheritdoc cref="BsonConfigurationBase"/>
+        /// <inheritdoc />
         protected override void CustomConfiguration()
         {
             /* no-op */

@@ -11,8 +11,7 @@ namespace Naos.Serialization.Domain
 
     using OBeautifulCode.Math.Recipes;
     using OBeautifulCode.TypeRepresentation;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
     /// Represents a serialized object along with a description of the type of the object.
@@ -38,8 +37,8 @@ namespace Naos.Serialization.Domain
         /// <exception cref="ArgumentException"><paramref name="serializationDescription"/> is whitespace.</exception>
         public DescribedSerialization(TypeDescription payloadTypeDescription, string serializedPayload, SerializationDescription serializationDescription)
         {
-            new { payloadTypeDescription }.Must().NotBeNull().OrThrowFirstFailure();
-            new { serializationDescription }.Must().NotBeNull().OrThrowFirstFailure();
+            new { payloadTypeDescription }.Must().NotBeNull();
+            new { serializationDescription }.Must().NotBeNull();
 
             this.PayloadTypeDescription = payloadTypeDescription;
             this.SerializedPayload = serializedPayload;

@@ -12,7 +12,7 @@ namespace Naos.Serialization.Json
 
     using Newtonsoft.Json;
 
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -30,7 +30,7 @@ namespace Naos.Serialization.Json
         /// <returns><see cref="JsonSerializerSettings" /> to use with <see cref="Newtonsoft" /> when serializing.</returns>
         public static JsonSerializerSettings BuildSettings(SerializationKind serializationKind, Type configurationType = null)
         {
-            new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid).OrThrowFirstFailure();
+            new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
 
             if (serializationKind == SerializationKind.Custom)
             {

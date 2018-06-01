@@ -38,8 +38,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must not be equal to Invalid.\r\nParameter name: serializationFormat");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.Message.Should().Be("Parameter 'serializationFormat' is equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationFormat.  Specified 'comparisonValue' is 'Invalid'.");
         }
 
         [Fact]
@@ -55,8 +55,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must not be equal to Invalid.\r\nParameter name: serializationRepresentation");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.Message.Should().Be("Parameter 'serializationRepresentation' is equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationRepresentation.  Specified 'comparisonValue' is 'Invalid'.");
         }
 
         [Fact]
@@ -73,8 +73,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must not be equal to Invalid.\r\nParameter name: serializationKind");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.Message.Should().Be("Parameter 'serializationKind' is equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationKind.  Specified 'comparisonValue' is 'Invalid'.");
         }
 
         [Fact]
@@ -93,8 +93,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must not be equal to Invalid.\r\nParameter name: compressionKind");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.Message.Should().Be("Parameter 'compressionKind' is equal to the comparison value using EqualityComparer<T>.Default, where T: CompressionKind.  Specified 'comparisonValue' is 'Invalid'.");
         }
 
         [Fact]

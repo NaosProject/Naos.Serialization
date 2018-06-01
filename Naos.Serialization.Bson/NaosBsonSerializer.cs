@@ -7,15 +7,12 @@
 namespace Naos.Serialization.Bson
 {
     using System;
-    using System.Linq;
-    using System.Reflection;
-
     using MongoDB.Bson;
 
     using Naos.Serialization.Domain;
     using Naos.Serialization.Domain.Extensions;
 
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -31,30 +28,28 @@ namespace Naos.Serialization.Bson
         /// <param name="configurationType">Optional <see cref="BsonConfigurationBase"/> implmentation to use; default is <see cref="NullBsonConfiguration"/>.</param>
         public NaosBsonSerializer(SerializationKind serializationKind = SerializationKind.Custom, Type configurationType = null)
         {
-            new { serializationKind }.Must().BeEqualTo(SerializationKind.Custom).OrThrowFirstFailure();
+            new { serializationKind }.Must().BeEqualTo(SerializationKind.Custom);
 
             if (configurationType != null)
             {
-                configurationType.IsSubclassOf(typeof(BsonConfigurationBase))
-                    .Named(Invariant($"Configuration type - {configurationType.FullName} - must derive from {nameof(BsonConfigurationBase)}.")).Must().BeTrue()
-                    .OrThrowFirstFailure();
+                configurationType.IsSubclassOf(typeof(BsonConfigurationBase)).Named(
+                    Invariant($"Configuration type - {configurationType.FullName} - must derive from {nameof(BsonConfigurationBase)}.")).Must().BeTrue();
 
-                configurationType.HasParameterlessConstructor()
-                    .Named(Invariant($"{nameof(configurationType)} must contain a default constructor to use in {nameof(NaosBsonSerializer)}.")).Must().BeTrue()
-                    .OrThrowFirstFailure();
+                configurationType.HasParameterlessConstructor().Named(
+                    Invariant($"{nameof(configurationType)} must contain a default constructor to use in {nameof(NaosBsonSerializer)}.")).Must().BeTrue();
             }
 
             this.SerializationKind = serializationKind;
             this.ConfigurationType = configurationType ?? typeof(NullBsonConfiguration);
         }
 
-        /// <inheritdoc cref="IHaveSerializationKind" />
+        /// <inheritdoc />
         public SerializationKind SerializationKind { get; private set; }
 
-        /// <inheritdoc cref="IHaveConfigurationType" />
+        /// <inheritdoc />
         public Type ConfigurationType { get; private set; }
 
-        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
+        /// <inheritdoc />
         public byte[] SerializeToBytes(object objectToSerialize)
         {
             BsonConfigurationManager.Configure(this.ConfigurationType);
@@ -62,7 +57,7 @@ namespace Naos.Serialization.Bson
             return NaosBsonSerializerHelper.SerializeToBytes(objectToSerialize);
         }
 
-        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
+        /// <inheritdoc />
         public T Deserialize<T>(byte[] serializedBytes)
         {
             BsonConfigurationManager.Configure(this.ConfigurationType);
@@ -70,17 +65,17 @@ namespace Naos.Serialization.Bson
             return NaosBsonSerializerHelper.Deserialize<T>(serializedBytes);
         }
 
-        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
+        /// <inheritdoc />
         public object Deserialize(byte[] serializedBytes, Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             BsonConfigurationManager.Configure(this.ConfigurationType);
 
             return NaosBsonSerializerHelper.Deserialize(serializedBytes, type);
         }
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public string SerializeToString(object objectToSerialize)
         {
             BsonConfigurationManager.Configure(this.ConfigurationType);
@@ -90,7 +85,7 @@ namespace Naos.Serialization.Bson
             return json;
         }
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
             BsonConfigurationManager.Configure(this.ConfigurationType);
@@ -99,10 +94,10 @@ namespace Naos.Serialization.Bson
             return NaosBsonSerializerHelper.DeserializeFromDocument<T>(document);
         }
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public object Deserialize(string serializedString, Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             BsonConfigurationManager.Configure(this.ConfigurationType);
 

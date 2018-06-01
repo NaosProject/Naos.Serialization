@@ -8,13 +8,11 @@ namespace Naos.Serialization.Json
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Naos.Serialization.Domain.Extensions;
 
     using OBeautifulCode.Reflection.Recipes;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -49,9 +47,9 @@ namespace Naos.Serialization.Json
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
         public static JsonConfigurationBase Configure(Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
-            type.IsSubclassOf(typeof(JsonConfigurationBase)).Named(Invariant($"typeMustBeSubclassOf{nameof(JsonConfigurationBase)}")).Must().BeTrue().OrThrowFirstFailure();
-            type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
+            type.IsSubclassOf(typeof(JsonConfigurationBase)).Named(Invariant($"typeMustBeSubclassOf{nameof(JsonConfigurationBase)}")).Must().BeTrue();
+            type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue();
 
             var instance = Instance(type, () => (JsonConfigurationBase)type.Construct());
             instance.Configure();

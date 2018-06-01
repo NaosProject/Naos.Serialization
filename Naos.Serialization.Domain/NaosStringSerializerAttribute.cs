@@ -7,9 +7,8 @@
 namespace Naos.Serialization.Domain.Extensions
 {
     using System;
-    using System.Reflection;
 
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -25,13 +24,12 @@ namespace Naos.Serialization.Domain.Extensions
         /// <param name="serializerType">Type of <see cref="IStringSerializeAndDeserialize" /> to use when string serializing where supported.</param>
         public NaosStringSerializerAttribute(Type serializerType)
         {
-            new { serializerType }.Must().NotBeNull().OrThrowFirstFailure();
+            new { serializerType }.Must().NotBeNull();
 
             serializerType.HasParameterlessConstructor().Named(Invariant($"Type specified {serializerType} must have a paramerterless constructor.")).Must()
-                .BeTrue().OrThrowFirstFailure();
-            serializerType.ImplementsInterface<IStringSerializeAndDeserialize>()
-                .Named(Invariant($"Type specified {serializerType} was not an implementer of {typeof(IStringSerializeAndDeserialize)}")).Must().BeTrue()
-                .OrThrowFirstFailure();
+                .BeTrue();
+            serializerType.ImplementsInterface<IStringSerializeAndDeserialize>().Named(
+                Invariant($"Type specified {serializerType} was not an implementer of {typeof(IStringSerializeAndDeserialize)}")).Must().BeTrue();
 
             this.SerializerType = serializerType;
         }
@@ -54,11 +52,10 @@ namespace Naos.Serialization.Domain.Extensions
         /// <param name="elementSerializerType">Type of <see cref="IStringSerializeAndDeserialize" /> to use when string serializing where supported.</param>
         public NaosElementStringSerializerAttribute(Type elementSerializerType)
         {
-            elementSerializerType.HasParameterlessConstructor().Named(Invariant($"Type specified {elementSerializerType} must have a paramerterless constructor.")).Must()
-                .BeTrue().OrThrowFirstFailure();
-            elementSerializerType.ImplementsInterface<IStringSerializeAndDeserialize>()
-                .Named(Invariant($"Type specified {elementSerializerType} was not an implementer of {typeof(IStringSerializeAndDeserialize)}")).Must().BeTrue()
-                .OrThrowFirstFailure();
+            elementSerializerType.HasParameterlessConstructor()
+                .Named(Invariant($"Type specified {elementSerializerType} must have a paramerterless constructor.")).Must().BeTrue();
+            elementSerializerType.ImplementsInterface<IStringSerializeAndDeserialize>().Named(
+                Invariant($"Type specified {elementSerializerType} was not an implementer of {typeof(IStringSerializeAndDeserialize)}")).Must().BeTrue();
 
             this.ElementSerializerType = elementSerializerType;
         }

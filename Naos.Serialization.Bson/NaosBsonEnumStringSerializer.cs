@@ -6,16 +6,10 @@ namespace Naos.Serialization.Bson
 {
     using System;
 
-    using MongoDB.Bson;
-    using MongoDB.Bson.IO;
     using MongoDB.Bson.Serialization;
     using MongoDB.Bson.Serialization.Serializers;
 
-    using Naos.Serialization.Domain;
-
-    using Spritely.Recipes;
-
-    using static System.FormattableString;
+    using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
     /// Represents a serializer for enums, including support for <see cref="FlagsAttribute"/> ones.
@@ -24,10 +18,10 @@ namespace Naos.Serialization.Bson
     public class NaosBsonEnumStringSerializer<TEnum> : StructSerializerBase<TEnum>
         where TEnum : struct
     {
-        /// <inheritdoc cref="SerializerBase{TValue}" />
+        /// <inheritdoc />
         public override TEnum Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            new { context }.Must().NotBeNull().OrThrowFirstFailure();
+            new { context }.Must().NotBeNull();
 
             var bsonReader = context.Reader;
 
@@ -36,10 +30,10 @@ namespace Naos.Serialization.Bson
             return (TEnum)Enum.Parse(typeof(TEnum), stringValue);
         }
 
-        /// <inheritdoc cref="SerializerBase{TValue}" />
+        /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TEnum value)
         {
-            new { context }.Must().NotBeNull().OrThrowFirstFailure();
+            new { context }.Must().NotBeNull();
 
             var bsonWriter = context.Writer;
 

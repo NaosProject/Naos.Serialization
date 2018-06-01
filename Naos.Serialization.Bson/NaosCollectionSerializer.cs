@@ -17,7 +17,7 @@ namespace Naos.Serialization.Bson
     using MongoDB.Bson.Serialization;
     using MongoDB.Bson.Serialization.Serializers;
 
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -73,7 +73,7 @@ namespace Naos.Serialization.Bson
         /// <param name="elementSerializer">The element serializer.</param>
         public NaosCollectionSerializer(IBsonSerializer<TElement> elementSerializer)
         {
-            DeserializationConverterFuncBySerializedType.ContainsKey(typeof(TCollection)).Named(Invariant($"{typeof(TCollection)}-mustBeSupportedCollectionType")).Must().BeTrue().OrThrow();
+            DeserializationConverterFuncBySerializedType.ContainsKey(typeof(TCollection)).Named(Invariant($"{typeof(TCollection)}-mustBeSupportedCollectionType")).Must().BeTrue();
 
             this.underlyingSerializer = elementSerializer == null
                 ? new ReadOnlyCollectionSerializer<TElement>()
@@ -83,7 +83,7 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TCollection value)
         {
-            new { context }.Must().NotBeNull().OrThrow();
+            new { context }.Must().NotBeNull();
 
             if (value == null)
             {
@@ -112,7 +112,7 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public override TCollection Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            new { context }.Must().NotBeNull().OrThrow();
+            new { context }.Must().NotBeNull();
 
             if (context.Reader.State != BsonReaderState.Type && context.Reader.CurrentBsonType == BsonType.Null)
             {
@@ -156,7 +156,7 @@ namespace Naos.Serialization.Bson
         /// <returns>true if the specified type is supported; otherwise, false.</returns>
         public static bool IsSupportedUnboundedGenericCollectionType(Type type)
         {
-            new { type }.Must().NotBeNull().OrThrow();
+            new { type }.Must().NotBeNull();
 
             var result = SupportedUnboundedGenericCollectionTypes.Contains(type);
             return result;

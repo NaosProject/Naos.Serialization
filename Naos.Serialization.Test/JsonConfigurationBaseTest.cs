@@ -36,8 +36,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must not be equal to Invalid.\r\nParameter name: InheritSettingsFromKind");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.Message.Should().Be("Parameter 'InheritSettingsFromKind' is equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationKind.  Specified 'comparisonValue' is 'Invalid'.");
         }
 
         [Fact]

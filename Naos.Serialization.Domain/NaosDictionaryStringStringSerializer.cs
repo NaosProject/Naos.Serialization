@@ -12,8 +12,7 @@ namespace Naos.Serialization.Domain
     using System.Text;
 
     using OBeautifulCode.Reflection.Recipes;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -45,8 +44,8 @@ namespace Naos.Serialization.Domain
         /// <param name="nullValueEncoding">Encoding for NULLs.</param>
         public NaosDictionaryStringStringSerializer(string keyValueDelimiter = DefaultKeyValueDelimiter, string lineDelimiter = DefaultLineDelimiter, string nullValueEncoding = DefaultNullValueEncoding)
         {
-            new { keyValueDelimiter }.Must().NotBeNull().OrThrowFirstFailure();
-            new { lineDelimiter }.Must().NotBeNull().OrThrowFirstFailure();
+            new { keyValueDelimiter }.Must().NotBeNull();
+            new { lineDelimiter }.Must().NotBeNull();
 
             this.KeyValueDelimiter = keyValueDelimiter;
             this.LineDelimiter = lineDelimiter;
@@ -68,13 +67,13 @@ namespace Naos.Serialization.Domain
         /// </summary>
         public string NullValueEncoding { get; private set; }
 
-        /// <inheritdoc cref="IHaveSerializationKind" />
+        /// <inheritdoc />
         public SerializationKind SerializationKind => SerializationKind.Default;
 
-        /// <inheritdoc cref="IHaveConfigurationType" />
+        /// <inheritdoc />
         public Type ConfigurationType => null;
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize" />
+        /// <inheritdoc />
         public string SerializeToString(object objectToSerialize)
         {
             if (objectToSerialize == null)
@@ -83,8 +82,7 @@ namespace Naos.Serialization.Domain
             }
 
             var dictionary = objectToSerialize as IReadOnlyDictionary<string, string>;
-            dictionary.Named(Invariant($"typeMustBeConvertableTo-{nameof(IReadOnlyDictionary<string, string>)}-found-{objectToSerialize.GetType()}")).Must()
-                .NotBeNull().OrThrowFirstFailure();
+            dictionary.Named(Invariant($"typeMustBeConvertableTo-{nameof(IReadOnlyDictionary<string, string>)}-found-{objectToSerialize.GetType()}")).Must().NotBeNull();
 
             return this.SerializeDictionaryToString(dictionary);
         }
@@ -113,21 +111,15 @@ namespace Naos.Serialization.Domain
                 var key = keyValuePair.Key;
                 var value = keyValuePair.Value ?? this.NullValueEncoding;
 
-                key.Contains(this.KeyValueDelimiter).Named(Invariant($"Key-cannot-contain-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}--found-on-key--{key}")).Must()
-                    .BeFalse().OrThrowFirstFailure();
-                (value ?? string.Empty).Contains(this.KeyValueDelimiter).Named(Invariant($"Key-cannot-contain-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}--found-on-value--{value}"))
-                    .Must().BeFalse().OrThrowFirstFailure();
+                key.Contains(this.KeyValueDelimiter)
+                    .Named(Invariant($"Key-cannot-contain-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}--found-on-key--{key}")).Must().BeFalse();
+                (value ?? string.Empty).Contains(this.KeyValueDelimiter).Named(
+                    Invariant($"Key-cannot-contain-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}--found-on-value--{value}")).Must().BeFalse();
 
-                key.Contains(this.LineDelimiter)
-                    .Named(
-                        Invariant(
-                            $"Key-cannot-contain-{nameof(this.LineDelimiter)}--{(Environment.NewLine == this.LineDelimiter ? "NEWLINE" : this.LineDelimiter)}--found-on-key--{key}"))
-                    .Must().BeFalse().OrThrowFirstFailure();
-                (value ?? string.Empty).Contains(this.LineDelimiter)
-                    .Named(
-                        Invariant(
-                            $"Key-cannot-contain-{nameof(this.LineDelimiter)}--{(Environment.NewLine == this.LineDelimiter ? "NEWLINE" : this.LineDelimiter)}--found-on-value--{value}"))
-                    .Must().BeFalse().OrThrowFirstFailure();
+                key.Contains(this.LineDelimiter).Named(Invariant($"Key-cannot-contain-{nameof(this.LineDelimiter)}--{(Environment.NewLine == this.LineDelimiter ? "NEWLINE" : this.LineDelimiter)}--found-on-key--{key}"))
+                    .Must().BeFalse();
+                (value ?? string.Empty).Contains(this.LineDelimiter).Named(Invariant($"Key-cannot-contain-{nameof(this.LineDelimiter)}--{(Environment.NewLine == this.LineDelimiter ? "NEWLINE" : this.LineDelimiter)}--found-on-value--{value}"))
+                    .Must().BeFalse();
 
                 stringBuilder.Append(Invariant($"{key}{this.KeyValueDelimiter}{value ?? string.Empty}"));
                 stringBuilder.Append(this.LineDelimiter);
@@ -137,7 +129,7 @@ namespace Naos.Serialization.Domain
             return ret;
         }
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
             if (serializedString == null)
@@ -148,7 +140,7 @@ namespace Naos.Serialization.Domain
             return (T)this.Deserialize(serializedString, typeof(T));
         }
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public object Deserialize(string serializedString, Type type)
         {
             if (serializedString == null)
@@ -156,10 +148,10 @@ namespace Naos.Serialization.Domain
                 return null;
             }
 
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             var dictionary = type.Construct() as IReadOnlyDictionary<string, string>;
-            dictionary.Named(Invariant($"typeMustBeConvertableTo-{nameof(IReadOnlyDictionary<string, string>)}-found-{type}")).Must().NotBeNull().OrThrowFirstFailure();
+            dictionary.Named(Invariant($"typeMustBeConvertableTo-{nameof(IReadOnlyDictionary<string, string>)}-found-{type}")).Must().NotBeNull();
 
             return this.DeserializeToDictionary(serializedString);
         }
@@ -189,8 +181,7 @@ namespace Naos.Serialization.Domain
                 foreach (var line in lines)
                 {
                     var items = line.Split(new[] { this.KeyValueDelimiter }, StringSplitOptions.RemoveEmptyEntries);
-                    items.Length.Named(Invariant($"Line-must-split-on-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}-to-1-or-2-items-this-did-not--{line}"))
-                        .Must().BeInRange(1, 2).OrThrowFirstFailure();
+                    items.Length.Named(Invariant($"Line-must-split-on-{nameof(this.KeyValueDelimiter)}--{this.KeyValueDelimiter}-to-1-or-2-items-this-did-not--{line}")).Must().BeInRange(1, 2);
                     var key = items[0];
                     var value = items.Length == 2 ? items[1] : string.Empty;
                     value = value == this.NullValueEncoding ? null : value;

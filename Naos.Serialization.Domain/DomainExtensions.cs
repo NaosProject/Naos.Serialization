@@ -7,7 +7,6 @@
 namespace Naos.Serialization.Domain.Extensions
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
@@ -15,8 +14,7 @@ namespace Naos.Serialization.Domain.Extensions
 
     using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.TypeRepresentation;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -48,7 +46,9 @@ namespace Naos.Serialization.Domain.Extensions
             TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName,
             MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            new { serializationDescription, serializerFactory, compressorFactory }.Must().NotBeNull().OrThrowFirstFailure();
+            new { serializationDescription }.Must().NotBeNull();
+            new { serializerFactory }.Must().NotBeNull();
+            new { compressorFactory }.Must().NotBeNull();
 
             var serializer = serializerFactory.BuildSerializer(serializationDescription, typeMatchStrategy, multipleMatchStrategy);
             var compressor = compressorFactory.BuildCompressor(serializationDescription.CompressionKind);
@@ -80,11 +80,12 @@ namespace Naos.Serialization.Domain.Extensions
             ISerialize serializer,
             ICompress compressor = null)
         {
-            new { serializationDescription, serializer }.Must().NotBeNull().OrThrowFirstFailure();
+            new { serializationDescription }.Must().NotBeNull();
+            new { serializer }.Must().NotBeNull();
 
             var localCompressor = compressor ?? new NullCompressor();
 
-            localCompressor.CompressionKind.Named(Invariant($"{nameof(serializationDescription)}.{nameof(serializationDescription.CompressionKind)}-Must-match-{nameof(compressor)}.{nameof(compressor.CompressionKind)}")).Must().BeEqualTo(serializationDescription.CompressionKind).OrThrowFirstFailure();
+            localCompressor.CompressionKind.Named(Invariant($"{nameof(serializationDescription)}.{nameof(serializationDescription.CompressionKind)}-Must-match-{nameof(compressor)}.{nameof(compressor.CompressionKind)}")).Must().BeEqualTo(serializationDescription.CompressionKind);
 
             string payload;
             switch (serializationDescription.SerializationRepresentation)
@@ -132,7 +133,9 @@ namespace Naos.Serialization.Domain.Extensions
             TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName,
             MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            new { describedSerialization, serializerFactory, compressorFactory }.Must().NotBeNull().OrThrowFirstFailure();
+            new { describedSerialization }.Must().NotBeNull();
+            new { serializerFactory }.Must().NotBeNull();
+            new { compressorFactory }.Must().NotBeNull();
 
             var serializer = serializerFactory.BuildSerializer(describedSerialization.SerializationDescription, typeMatchStrategy, multipleMatchStrategy);
             var compressor = compressorFactory.BuildCompressor(describedSerialization.SerializationDescription.CompressionKind);
@@ -161,7 +164,8 @@ namespace Naos.Serialization.Domain.Extensions
             TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName,
             MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
         {
-            new { describedSerialization, deserializer }.Must().NotBeNull().OrThrowFirstFailure();
+            new { describedSerialization }.Must().NotBeNull();
+            new { deserializer }.Must().NotBeNull();
 
             var localDecompressor = decompressor ?? new NullCompressor();
 
@@ -212,7 +216,7 @@ namespace Naos.Serialization.Domain.Extensions
         /// <returns>A value indicating whether or not the type has a parameterless constructor.</returns>
         public static bool HasParameterlessConstructor(this Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
             var paramterlessConstructor = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance).SingleOrDefault(_ => _.GetParameters().Length == 0);
             return paramterlessConstructor != null;
         }
@@ -227,7 +231,7 @@ namespace Naos.Serialization.Domain.Extensions
         public static bool ImplementsInterface<T>(this Type type)
             where T : class
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             var interfaceType = typeof(T);
             return ImplementsInterface(type, interfaceType);
@@ -241,8 +245,8 @@ namespace Naos.Serialization.Domain.Extensions
         /// <returns>A value indicating whether or not the type implements the interface.</returns>
         public static bool ImplementsInterface(this Type type, Type interfaceType)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
-            new { interfaceType }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
+            new { interfaceType }.Must().NotBeNull();
 
             var iteratingType = type;
             while (iteratingType != null)
@@ -266,7 +270,7 @@ namespace Naos.Serialization.Domain.Extensions
         /// <returns>Type of serializer if found, otherwise null.</returns>
         public static Type GetSerializerTypeFromAttribute(this PropertyInfo propertyInfo, Type specificType = null)
         {
-            new { propertyInfo }.Must().NotBeNull().OrThrowFirstFailure();
+            new { propertyInfo }.Must().NotBeNull();
 
             var propertyType = specificType ?? propertyInfo.PropertyType;
             var ret = ((NaosStringSerializerAttribute)Attribute.GetCustomAttribute(propertyInfo, typeof(NaosStringSerializerAttribute)))?.SerializerType
@@ -283,7 +287,7 @@ namespace Naos.Serialization.Domain.Extensions
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "Prefer this for clarity of purpose.")]
         public static Type GetSerializerTypeFromAttribute(this Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             var ret = ((NaosStringSerializerAttribute)Attribute.GetCustomAttribute(type, typeof(NaosStringSerializerAttribute)))?.SerializerType;
             return ret;
@@ -297,7 +301,7 @@ namespace Naos.Serialization.Domain.Extensions
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "Prefer this for clarity of purpose.")]
         public static Type GetElementSerializerTypeFromAttribute(this PropertyInfo propertyInfo)
         {
-            new { propertyInfo }.Must().NotBeNull().OrThrowFirstFailure();
+            new { propertyInfo }.Must().NotBeNull();
 
             var ret = ((NaosElementStringSerializerAttribute)Attribute.GetCustomAttribute(propertyInfo, typeof(NaosElementStringSerializerAttribute)))
                 ?.ElementSerializerType;

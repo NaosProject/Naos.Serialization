@@ -13,7 +13,7 @@ namespace Naos.Serialization.Bson
 
     using Naos.Serialization.Domain;
 
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -24,18 +24,18 @@ namespace Naos.Serialization.Bson
     {
         private static readonly IStringSerializeAndDeserialize StringSerializer = new NaosDateTimeStringSerializer();
 
-        /// <inheritdoc cref="SerializerBase{T}" />
+        /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, DateTime value)
         {
-            new { context }.Must().NotBeNull().OrThrow();
+            new { context }.Must().NotBeNull();
 
             context.Writer.WriteString(StringSerializer.SerializeToString(value));
         }
 
-        /// <inheritdoc cref="SerializerBase{T}" />
+        /// <inheritdoc />
         public override DateTime Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            new { context }.Must().NotBeNull().OrThrow();
+            new { context }.Must().NotBeNull();
 
             var type = context.Reader.GetCurrentBsonType();
             switch (type)
@@ -55,10 +55,10 @@ namespace Naos.Serialization.Bson
     {
         private static readonly IStringSerializeAndDeserialize StringSerializer = new NaosDateTimeStringSerializer();
 
-        /// <inheritdoc cref="SerializerBase{T}" />
+        /// <inheritdoc />
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, DateTime? value)
         {
-            new { context }.Must().NotBeNull().OrThrow();
+            new { context }.Must().NotBeNull();
 
             var stringValue = StringSerializer.SerializeToString(value);
 
@@ -72,11 +72,12 @@ namespace Naos.Serialization.Bson
             }
         }
 
-        /// <inheritdoc cref="SerializerBase{T}" />
+        /// <inheritdoc />
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Is checked.")]
         public override DateTime? Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            new { context, context.Reader }.Must().NotBeNull().OrThrow();
+            new { context }.Must().NotBeNull();
+            new { context.Reader }.Must().NotBeNull();
 
             if (context.Reader.State != BsonReaderState.Type && context.Reader.CurrentBsonType == BsonType.Null)
             {

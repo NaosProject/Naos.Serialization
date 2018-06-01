@@ -6,8 +6,6 @@
 
 namespace Naos.Serialization.Domain
 {
-    using Naos.Compression.Domain;
-
     using OBeautifulCode.TypeRepresentation;
 
     /// <summary>

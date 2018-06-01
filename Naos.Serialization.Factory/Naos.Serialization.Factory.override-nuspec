@@ -1,0 +1,6 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <description>Serialization logic used by Naos assets, references all serialization types to provide a universal factory to build serializers.</description>
+  </metadata>
+</package>

@@ -37,7 +37,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: payloadTypeDescription");
+            exception.Message.Should().Be("Parameter 'payloadTypeDescription' is null.");
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: serializationDescription");
+            exception.Message.Should().Be("Parameter 'serializationDescription' is null.");
         }
 
         [Fact]

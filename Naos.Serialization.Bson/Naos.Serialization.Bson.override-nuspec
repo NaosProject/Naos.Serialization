@@ -1,0 +1,6 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <description>Serialization logic used by Naos assets, provides both Binary and String serialization in BSON using Mongo.  It includes auto configuration logic and various helper methods that can be used independently.</description>
+  </metadata>
+</package>

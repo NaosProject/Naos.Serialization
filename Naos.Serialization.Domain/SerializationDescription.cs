@@ -14,8 +14,7 @@ namespace Naos.Serialization.Domain
 
     using OBeautifulCode.Math.Recipes;
     using OBeautifulCode.TypeRepresentation;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
     /// Model object to desribe a serializer so you can persist and share the definition and rehydrate the serializer later.
@@ -33,10 +32,10 @@ namespace Naos.Serialization.Domain
         /// <param name="metadata">Optional metadata to put, especially useful for customer serializer factory; DEFAULT is empty.</param>
         public SerializationDescription(SerializationFormat serializationFormat, SerializationRepresentation serializationRepresentation, SerializationKind serializationKind = SerializationKind.Default, TypeDescription configurationTypeDescription = null, CompressionKind compressionKind = CompressionKind.None, IReadOnlyDictionary<string, string> metadata = null)
         {
-            new { serializationFormat }.Must().NotBeEqualTo(SerializationFormat.Invalid).OrThrowFirstFailure();
-            new { serializationRepresentation }.Must().NotBeEqualTo(SerializationRepresentation.Invalid).OrThrowFirstFailure();
-            new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid).OrThrowFirstFailure();
-            new { compressionKind }.Must().NotBeEqualTo(CompressionKind.Invalid).OrThrowFirstFailure();
+            new { serializationFormat }.Must().NotBeEqualTo(SerializationFormat.Invalid);
+            new { serializationRepresentation }.Must().NotBeEqualTo(SerializationRepresentation.Invalid);
+            new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
+            new { compressionKind }.Must().NotBeEqualTo(CompressionKind.Invalid);
 
             this.SerializationFormat = serializationFormat;
             this.SerializationRepresentation = serializationRepresentation;

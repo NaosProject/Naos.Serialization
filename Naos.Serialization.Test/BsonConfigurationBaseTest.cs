@@ -97,7 +97,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must be false.\r\nParameter name: constrainedPropertyDoesNotExistOnType");
+            exception.Message.Should().Be("Parameter 'constrainedPropertyDoesNotExistOnType' is not false.  Parameter value is 'True'.");
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: type");
+            exception.Message.Should().Be("Parameter 'type' is null.");
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: type");
+            exception.Message.Should().Be("Parameter 'type' is null.");
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: ClassTypesToRegisterAlongWithInheritors");
+            exception.Message.Should().Be("Parameter 'ClassTypesToRegisterAlongWithInheritors' is null.");
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: ClassTypesToRegister");
+            exception.Message.Should().Be("Parameter 'ClassTypesToRegister' is null.");
         }
 
         [Fact]
@@ -177,7 +177,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: DependentConfigurationTypes");
+            exception.Message.Should().Be("Parameter 'DependentConfigurationTypes' is null.");
         }
 
         [Fact]
@@ -193,7 +193,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: InterfaceTypesToRegisterImplementationOf");
+            exception.Message.Should().Be("Parameter 'InterfaceTypesToRegisterImplementationOf' is null.");
         }
 
         [Fact]
@@ -209,7 +209,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("\r\nParameter name: TypesToAutoRegister");
+            exception.Message.Should().Be("Parameter 'TypesToAutoRegister' is null.");
         }
 
         [Fact]
@@ -227,8 +227,8 @@ namespace Naos.Serialization.Test
             exception.Should().BeOfType<BsonConfigurationException>();
             exception.Message.Should().Be("Failed to run RegisterClassMap on System.String");
             exception.InnerException.Should().NotBeNull();
-            exception.InnerException.Should().BeOfType<ArgumentException>();
-            exception.InnerException.Message.Should().Be("Value must not be equal to Invalid.\r\nParameter name: trackerCollisionStrategy");
+            exception.InnerException.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.InnerException.Message.Should().Be("Parameter 'trackerCollisionStrategy' is equal to the comparison value using EqualityComparer<T>.Default, where T: TrackerCollisionStrategy.  Specified 'comparisonValue' is 'Invalid'.");
         }
 
         [Fact]

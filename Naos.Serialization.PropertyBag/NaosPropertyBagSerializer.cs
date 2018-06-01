@@ -20,8 +20,7 @@ namespace Naos.Serialization.PropertyBag
     using OBeautifulCode.Collection.Recipes;
     using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.String.Recipes;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -60,17 +59,16 @@ namespace Naos.Serialization.PropertyBag
         /// <param name="configurationType">Type of configuration to use.</param>
         public NaosPropertyBagSerializer(SerializationKind serializationKind = SerializationKind.Default, Type configurationType = null)
         {
-            new { serializationKind }.Must().BeEqualTo(SerializationKind.Default).OrThrowFirstFailure();
+            new { serializationKind }.Must().BeEqualTo(SerializationKind.Default);
 
             if (configurationType != null)
             {
-                configurationType.IsSubclassOf(typeof(PropertyBagConfigurationBase))
-                    .Named(Invariant($"Configuration type - {configurationType.FullName} - must derive from {nameof(PropertyBagConfigurationBase)}.")).Must().BeTrue()
-                    .OrThrowFirstFailure();
+                configurationType.IsSubclassOf(typeof(PropertyBagConfigurationBase)).Named(
+                    Invariant($"Configuration type - {configurationType.FullName} - must derive from {nameof(PropertyBagConfigurationBase)}.")).Must().BeTrue();
 
-                configurationType.HasParameterlessConstructor()
-                    .Named(Invariant($"{nameof(configurationType)} must contain a default constructor to use in {nameof(NaosPropertyBagSerializer)}.")).Must()
-                    .BeTrue().OrThrowFirstFailure();
+                configurationType.HasParameterlessConstructor().Named(
+                        Invariant($"{nameof(configurationType)} must contain a default constructor to use in {nameof(NaosPropertyBagSerializer)}.")).Must()
+                    .BeTrue();
             }
 
             this.SerializationKind = serializationKind;
@@ -85,10 +83,10 @@ namespace Naos.Serialization.PropertyBag
             this.cachedAttributeSerializerTypeToObjectMap = new Dictionary<Type, IStringSerializeAndDeserialize>();
         }
 
-        /// <inheritdoc cref="IHaveSerializationKind" />
+        /// <inheritdoc />
         public SerializationKind SerializationKind { get; private set; }
 
-        /// <inheritdoc cref="IHaveConfigurationType" />
+        /// <inheritdoc />
         public Type ConfigurationType { get; private set; }
 
         /// <summary>
@@ -115,7 +113,7 @@ namespace Naos.Serialization.PropertyBag
             return ret;
         }
 
-        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
+        /// <inheritdoc />
         public byte[] SerializeToBytes(object objectToSerialize)
         {
             var stringRepresentation = this.SerializeToString(objectToSerialize);
@@ -123,23 +121,23 @@ namespace Naos.Serialization.PropertyBag
             return stringRepresentationBytes;
         }
 
-        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
+        /// <inheritdoc />
         public T Deserialize<T>(byte[] serializedBytes)
         {
             var ret = this.Deserialize(serializedBytes, typeof(T));
             return (T)ret;
         }
 
-        /// <inheritdoc cref="IBinarySerializeAndDeserialize"/>
+        /// <inheritdoc />
         public object Deserialize(byte[] serializedBytes, Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             var stringRepresentation = ConvertByteArrayToString(serializedBytes);
             return this.Deserialize(stringRepresentation, type);
         }
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public string SerializeToString(object objectToSerialize)
         {
             var serializedObject = this.SerializeToPropertyBag(objectToSerialize);
@@ -148,7 +146,7 @@ namespace Naos.Serialization.PropertyBag
             return ret;
         }
 
-        /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
             var dictionary = this.dictionaryStringSerializer.DeserializeToDictionary(serializedString);
@@ -160,7 +158,7 @@ namespace Naos.Serialization.PropertyBag
         /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
         public object Deserialize(string serializedString, Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             var dictionary = this.dictionaryStringSerializer.DeserializeToDictionary(serializedString);
             var ret = this.Deserialize(dictionary, type);
@@ -168,7 +166,7 @@ namespace Naos.Serialization.PropertyBag
             return ret;
         }
 
-        /// <inheritdoc cref="IPropertyBagSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public IReadOnlyDictionary<string, string> SerializeToPropertyBag(object objectToSerialize)
         {
             if (objectToSerialize == null)
@@ -184,7 +182,7 @@ namespace Naos.Serialization.PropertyBag
                 v =>
                     {
                         var propertyInfo = specificType.GetProperty(v.Name, bindingFlags);
-                        propertyInfo.Named(Invariant($"Could not find {nameof(PropertyInfo)} on type: {specificType} by name: {v.Name}")).Must().NotBeNull().OrThrowFirstFailure();
+                        propertyInfo.Named(Invariant($"Could not find {nameof(PropertyInfo)} on type: {specificType} by name: {v.Name}")).Must().NotBeNull();
 
                         var propertyValue = propertyInfo.GetValue(objectToSerialize);
 
@@ -200,7 +198,7 @@ namespace Naos.Serialization.PropertyBag
             return properties;
         }
 
-        /// <inheritdoc cref="IPropertyBagSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public T Deserialize<T>(IReadOnlyDictionary<string, string> serializedPropertyBag)
         {
             var ret = this.Deserialize(serializedPropertyBag, typeof(T));
@@ -208,10 +206,10 @@ namespace Naos.Serialization.PropertyBag
             return (T)ret;
         }
 
-        /// <inheritdoc cref="IPropertyBagSerializeAndDeserialize"/>
+        /// <inheritdoc />
         public object Deserialize(IReadOnlyDictionary<string, string> serializedPropertyBag, Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
 
             if (serializedPropertyBag == null)
             {
@@ -268,7 +266,7 @@ namespace Naos.Serialization.PropertyBag
 
                 var propertyInfo = specificType.GetProperty(property.Key, bindingFlags);
                 var missingPropertyExceptionMessage = Invariant($"Could not find {nameof(PropertyInfo)} on type: {specificType} by name: {property.Key}");
-                propertyInfo.Named(missingPropertyExceptionMessage).Must().NotBeNull().OrThrowFirstFailure();
+                propertyInfo.Named(missingPropertyExceptionMessage).Must().NotBeNull();
                 var propertyType = propertyInfo?.PropertyType ?? throw new ArgumentNullException(missingPropertyExceptionMessage);
 
                 var serializerType = propertyInfo.GetSerializerTypeFromAttribute();
@@ -309,7 +307,7 @@ namespace Naos.Serialization.PropertyBag
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "Name/spelling is correct.")]
         private object MakeObjectFromString(string serializedString, Type type, Type serializerType, Type elementSerializerType)
         {
-            new { serializedString }.Must().NotBeNull().OrThrowFirstFailure();
+            new { serializedString }.Must().NotBeNull();
 
             if (this.configuredTypeToSerializerMap.ContainsKey(type))
             {
@@ -398,7 +396,7 @@ namespace Naos.Serialization.PropertyBag
 
         private string MakeStringFromPropertyValue(object propertyValue, Type serializerType, Type elementSerializerType)
         {
-            new { propertyValue }.Must().NotBeNull().OrThrowFirstFailure();
+            new { propertyValue }.Must().NotBeNull();
 
             var propertyType = propertyValue.GetType();
 

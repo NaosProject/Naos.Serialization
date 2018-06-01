@@ -8,13 +8,11 @@ namespace Naos.Serialization.Bson
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Naos.Serialization.Domain.Extensions;
 
     using OBeautifulCode.Reflection.Recipes;
-
-    using Spritely.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
 
@@ -46,9 +44,9 @@ namespace Naos.Serialization.Bson
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
         public static void Configure(Type type)
         {
-            new { type }.Must().NotBeNull().OrThrowFirstFailure();
-            type.IsSubclassOf(typeof(BsonConfigurationBase)).Named(Invariant($"typeMustBeSubclassOf{nameof(BsonConfigurationBase)}")).Must().BeTrue().OrThrowFirstFailure();
-            type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue().OrThrowFirstFailure();
+            new { type }.Must().NotBeNull();
+            type.IsSubclassOf(typeof(BsonConfigurationBase)).Named(Invariant($"typeMustBeSubclassOf{nameof(BsonConfigurationBase)}")).Must().BeTrue();
+            type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue();
 
             var instance = Instance(type, () => (BsonConfigurationBase)type.Construct());
             instance.Configure();

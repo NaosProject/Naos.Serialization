@@ -20,6 +20,8 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Domain.Extensions;
     using Naos.Serialization.PropertyBag;
 
+    using OBeautifulCode.Validation.Recipes;
+
     using Spritely.Recipes;
 
     using Xunit;
@@ -39,8 +41,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must be equal to Default.\r\nParameter name: serializationKind");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.Message.Should().Be("Parameter 'serializationKind' is not equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationKind.  Parameter value is 'Custom'.  Specified 'comparisonValue' is 'Default'.");
         }
 
         [Fact]
@@ -55,7 +57,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Value must be true.\r\nParameter name: Configuration type - System.String - must derive from PropertyBagConfigurationBase.");
+            exception.Message.Should().Be("Parameter 'Configuration type - System.String - must derive from PropertyBagConfigurationBase.' is not true.  Parameter value is 'False'.");
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "RoundTrip", Justification = "Name/spelling is correct.")]
@@ -415,8 +417,8 @@ namespace Naos.Serialization.Test
 
             public object Deserialize(string serializedString, Type type)
             {
-                new { serializedString }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
-                new { type }.Must().BeEqualTo(typeof(CustomWithAttribute)).OrThrowFirstFailure();
+                new { serializedString }.Must().BeEqualTo(CustomSerializedString);
+                new { type }.Must().BeEqualTo(typeof(CustomWithAttribute));
 
                 return new CustomWithAttribute();
             }
@@ -444,8 +446,8 @@ namespace Naos.Serialization.Test
 
             public object Deserialize(string serializedString, Type type)
             {
-                new { serializedString }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
-                new { type }.Must().BeEqualTo(typeof(string)).OrThrowFirstFailure();
+                new { serializedString }.Must().BeEqualTo(CustomSerializedString);
+                new { type }.Must().BeEqualTo(typeof(string));
 
                 return CustomReplacementString;
             }
@@ -475,8 +477,8 @@ namespace Naos.Serialization.Test
 
             public object Deserialize(string serializedString, Type type)
             {
-                new { serializedString }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
-                new { type }.Must().BeEqualTo(typeof(CustomElement)).OrThrowFirstFailure();
+                new { serializedString }.Must().BeEqualTo(CustomSerializedString);
+                new { type }.Must().BeEqualTo(typeof(CustomElement));
 
                 return new CustomElement();
             }
@@ -502,8 +504,8 @@ namespace Naos.Serialization.Test
 
             public object Deserialize(string serializedString, Type type)
             {
-                new { serializedString }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
-                new { type }.Must().BeEqualTo(typeof(EnumAttribute)).OrThrowFirstFailure();
+                new { serializedString }.Must().BeEqualTo(CustomSerializedString);
+                new { type }.Must().BeEqualTo(typeof(EnumAttribute));
 
                 return EnumAttribute.Replaced;
             }
@@ -529,8 +531,8 @@ namespace Naos.Serialization.Test
 
             public object Deserialize(string serializedString, Type type)
             {
-                new { serializedString }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
-                new { type }.Must().BeEqualTo(typeof(EnumAttributeProperty)).OrThrowFirstFailure();
+                new { serializedString }.Must().BeEqualTo(CustomSerializedString);
+                new { type }.Must().BeEqualTo(typeof(EnumAttributeProperty));
 
                 return EnumAttributeProperty.Replaced;
             }
@@ -553,7 +555,7 @@ namespace Naos.Serialization.Test
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for reflection call.")]
             public static SerializesWithComma Parse(string input)
             {
-                new { input }.Must().BeEqualTo(CustomToString).OrThrowFirstFailure();
+                new { input }.Must().BeEqualTo(CustomToString);
                 return new SerializesWithComma();
             }
         }
@@ -570,7 +572,7 @@ namespace Naos.Serialization.Test
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping for reflection call.")]
             public static CustomWithoutInterface Parse(string input)
             {
-                new { input }.Must().BeEqualTo(CustomToString).OrThrowFirstFailure();
+                new { input }.Must().BeEqualTo(CustomToString);
                 return new CustomWithoutInterface();
             }
         }
@@ -594,7 +596,7 @@ namespace Naos.Serialization.Test
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Keeping.")]
             public static CustomWithInterface Parse(string input)
             {
-                new { input }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
+                new { input }.Must().BeEqualTo(CustomSerializedString);
                 return new CustomWithInterface();
             }
         }
@@ -636,8 +638,8 @@ namespace Naos.Serialization.Test
 
             public object Deserialize(string serializedString, Type type)
             {
-                new { serializedString }.Must().BeEqualTo(CustomSerializedString).OrThrowFirstFailure();
-                (type == typeof(InheritTypeBase) || type == typeof(InheritTypeDerive)).Must().BeTrue().OrThrowFirstFailure();
+                new { serializedString }.Must().BeEqualTo(CustomSerializedString);
+                (type == typeof(InheritTypeBase) || type == typeof(InheritTypeDerive)).Must().BeTrue();
 
                 return new InheritTypeDerive();
             }
