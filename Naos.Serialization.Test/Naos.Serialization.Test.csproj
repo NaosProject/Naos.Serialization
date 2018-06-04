@@ -51,17 +51,17 @@
     <Reference Include="MongoDB.Bson, Version=2.4.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MongoDB.Bson.2.4.4\lib\net45\MongoDB.Bson.dll</HintPath>
     </Reference>
-    <Reference Include="Naos.Compression.Domain, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Naos.Compression.Domain.1.0.8\lib\net462\Naos.Compression.Domain.dll</HintPath>
+    <Reference Include="Naos.Compression.Domain, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Naos.Compression.Domain.1.0.9\lib\net462\Naos.Compression.Domain.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="OBeautifulCode.AutoFakeItEasy, Version=1.0.106.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OBeautifulCode.AutoFakeItEasy.1.0.106\lib\net462\OBeautifulCode.AutoFakeItEasy.dll</HintPath>
+    <Reference Include="OBeautifulCode.AutoFakeItEasy, Version=1.0.107.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OBeautifulCode.AutoFakeItEasy.1.0.107\lib\net462\OBeautifulCode.AutoFakeItEasy.dll</HintPath>
     </Reference>
-    <Reference Include="OBeautifulCode.TypeRepresentation, Version=1.0.14.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OBeautifulCode.TypeRepresentation.1.0.14\lib\net462\OBeautifulCode.TypeRepresentation.dll</HintPath>
+    <Reference Include="OBeautifulCode.TypeRepresentation, Version=1.0.15.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OBeautifulCode.TypeRepresentation.1.0.15\lib\net462\OBeautifulCode.TypeRepresentation.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -94,6 +94,7 @@
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Enum.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Field.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Property.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Validation\ApplyBecause.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\Parameter.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ParameterShould.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ParameterValidation.cs" />

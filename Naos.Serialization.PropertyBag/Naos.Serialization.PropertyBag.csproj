@@ -37,8 +37,8 @@
     <DocumentationFile>bin\Release\Naos.Serialization.PropertyBag.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OBeautifulCode.TypeRepresentation, Version=1.0.14.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OBeautifulCode.TypeRepresentation.1.0.14\lib\net462\OBeautifulCode.TypeRepresentation.dll</HintPath>
+    <Reference Include="OBeautifulCode.TypeRepresentation, Version=1.0.15.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OBeautifulCode.TypeRepresentation.1.0.15\lib\net462\OBeautifulCode.TypeRepresentation.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,6 +61,7 @@
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Field.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Property.cs" />
     <Compile Include=".recipes\OBeautifulCode.String\StringExtensions.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Validation\ApplyBecause.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\Parameter.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ParameterShould.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ParameterValidation.cs" />
