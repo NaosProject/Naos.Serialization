@@ -468,10 +468,22 @@ namespace Naos.Serialization.Bson
         /// <returns>List of all loaded types to use when considering registration.</returns>
         public static IReadOnlyCollection<Type> GetAllTypesToConsiderForRegistration()
         {
-            return AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(_ => !_.IsDynamic)
-                    .SelectMany(_ => _.GetExportedTypes())
-                    .ToList();
+            return AppDomain.CurrentDomain.GetAssemblies().Where(_ => !_.IsDynamic).SelectMany(
+                _ =>
+                    {
+                        try
+                        {
+                            /* For types that have dependent assemblies that are not found on disk this will fail when it tries to get types from the assembly.
+                             * Added because we encountered a FileNotFoundException for an assembly that was not on disk.
+                             */
+
+                            return _.GetExportedTypes();
+                        }
+                        catch (Exception)
+                        {
+                            return new Type[0];
+                        }
+                    }).ToList();
         }
 
         /// <summary>
