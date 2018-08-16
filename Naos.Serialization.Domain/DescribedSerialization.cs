@@ -48,17 +48,17 @@ namespace Naos.Serialization.Domain
         /// <summary>
         /// Gets a description of the type of object serialized.
         /// </summary>
-        public TypeDescription PayloadTypeDescription { get; }
+        public TypeDescription PayloadTypeDescription { get; private set; }
 
         /// <summary>
         /// Gets the object serialized to a string.
         /// </summary>
-        public string SerializedPayload { get; }
+        public string SerializedPayload { get; private set; }
 
         /// <summary>
         /// Gets the description of the serializer used to generate the payload.
         /// </summary>
-        public SerializationDescription SerializationDescription { get; }
+        public SerializationDescription SerializationDescription { get; private set; }
 
         /// <summary>
         /// Equality operator.
