@@ -82,14 +82,14 @@ namespace Naos.Serialization.Bson
                         new { this.ClassTypesToRegisterAlongWithInheritors }.Must().NotBeNull();
                         new { this.InterfaceTypesToRegisterImplementationOf }.Must().NotBeNull();
 
-                        foreach (var typeToCustomSerializer in this.TypeToCustomSerializerMap)
-                        {
-                            this.RegisterCustomSerializer(typeToCustomSerializer.Key, typeToCustomSerializer.Value);
-                        }
-
                         foreach (var dependentConfigurationType in this.DependentConfigurationTypes)
                         {
                             BsonConfigurationManager.Configure(dependentConfigurationType);
+                        }
+
+                        foreach (var typeToCustomSerializer in this.TypeToCustomSerializerMap)
+                        {
+                            this.RegisterCustomSerializer(typeToCustomSerializer.Key, typeToCustomSerializer.Value);
                         }
 
                         this.RegisterClassTypes(this.ClassTypesToRegister);
