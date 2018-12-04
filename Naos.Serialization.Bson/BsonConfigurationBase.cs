@@ -111,27 +111,29 @@ namespace Naos.Serialization.Bson
         }
 
         /// <summary>
-        /// Gets a list of <see cref="BsonConfigurationBase"/>'s that are needed for the current implemenation of <see cref="BsonConfigurationBase"/>.  Optionally overrideable, DEFAULT is empty collection.
+        /// Gets a list of <see cref="BsonConfigurationBase"/>'s that are needed for the current implementation of <see cref="BsonConfigurationBase"/>.  Optionally overrideable, DEFAULT is empty collection.
         /// </summary>
         protected virtual IReadOnlyCollection<Type> DependentConfigurationTypes => new Type[0];
 
         /// <summary>
-        /// Gets a list of <see cref="Type"/> that will be registered; class types will go to <see cref="RegisterClassTypesAndTheirInheritedTypes(IReadOnlyCollection{Type})" /> and interface types will go to <see cref="RegisterImplementationsOfInterfaceTypes(IReadOnlyCollection{Type})" />.
+        /// Gets a list of <see cref="Type"/>s to auto-register.
+        /// Auto-registration is a convenient way to register types; it accounts for interface implementations and class inheritance when performing the registration.
+        /// For interface types, all implementations will be also be registered.  For classes, all inheritors will also be registered.  These additional types do not need to be specified.
         /// </summary>
         protected virtual IReadOnlyCollection<Type> TypesToAutoRegister => new Type[0];
 
         /// <summary>
-        /// Gets a list of <see cref="Type"/> that need to be automatically registered using <see cref="RegisterClassType" />.
+        /// Gets a list of class <see cref="Type"/>s to register.
         /// </summary>
         protected virtual IReadOnlyCollection<Type> ClassTypesToRegister => new Type[0];
 
         /// <summary>
-        /// Gets a list of class <see cref="Type"/> that need to be automatically registered using <see cref="RegisterClassTypesAndTheirInheritedTypes(IReadOnlyCollection{Type})" />.
+        /// Gets a list of parent class <see cref="Type"/>s to register.  These classes and all of their inheritors will be registered.  The inheritors do not need to be specified.
         /// </summary>
         protected virtual IReadOnlyCollection<Type> ClassTypesToRegisterAlongWithInheritors => new Type[0];
 
         /// <summary>
-        /// Gets a list of interface <see cref="Type"/> that need to be automatically registered using <see cref="RegisterImplementationsOfInterfaceTypes(IReadOnlyCollection{Type})" />.
+        /// Gets a list of interface <see cref="Type"/>s whose implementations should be registered.
         /// </summary>
         protected virtual IReadOnlyCollection<Type> InterfaceTypesToRegisterImplementationOf => new Type[0];
 
