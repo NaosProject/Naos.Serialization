@@ -75,15 +75,21 @@ namespace Naos.Serialization.Bson
                 {
                     if (!this.configured)
                     {
+                        new { this.TypeToCustomSerializerMap }.Must().NotBeNull();
                         new { this.DependentConfigurationTypes }.Must().NotBeNull();
                         new { this.TypesToAutoRegister }.Must().NotBeNull();
                         new { this.ClassTypesToRegister }.Must().NotBeNull();
                         new { this.ClassTypesToRegisterAlongWithInheritors }.Must().NotBeNull();
                         new { this.InterfaceTypesToRegisterImplementationOf }.Must().NotBeNull();
 
-                        foreach (var dependantConfigurationType in this.DependentConfigurationTypes)
+                        foreach (var typeToCustomSerializer in this.TypeToCustomSerializerMap)
                         {
-                            BsonConfigurationManager.Configure(dependantConfigurationType);
+                            this.RegisterCustomSerializer(typeToCustomSerializer.Key, typeToCustomSerializer.Value);
+                        }
+
+                        foreach (var dependentConfigurationType in this.DependentConfigurationTypes)
+                        {
+                            BsonConfigurationManager.Configure(dependentConfigurationType);
                         }
 
                         this.RegisterClassTypes(this.ClassTypesToRegister);
@@ -130,6 +136,11 @@ namespace Naos.Serialization.Bson
         protected virtual IReadOnlyCollection<Type> InterfaceTypesToRegisterImplementationOf => new Type[0];
 
         /// <summary>
+        /// Gets a list of interface <see cref="Type"/> that need to be automatically registered using <see cref="RegisterImplementationsOfInterfaceTypes(IReadOnlyCollection{Type})" />.
+        /// </summary>
+        protected virtual IReadOnlyDictionary<Type, IBsonSerializer> TypeToCustomSerializerMap => new Dictionary<Type, IBsonSerializer>();
+
+        /// <summary>
         /// Gets an optional <see cref="TrackerCollisionStrategy" /> to use when a <see cref="Type" /> is already registered; DEFAULT is <see cref="TrackerCollisionStrategy.Skip" />.
         /// </summary>
         protected virtual TrackerCollisionStrategy TypeTrackerCollisionStrategy => TrackerCollisionStrategy.Skip;
@@ -147,6 +158,16 @@ namespace Naos.Serialization.Bson
             this.RegisterClassType<TypeDescription>();
             this.RegisterClassType<SerializationDescription>();
             this.RegisterClassType<DescribedSerialization>();
+        }
+
+        /// <summary>
+        /// Method to register new custom serializers.
+        /// </summary>
+        /// <param name="typeToUseSerializerFor">Type that should use provided serializer.</param>
+        /// <param name="customSerializer">Serializer implementation to use.</param>
+        protected void RegisterCustomSerializer(Type typeToUseSerializerFor, IBsonSerializer customSerializer)
+        {
+            BsonSerializer.RegisterSerializer(typeToUseSerializerFor, customSerializer);
         }
 
         /// <summary>

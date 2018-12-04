@@ -190,9 +190,19 @@ namespace Naos.Serialization.Test
         public TestImplementationTwo RootTwo { get; set; }
     }
 
+    public class TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums
+    {
+        public IReadOnlyDictionary<TestEnumeration, IReadOnlyCollection<AnotherEnumeration>> TestDictionary { get; set; }
+    }
+
     public class TestWithReadOnlyCollectionOfBaseClassConfig : BsonConfigurationBase
     {
         protected override IReadOnlyCollection<Type> ClassTypesToRegisterAlongWithInheritors => new[] { typeof(TestBase), typeof(TestWithReadOnlyCollectionOfBaseClass) };
+    }
+
+    public class TestWithDictionaryOfEnumToReadOnlyCollectionOfEnumsConfig : BsonConfigurationBase
+    {
+        protected override IReadOnlyCollection<Type> ClassTypesToRegisterAlongWithInheritors => new[] { typeof(TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums) };
     }
 
     [Bindable(BindableSupport.Default)]
@@ -231,6 +241,11 @@ namespace Naos.Serialization.Test
         /// Second value.
         /// </summary>
         TestSecond,
+
+        /// <summary>
+        /// Third value.
+        /// </summary>
+        TestThird,
     }
 
     public enum AnotherEnumeration

@@ -483,6 +483,43 @@ namespace Naos.Serialization.Test
             ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
         }
 
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<TestWithDictionaryOfEnumToReadOnlyCollectionOfEnumsConfig>();
+
+            var expected = new TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums
+            {
+                TestDictionary = new Dictionary<TestEnumeration, IReadOnlyCollection<AnotherEnumeration>>
+                {
+                    {
+                        TestEnumeration.TestFirst, null
+                    },
+                    {
+                        TestEnumeration.TestSecond, new AnotherEnumeration[0]
+                    },
+                    {
+                        TestEnumeration.TestThird, new[] { AnotherEnumeration.AnotherFirst, AnotherEnumeration.AnotherSecond }
+                    },
+                },
+            };
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums;
+                actual.Should().NotBeNull();
+                actual.TestDictionary.Should().NotBeNull();
+                actual.TestDictionary.Count.Should().Be(3);
+                actual.TestDictionary.OrderBy(_ => _.Key).First().GetType().Should().Be(expected.TestDictionary.OrderBy(_ => _.Key).First().GetType());
+                actual.TestDictionary.OrderBy(_ => _.Key).Skip(1).First().GetType().Should().Be(expected.TestDictionary.OrderBy(_ => _.Key).Skip(1).First().GetType());
+                actual.TestDictionary.OrderBy(_ => _.Key).Skip(2).First().GetType().Should().Be(expected.TestDictionary.OrderBy(_ => _.Key).Skip(2).First().GetType());
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
         private static void ActAndAssertForRoundtripSerialization(object expected, Action<object> throwIfObjectsDiffer, NaosBsonSerializer bsonSerializer, bool testBson = true, bool testJson = true)
         {
             var stringSerializers = new List<IStringSerializeAndDeserialize>();
