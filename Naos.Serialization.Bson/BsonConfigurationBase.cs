@@ -28,6 +28,7 @@ namespace Naos.Serialization.Bson
     /// <summary>
     /// Base class to use for creating
     /// </summary>
+    [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "This class is not excessively coupled for the nature of the problem.")]
     public abstract class BsonConfigurationBase
     {
         /// <summary>
