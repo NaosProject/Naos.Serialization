@@ -106,6 +106,7 @@
     <Compile Include=".recipes\OBeautifulCode.Validation\Range.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ValidatedNotNullAttribute.cs" />
     <Compile Include="BsonConfigurationAutoRegisterType.cs" />
+    <Compile Include="LambdaSerializerTest.cs" />
     <Compile Include="PropertyBagSerializerTest.cs" />
     <Compile Include="DoubleInterfaceTest.cs" />
     <Compile Include="JsonConfigurationBaseTest.cs" />
