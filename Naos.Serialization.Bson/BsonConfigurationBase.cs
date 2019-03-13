@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BsonConfigurationBase.cs" company="Naos">
-//    Copyright (c) Naos 2017. All Rights Reserved.
+// <copyright file="BsonConfigurationBase.cs" company="Naos Project">
+//    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -490,6 +490,8 @@ namespace Naos.Serialization.Bson
         /// Get all loaded types to use when considering registration.
         /// </summary>
         /// <returns>List of all loaded types to use when considering registration.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Not much I can do with an exception here and it's usually caused by some weird dynamic type that I don't need to consider anyway.")]
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Don't want an active operation like this in a property.")]
         public static IReadOnlyCollection<Type> GetAllTypesToConsiderForRegistration()
         {
             return AppDomain.CurrentDomain.GetAssemblies().Where(_ => !_.IsDynamic).SelectMany(

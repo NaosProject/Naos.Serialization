@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TestMapping.cs" company="Naos">
-//    Copyright (c) Naos 2017. All Rights Reserved.
+// <copyright file="TestMapping.cs" company="Naos Project">
+//    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -307,7 +307,7 @@ namespace Naos.Serialization.Test
 
         public string WhoLetTheDogsOut()
         {
-            return $"Dunno.  You owe me ${this.Fee}";
+            return FormattableString.Invariant($"Dunno.  You owe me ${this.Fee}");
         }
     }
 
@@ -326,8 +326,10 @@ namespace Naos.Serialization.Test
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
     public class ClassWithGetterOnlys : ClassWithGetterOnlysBase
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This is strictly for testing.")]
         public AnotherEnumeration GetMyEnumFromThis => AnotherEnumeration.AnotherFirst;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This is strictly for testing.")]
         public string GetMyStringFromThis => "TurtleBusiness";
 
         public override AnotherEnumeration GetMyEnumFromBase => AnotherEnumeration.AnotherSecond;
