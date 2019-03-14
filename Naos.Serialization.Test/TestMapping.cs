@@ -14,6 +14,8 @@ namespace Naos.Serialization.Test
 
     using Naos.Serialization.Bson;
 
+    using OBeautifulCode.Math.Recipes;
+
     public class TestMapping
     {
         public string StringProperty { get; set; }
@@ -151,6 +153,103 @@ namespace Naos.Serialization.Test
         public IDictionary<AnotherEnumeration, string> IDictionaryEnumString { get; set; }
     }
 
+    public class TestDictionaryMixedKeyValues
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public Dictionary<TestBase, string> DictionaryBaseString { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public IDictionary<TestBase, string> IDictionaryBaseString { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ReadOnlyDictionary<TestBase, string> ReadOnlyDictionaryBaseString { get; set; }
+
+        public IReadOnlyDictionary<TestBase, string> IReadOnlyDictionaryBaseString { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ConcurrentDictionary<TestBase, string> ConcurrentDictionaryBaseString { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public Dictionary<string, ClassWithPrivateSetter> DictionaryStringConstructor { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public IDictionary<string, ClassWithPrivateSetter> IDictionaryStringConstructor { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ReadOnlyDictionary<string, ClassWithPrivateSetter> ReadOnlyDictionaryStringConstructor { get; set; }
+
+        public IReadOnlyDictionary<string, ClassWithPrivateSetter> IReadOnlyDictionaryStringConstructor { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ConcurrentDictionary<string, ClassWithPrivateSetter> ConcurrentDictionaryStringConstructor { get; set; }
+        
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public Dictionary<ClassWithPrivateSetter, AnotherEnumeration> DictionaryConstructorEnum { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public IDictionary<ClassWithPrivateSetter, AnotherEnumeration> IDictionaryConstructorEnum { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ReadOnlyDictionary<ClassWithPrivateSetter, AnotherEnumeration> ReadOnlyDictionaryConstructorEnum { get; set; }
+
+        public IReadOnlyDictionary<ClassWithPrivateSetter, AnotherEnumeration> IReadOnlyDictionaryConstructorEnum { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ConcurrentDictionary<ClassWithPrivateSetter, AnotherEnumeration> ConcurrentDictionaryConstructorEnum { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public Dictionary<AnotherEnumeration, TestBase> DictionaryEnumBase { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public IDictionary<AnotherEnumeration, TestBase> IDictionaryEnumBase { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ReadOnlyDictionary<AnotherEnumeration, TestBase> ReadOnlyDictionaryEnumBase { get; set; }
+
+        public IReadOnlyDictionary<AnotherEnumeration, TestBase> IReadOnlyDictionaryEnumBase { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ConcurrentDictionary<AnotherEnumeration, TestBase> ConcurrentDictionaryEnumBase { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public Dictionary<int, VanillaClass> DictionaryIntPoco { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public IDictionary<int, VanillaClass> IDictionaryIntPoco { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ReadOnlyDictionary<int, VanillaClass> ReadOnlyDictionaryIntPoco { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
+        public IReadOnlyDictionary<int, VanillaClass> IReadOnlyDictionaryIntPoco { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ConcurrentDictionary<int, VanillaClass> ConcurrentDictionaryIntPoco { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public Dictionary<VanillaClass, int> DictionaryPocoInt { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public IDictionary<VanillaClass, int> IDictionaryPocoInt { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ReadOnlyDictionary<VanillaClass, int> ReadOnlyDictionaryPocoInt { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
+        public IReadOnlyDictionary<VanillaClass, int> IReadOnlyDictionaryPocoInt { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
+        public ConcurrentDictionary<VanillaClass, int> ConcurrentDictionaryPocoInt { get; set; }
+    }
+
     public class TestCollectionFields
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
@@ -209,16 +308,123 @@ namespace Naos.Serialization.Test
     public abstract class TestBase
     {
         public string Message { get; set; }
+
+        public static bool operator ==(
+            TestBase item1,
+            TestBase item2)
+        {
+            if (ReferenceEquals(item1, item2))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(item1, null) || ReferenceEquals(item2, null))
+            {
+                return false;
+            }
+
+            var result = item1.Equals((object)item2);
+
+            return result;
+        }
+
+        public static bool operator !=(
+            TestBase item1,
+            TestBase item2)
+            => !(item1 == item2);
+
+        public bool Equals(
+            TestBase other)
+            => this == other;
+
+        /// <inheritdoc />
+        public abstract override bool Equals(
+            object obj);
+
+        /// <inheritdoc />
+        public abstract override int GetHashCode();
     }
 
     public class TestImplementationOne : TestBase
     {
         public string One { get; set; }
+
+        public static bool operator ==(
+            TestImplementationOne item1,
+            TestImplementationOne item2)
+        {
+            if (ReferenceEquals(item1, item2))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(item1, null) || ReferenceEquals(item2, null))
+            {
+                return false;
+            }
+
+            var result = 
+                (item1.Message == item2.Message) &&
+                (item1.One == item2.One);
+
+            return result;
+        }
+
+        public static bool operator !=(
+            TestImplementationOne item1,
+            TestImplementationOne item2)
+            => !(item1 == item2);
+
+        public bool Equals(TestImplementationOne other) => this == other;
+
+        public override bool Equals(object obj) => this == (obj as TestImplementationOne);
+
+        public override int GetHashCode() =>
+            HashCodeHelper.Initialize()
+                .Hash(this.Message)
+                .Hash(this.One)
+                .Value;
     }
 
     public class TestImplementationTwo : TestBase
     {
         public string Two { get; set; }
+
+        public static bool operator ==(
+            TestImplementationTwo item1,
+            TestImplementationTwo item2)
+        {
+            if (ReferenceEquals(item1, item2))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(item1, null) || ReferenceEquals(item2, null))
+            {
+                return false;
+            }
+
+            var result =
+                (item1.Message == item2.Message) &&
+                (item1.Two == item2.Two);
+
+            return result;
+        }
+
+        public static bool operator !=(
+            TestImplementationTwo item1,
+            TestImplementationTwo item2)
+            => !(item1 == item2);
+
+        public bool Equals(TestImplementationTwo other) => this == other;
+
+        public override bool Equals(object obj) => this == (obj as TestImplementationTwo);
+
+        public override int GetHashCode() =>
+            HashCodeHelper.Initialize()
+                .Hash(this.Message)
+                .Hash(this.Two)
+                .Value;
     }
 
     public struct TestStruct
@@ -345,11 +551,77 @@ namespace Naos.Serialization.Test
         }
 
         public string PrivateValue { get; private set; }
+
+        public static bool operator ==(
+            ClassWithPrivateSetter item1,
+            ClassWithPrivateSetter item2)
+        {
+            if (ReferenceEquals(item1, item2))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(item1, null) || ReferenceEquals(item2, null))
+            {
+                return false;
+            }
+
+            var result = item1.PrivateValue == item2.PrivateValue;
+
+            return result;
+        }
+
+        public static bool operator !=(
+            ClassWithPrivateSetter item1,
+            ClassWithPrivateSetter item2)
+            => !(item1 == item2);
+
+        public bool Equals(ClassWithPrivateSetter other) => this == other;
+
+        public override bool Equals(object obj) => this == (obj as ClassWithPrivateSetter);
+
+        public override int GetHashCode() =>
+            HashCodeHelper.Initialize()
+                .Hash(this.PrivateValue)
+                .Value;
     }
 
     public class VanillaClass
     {
         public string Something { get; set; }
+
+        public static bool operator ==(
+            VanillaClass item1,
+            VanillaClass item2)
+        {
+            if (ReferenceEquals(item1, item2))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(item1, null) || ReferenceEquals(item2, null))
+            {
+                return false;
+            }
+
+            var result = item1.Something == item2.Something;
+
+            return result;
+        }
+
+        public static bool operator !=(
+            VanillaClass item1,
+            VanillaClass item2)
+            => !(item1 == item2);
+
+        public bool Equals(VanillaClass other) => this == other;
+
+        public override bool Equals(object obj) => this == (obj as VanillaClass);
+
+        public override int GetHashCode() =>
+            HashCodeHelper.Initialize()
+                .Hash(this.Something)
+                .Value;
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1714:FlagsEnumsShouldHavePluralNames", Justification = "Spelling/name is correct.")]

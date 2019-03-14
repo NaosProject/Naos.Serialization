@@ -15,6 +15,7 @@ namespace Naos.Serialization.Recipes
 
     using Naos.Compression.Domain;
     using Naos.Serialization.Domain;
+    using Naos.Serialization.Test;
 
     using OBeautifulCode.AutoFakeItEasy;
 
@@ -37,6 +38,8 @@ namespace Naos.Serialization.Recipes
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationKind.Invalid);
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationRepresentation.Invalid);
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(CompressionKind.Invalid);
+
+            AutoFixtureBackedDummyFactory.UseRandomConcreteSubclassForDummy<TestBase>();
         }
 
         /// <inheritdoc />

@@ -44,6 +44,7 @@ namespace Spritely.Recipes
                     {
                         new StringEnumConverter { CamelCaseText = true },
                         new SecureStringJsonConverter(),
+                        new DictionaryJsonConverter(),
                         new InheritedTypeReaderJsonConverter(),
                         new InheritedTypeWriterJsonConverter()
                     }
@@ -70,6 +71,7 @@ namespace Spritely.Recipes
                     {
                         new StringEnumConverter { CamelCaseText = true },
                         new SecureStringJsonConverter(),
+                        new DictionaryJsonConverter(),
                         new InheritedTypeReaderJsonConverter(),
                         new InheritedTypeWriterJsonConverter()
                     }
@@ -96,6 +98,7 @@ namespace Spritely.Recipes
                     {
                         new StringEnumConverter { CamelCaseText = true },
                         new SecureStringJsonConverter(),
+                        new DictionaryJsonConverter(),
                         new InheritedTypeReaderJsonConverter(),
                         new InheritedTypeWriterJsonConverter()
                     }

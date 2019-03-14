@@ -82,6 +82,7 @@
     <Compile Include=".recipes\Spritely.JsonConfiguration\MinimalJsonSerializer.cs" />
     <Compile Include=".recipes\Spritely.SecureStringJsonConverter\SecureStringJsonConverter.cs" />
     <Compile Include=".recipes\Spritely.SecureString\SecureString.cs" />
+    <Compile Include="DictionaryJsonConverter.cs" />
     <Compile Include="JsonConfigurationException.cs" />
     <Compile Include="JsonConfigurationManager.cs" />
     <Compile Include="GlobalSuppressions.cs" />

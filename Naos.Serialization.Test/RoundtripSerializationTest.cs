@@ -293,6 +293,114 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestDictionaryMixedKeyValues_with_all_nulls___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestDictionaryMixedKeyValues>>();
+
+            var expected = new TestDictionaryMixedKeyValues();
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestDictionaryMixedKeyValues;
+                actual.Should().NotBeNull();
+
+                actual.DictionaryBaseString.Should().BeNull();
+                actual.IDictionaryBaseString.Should().BeNull();
+                actual.ReadOnlyDictionaryBaseString.Should().BeNull();
+                actual.IReadOnlyDictionaryBaseString.Should().BeNull();
+                actual.ConcurrentDictionaryBaseString.Should().BeNull();
+
+                actual.DictionaryStringConstructor.Should().BeNull();
+                actual.IDictionaryStringConstructor.Should().BeNull();
+                actual.ReadOnlyDictionaryStringConstructor.Should().BeNull();
+                actual.IReadOnlyDictionaryStringConstructor.Should().BeNull();
+                actual.ConcurrentDictionaryStringConstructor.Should().BeNull();
+                
+                actual.DictionaryConstructorEnum.Should().BeNull();
+                actual.IDictionaryConstructorEnum.Should().BeNull();
+                actual.ReadOnlyDictionaryConstructorEnum.Should().BeNull();
+                actual.IReadOnlyDictionaryConstructorEnum.Should().BeNull();
+                actual.ConcurrentDictionaryConstructorEnum.Should().BeNull();
+
+                actual.DictionaryEnumBase.Should().BeNull();
+                actual.IDictionaryEnumBase.Should().BeNull();
+                actual.ReadOnlyDictionaryEnumBase.Should().BeNull();
+                actual.IReadOnlyDictionaryEnumBase.Should().BeNull();
+                actual.ConcurrentDictionaryEnumBase.Should().BeNull();
+
+                actual.DictionaryIntPoco.Should().BeNull();
+                actual.IDictionaryIntPoco.Should().BeNull();
+                actual.ReadOnlyDictionaryIntPoco.Should().BeNull();
+                actual.IReadOnlyDictionaryIntPoco.Should().BeNull();
+                actual.ConcurrentDictionaryIntPoco.Should().BeNull();
+
+                actual.DictionaryPocoInt.Should().BeNull();
+                actual.IDictionaryPocoInt.Should().BeNull();
+                actual.ReadOnlyDictionaryPocoInt.Should().BeNull();
+                actual.IReadOnlyDictionaryPocoInt.Should().BeNull();
+                actual.ConcurrentDictionaryPocoInt.Should().BeNull();
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
+        public static void RoundtripSerializeDeserialize___Using_TestDictionaryMixedKeyValues___Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestDictionaryMixedKeyValues>>();
+
+            var expected = A.Dummy<TestDictionaryMixedKeyValues>();
+
+            void ThrowIfObjectsDiffer(object actualAsObject)
+            {
+                var actual = actualAsObject as TestDictionaryMixedKeyValues;
+                actual.Should().NotBeNull();
+
+                actual.DictionaryBaseString.Should().Equal(expected.DictionaryBaseString);
+                actual.IDictionaryBaseString.Should().Equal(expected.IDictionaryBaseString);
+                actual.ReadOnlyDictionaryBaseString.Should().Equal(expected.ReadOnlyDictionaryBaseString);
+                actual.IReadOnlyDictionaryBaseString.Should().Equal(expected.IReadOnlyDictionaryBaseString);
+                actual.ConcurrentDictionaryBaseString.Should().Equal(expected.ConcurrentDictionaryBaseString);
+
+                actual.DictionaryStringConstructor.Should().Equal(expected.DictionaryStringConstructor);
+                actual.IDictionaryStringConstructor.Should().Equal(expected.IDictionaryStringConstructor);
+                actual.ReadOnlyDictionaryStringConstructor.Should().Equal(expected.ReadOnlyDictionaryStringConstructor);
+                actual.IReadOnlyDictionaryStringConstructor.Should().Equal(expected.IReadOnlyDictionaryStringConstructor);
+                actual.ConcurrentDictionaryStringConstructor.Should().Equal(expected.ConcurrentDictionaryStringConstructor);
+
+                actual.DictionaryConstructorEnum.Should().Equal(expected.DictionaryConstructorEnum);
+                actual.IDictionaryConstructorEnum.Should().Equal(expected.IDictionaryConstructorEnum);
+                actual.ReadOnlyDictionaryConstructorEnum.Should().Equal(expected.ReadOnlyDictionaryConstructorEnum);
+                actual.IReadOnlyDictionaryConstructorEnum.Should().Equal(expected.IReadOnlyDictionaryConstructorEnum);
+                actual.ConcurrentDictionaryConstructorEnum.Should().Equal(expected.ConcurrentDictionaryConstructorEnum);
+
+                actual.DictionaryEnumBase.Should().Equal(expected.DictionaryEnumBase);
+                actual.IDictionaryEnumBase.Should().Equal(expected.IDictionaryEnumBase);
+                actual.ReadOnlyDictionaryEnumBase.Should().Equal(expected.ReadOnlyDictionaryEnumBase);
+                actual.IReadOnlyDictionaryEnumBase.Should().Equal(expected.IReadOnlyDictionaryEnumBase);
+                actual.ConcurrentDictionaryEnumBase.Should().Equal(expected.ConcurrentDictionaryEnumBase);
+
+                actual.DictionaryIntPoco.Should().Equal(expected.DictionaryIntPoco);
+                actual.IDictionaryIntPoco.Should().Equal(expected.IDictionaryIntPoco);
+                actual.ReadOnlyDictionaryIntPoco.Should().Equal(expected.ReadOnlyDictionaryIntPoco);
+                actual.IReadOnlyDictionaryIntPoco.Should().Equal(expected.IReadOnlyDictionaryIntPoco);
+                actual.ConcurrentDictionaryIntPoco.Should().Equal(expected.ConcurrentDictionaryIntPoco);
+
+                actual.DictionaryPocoInt.Should().Equal(expected.DictionaryPocoInt);
+                actual.IDictionaryPocoInt.Should().Equal(expected.IDictionaryPocoInt);
+                actual.ReadOnlyDictionaryPocoInt.Should().Equal(expected.ReadOnlyDictionaryPocoInt);
+                actual.IReadOnlyDictionaryPocoInt.Should().Equal(expected.IReadOnlyDictionaryPocoInt);
+                actual.ConcurrentDictionaryPocoInt.Should().Equal(expected.ConcurrentDictionaryPocoInt);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestCollectionFields_with_all_nulls___Works()
         {
             // Arrange
@@ -520,7 +628,12 @@ namespace Naos.Serialization.Test
             ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
         }
 
-        private static void ActAndAssertForRoundtripSerialization(object expected, Action<object> throwIfObjectsDiffer, NaosBsonSerializer bsonSerializer, bool testBson = true, bool testJson = true)
+        private static void ActAndAssertForRoundtripSerialization(
+            object expected,
+            Action<object> throwIfObjectsDiffer,
+            NaosBsonSerializer bsonSerializer,
+            bool testBson = true,
+            bool testJson = true)
         {
             var stringSerializers = new List<IStringSerializeAndDeserialize>();
             var binarySerializers = new List<IBinarySerializeAndDeserialize>();
