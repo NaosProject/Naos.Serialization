@@ -198,21 +198,22 @@ namespace Naos.Serialization.Test
             var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestMapping>>();
 
             var expected = new TestMapping
-                               {
-                                   StringProperty = Guid.NewGuid().ToString(),
-                                   IntProperty = A.Dummy<int>(),
-                                   DateTimePropertyUtc = DateTime.UtcNow,
-                                   DateTimePropertyLocal = DateTime.UtcNow.ToLocalTime(),
-                                   DateTimePropertyUnspecified = DateTime.UtcNow.ToUnspecified(),
-                                   GuidProperty = Guid.NewGuid(),
-                                   NonEnumArray = new[] { A.Dummy<string>() },
-                                   EnumArray = new[] { A.Dummy<TestEnumeration>(), },
-                                   StringIntMap = new Dictionary<string, int> { { "key", A.Dummy<int>() } },
-                                   EnumIntMap = new Dictionary<AnotherEnumeration, int> { { A.Dummy<AnotherEnumeration>(), A.Dummy<int>() } },
-                                   IntIntTuple = new Tuple<int, int>(3, 4),
-                                   EnumProperty = A.Dummy<TestEnumeration>(),
-                                   IntArray = A.Dummy<int[]>(),
-                                };
+            {
+                StringProperty = Guid.NewGuid().ToString(),
+                IntProperty = A.Dummy<int>(),
+                DateTimePropertyUtc = DateTime.UtcNow,
+                DateTimePropertyLocal = DateTime.UtcNow.ToLocalTime(),
+                DateTimePropertyUnspecified = DateTime.UtcNow.ToUnspecified(),
+                GuidProperty = Guid.NewGuid(),
+                NonEnumArray = new[] { A.Dummy<string>() },
+                EnumArray = new[] { A.Dummy<TestEnumeration>(), },
+                StringIntMap = new Dictionary<string, int> { { "key", A.Dummy<int>() } },
+                EnumIntMap = new Dictionary<AnotherEnumeration, int>
+                    { { A.Dummy<AnotherEnumeration>(), A.Dummy<int>() } },
+                IntIntTuple = new Tuple<int, int>(3, 4),
+                EnumProperty = A.Dummy<TestEnumeration>(),
+                IntArray = A.Dummy<int[]>(),
+            };
 
             void ThrowIfObjectsDiffer(object actualAsObject)
             {

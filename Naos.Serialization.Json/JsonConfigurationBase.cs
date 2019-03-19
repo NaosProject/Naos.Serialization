@@ -19,7 +19,7 @@ namespace Naos.Serialization.Json
     using static System.FormattableString;
 
     /// <summary>
-    /// Base class to assist creating the correct <see cref="JsonSerializerSettings" /> to use.
+    /// Base class to use for creating <see cref="NaosJsonSerializer" /> configuration.
     /// </summary>
     public abstract class JsonConfigurationBase
     {

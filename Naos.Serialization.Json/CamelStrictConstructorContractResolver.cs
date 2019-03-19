@@ -21,7 +21,7 @@ namespace Naos.Serialization.Json
     /// when deserializing, for types with non-default constructors.
     /// </summary>
     /// <remarks>
-    /// See <a href="https://stackoverflow.com/questions/37416233/json-net-should-not-use-default-values-for-constructor-parameters-should-use-de"/>
+    /// See. <a href="https://stackoverflow.com/questions/37416233/json-net-should-not-use-default-values-for-constructor-parameters-should-use-de"/>
     /// </remarks>
     internal class CamelStrictConstructorContractResolver
         : CamelCasePropertyNamesContractResolver
@@ -37,7 +37,7 @@ namespace Naos.Serialization.Json
         /// <a href="http://www.newtonsoft.com/json/help/html/ContractResolver.htm"/>
         /// <a href="http://www.newtonsoft.com/json/help/html/M_Newtonsoft_Json_Serialization_DefaultContractResolver__ctor_1.htm"/>
         /// "Use the parameter-less constructor and cache instances of the contract resolver within your application for optimal performance."
-        /// Also, <a href="https://stackoverflow.com/questions/33557737/does-json-net-cache-types-serialization-information"/>
+        /// Also. <a href="https://stackoverflow.com/questions/33557737/does-json-net-cache-types-serialization-information"/>
         /// </remarks>
         public static CamelStrictConstructorContractResolver Instance
         {

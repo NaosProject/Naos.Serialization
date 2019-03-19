@@ -30,7 +30,7 @@ namespace Naos.Serialization.Bson
     /// - <see cref="Dictionary{TKey, TValue}"/>
     /// - <see cref="IReadOnlyDictionary{TKey, TValue}" />
     /// - <see cref="ReadOnlyDictionary{TKey, TValue}" />
-    /// - <see cref="ConcurrentDictionary{TKey, TValue}" />
+    /// - <see cref="ConcurrentDictionary{TKey, TValue}" />.
     /// </summary>
     /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
     /// <typeparam name="TKey">The type of the key of the dictionary.</typeparam>

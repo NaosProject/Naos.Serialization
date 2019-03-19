@@ -25,7 +25,7 @@ namespace Naos.Serialization.Json
     /// - <see cref="Dictionary{TKey, TValue}"/>
     /// - <see cref="IReadOnlyDictionary{TKey, TValue}" />
     /// - <see cref="ReadOnlyDictionary{TKey, TValue}" />
-    /// - <see cref="ConcurrentDictionary{TKey, TValue}" />
+    /// - <see cref="ConcurrentDictionary{TKey, TValue}" />.
     /// </summary>
     internal class DictionaryJsonConverter : JsonConverter
     {

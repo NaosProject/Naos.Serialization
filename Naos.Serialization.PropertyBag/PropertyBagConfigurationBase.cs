@@ -17,7 +17,7 @@ namespace Naos.Serialization.PropertyBag
     using static System.FormattableString;
 
     /// <summary>
-    /// Base class to use for creating
+    /// Base class to use for creating a <see cref="NaosPropertyBagSerializer" /> configuration.
     /// </summary>
     public abstract class PropertyBagConfigurationBase
     {

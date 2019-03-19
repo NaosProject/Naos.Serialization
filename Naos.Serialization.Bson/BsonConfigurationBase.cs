@@ -26,7 +26,7 @@ namespace Naos.Serialization.Bson
     using static System.FormattableString;
 
     /// <summary>
-    /// Base class to use for creating
+    /// Base class to use for creating <see cref="NaosBsonSerializer" /> configuration.
     /// </summary>
     [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "This class is not excessively coupled for the nature of the problem.")]
     public abstract class BsonConfigurationBase

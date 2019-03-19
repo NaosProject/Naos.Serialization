@@ -30,7 +30,7 @@ namespace Naos.Serialization.Bson
     /// - <see cref="IReadOnlyList{TElement}"/>
     /// - <see cref="IReadOnlyCollection{TElement}"/>
     /// - <see cref="List{TElement}"/>
-    /// - <see cref="Collection{TElement}"/>
+    /// - <see cref="Collection{TElement}"/>.
     /// </summary>
     /// <typeparam name="TCollection">The type of the collection.</typeparam>
     /// <typeparam name="TElement">The type of the elements in the collection.</typeparam>
