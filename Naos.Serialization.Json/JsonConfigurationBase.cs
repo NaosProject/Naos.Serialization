@@ -7,15 +7,14 @@
 namespace Naos.Serialization.Json
 {
     using System;
-
+    using System.Collections.Generic;
     using Naos.Serialization.Domain;
 
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
     using Newtonsoft.Json.Serialization;
 
     using OBeautifulCode.Validation.Recipes;
-
-    using Spritely.Recipes;
 
     using static System.FormattableString;
 
@@ -57,7 +56,7 @@ namespace Naos.Serialization.Json
         }
 
         /// <summary>
-        /// Gets the serialization settings (must be configurated first).
+        /// Gets the serialization settings (must be configured first).
         /// </summary>
         public JsonSerializerSettings SerializationSettings { get; private set; }
 
@@ -80,12 +79,64 @@ namespace Naos.Serialization.Json
         {
             switch (serializationKind)
             {
-                case SerializationKind.Default: return JsonConfiguration.DefaultSerializerSettings;
-                case SerializationKind.Compact: return JsonConfiguration.CompactSerializerSettings;
-                case SerializationKind.Minimal: return JsonConfiguration.MinimalSerializerSettings;
-                default: throw new NotSupportedException(Invariant($"Value of {nameof(SerializationKind)} - {serializationKind} is not currently supported."));
+                case SerializationKind.Default:
+                    return DefaultSerializerSettings;
+                case SerializationKind.Compact:
+                    return CompactSerializerSettings;
+                case SerializationKind.Minimal:
+                    return MinimalSerializerSettings;
+                default:
+                    throw new NotSupportedException(Invariant($"Value of {nameof(SerializationKind)} - {serializationKind} is not currently supported."));
             }
         }
+
+        private static JsonSerializerSettings DefaultSerializerSettings =>
+            new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Include,
+                ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                Converters = new List<JsonConverter>
+                {
+                    new StringEnumConverter { CamelCaseText = true },
+                    new SecureStringJsonConverter(),
+                    new DictionaryJsonConverter(),
+                    new InheritedTypeReaderJsonConverter(),
+                    new InheritedTypeWriterJsonConverter(),
+                },
+            };
+
+        private static JsonSerializerSettings CompactSerializerSettings =>
+            new JsonSerializerSettings
+            {
+                Formatting = Formatting.None,
+                NullValueHandling = NullValueHandling.Include,
+                ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                Converters = new List<JsonConverter>
+                {
+                    new StringEnumConverter { CamelCaseText = true },
+                    new SecureStringJsonConverter(),
+                    new DictionaryJsonConverter(),
+                    new InheritedTypeReaderJsonConverter(),
+                    new InheritedTypeWriterJsonConverter(),
+                },
+            };
+
+        private static JsonSerializerSettings MinimalSerializerSettings =>
+            new JsonSerializerSettings
+            {
+                Formatting = Formatting.None,
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                Converters = new List<JsonConverter>
+                {
+                    new StringEnumConverter { CamelCaseText = true },
+                    new SecureStringJsonConverter(),
+                    new DictionaryJsonConverter(),
+                    new InheritedTypeReaderJsonConverter(),
+                    new InheritedTypeWriterJsonConverter(),
+                },
+            };
     }
 
     /// <summary>

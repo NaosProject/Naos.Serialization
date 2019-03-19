@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Spritely.Recipes
+namespace Naos.Serialization.Json
 {
     using System;
     using System.Collections;

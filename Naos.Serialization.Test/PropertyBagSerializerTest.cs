@@ -9,24 +9,18 @@ namespace Naos.Serialization.Test
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
 
     using FakeItEasy;
 
     using FluentAssertions;
 
-    using Naos.Serialization.Bson;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Domain.Extensions;
     using Naos.Serialization.PropertyBag;
 
     using OBeautifulCode.Validation.Recipes;
 
-    using Spritely.Recipes;
-
     using Xunit;
-
-    using static System.FormattableString;
 
     public static class PropertyBagSerializerTest
     {
