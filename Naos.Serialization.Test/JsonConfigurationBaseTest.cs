@@ -65,7 +65,7 @@ namespace Naos.Serialization.Test
 
             // Assert
             actual.Should().NotBeNull();
-            actual.SerializationSettings.ContractResolver.GetType().FullName.Should().Be("Spritely.Recipes.CamelStrictConstructorContractResolver");
+            actual.SerializationSettings.ContractResolver.GetType().FullName.Should().Be("Naos.Serialization.Json.CamelStrictConstructorContractResolver"); // this type is not public so we can't use nameof()
         }
     }
 

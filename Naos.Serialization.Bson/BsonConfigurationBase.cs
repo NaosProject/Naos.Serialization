@@ -83,6 +83,9 @@ namespace Naos.Serialization.Bson
                         new { this.ClassTypesToRegisterAlongWithInheritors }.Must().NotBeNull();
                         new { this.InterfaceTypesToRegisterImplementationOf }.Must().NotBeNull();
 
+                        this.ClassTypesToRegisterAlongWithInheritors.Select(_ => _.IsClass).Named(Invariant($"{nameof(this.ClassTypesToRegisterAlongWithInheritors)}.Select(_ => _.{nameof(Type.IsClass)})")).Must().Each().BeTrue();
+                        this.InterfaceTypesToRegisterImplementationOf.Select(_ => _.IsInterface).Named(Invariant($"{nameof(this.InterfaceTypesToRegisterImplementationOf)}.Select(_ => _.{nameof(Type.IsInterface)})")).Must().Each().BeTrue();
+
                         foreach (var dependentConfigurationType in this.DependentConfigurationTypes)
                         {
                             BsonConfigurationManager.Configure(dependentConfigurationType);
@@ -95,11 +98,13 @@ namespace Naos.Serialization.Bson
 
                         this.RegisterClassTypes(this.ClassTypesToRegister);
 
-                        var interfaceTypes = this.InterfaceTypesToRegisterImplementationOf.Concat(this.TypesToAutoRegister.Where(_ => _.IsInterface)).ToList();
-                        this.RegisterImplementationsOfInterfaceTypes(interfaceTypes);
+                        var typesToAutoRegister = new Type[0]
+                            .Concat(this.TypesToAutoRegister)
+                            .Concat(this.InterfaceTypesToRegisterImplementationOf)
+                            .Concat(this.ClassTypesToRegisterAlongWithInheritors)
+                            .ToList();
 
-                        var classTypes = this.ClassTypesToRegisterAlongWithInheritors.Concat(this.TypesToAutoRegister.Where(_ => _.IsClass)).ToList();
-                        this.RegisterClassTypesAndTheirInheritedTypes(classTypes);
+                        this.RegisterAssignableClassTypes(typesToAutoRegister);
 
                         this.InternalConfiguration();
 
@@ -139,7 +144,7 @@ namespace Naos.Serialization.Bson
         protected virtual IReadOnlyCollection<Type> InterfaceTypesToRegisterImplementationOf => new Type[0];
 
         /// <summary>
-        /// Gets a list of interface <see cref="Type"/> that need to be automatically registered using <see cref="RegisterImplementationsOfInterfaceTypes(IReadOnlyCollection{Type})" />.
+        /// Gets a map of <see cref="Type"/> to the <see cref="IBsonSerializer"/> to register.
         /// </summary>
         protected virtual IReadOnlyDictionary<Type, IBsonSerializer> TypeToCustomSerializerMap => new Dictionary<Type, IBsonSerializer>();
 
@@ -208,6 +213,7 @@ namespace Naos.Serialization.Bson
         protected void RegisterClassType(Type type, IReadOnlyCollection<string> constrainToProperties = null)
         {
             new { type }.Must().NotBeNull();
+            type.IsClass.Named(Invariant($"{nameof(type)}.{nameof(Type.IsClass)}")).Must().BeTrue();
 
             try
             {
@@ -254,42 +260,29 @@ namespace Naos.Serialization.Bson
         }
 
         /// <summary>
-        /// Method to register the specified type and all derivative types in the same assembly.
+        /// Method to register the specified type and class types that are assignable to those specified types.
         /// </summary>
-        /// <param name="types">Types of interfaces to register all implementations of.</param>
+        /// <param name="types">The types.</param>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterImplementationsOfInterfaceTypes(IReadOnlyCollection<Type> types)
+        protected void RegisterAssignableClassTypes(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull();
 
-            var allTypes = types.SelectMany(this.GetInterfaceImplementations).Distinct().ToList();
-            var interfaceTypes = allTypes.Where(_ => _.IsInterface).ToList();
-            var classTypes = allTypes.Where(_ => _.IsClass).ToList();
+            var allTypesToConsiderForRegistration = AssemblyLoader.GetLoadedAssemblies().GetTypesFromAssemblies();
 
-            if (classTypes.Any())
+            var classTypesToRegister = allTypesToConsiderForRegistration
+                .Where(
+                    typeToConsider =>
+                        typeToConsider.IsClass &&
+                        (!typeToConsider.IsAnonymous()) &&
+                        (!typeToConsider.IsGenericTypeDefinition) && // can't do an IsAssignableTo check on generic type definitions
+                        types.Any(typeToAutoRegister => typeToConsider.IsAssignableTo(typeToAutoRegister)))
+                .ToList();
+
+            if (classTypesToRegister.Any())
             {
-                this.RegisterClassTypes(classTypes);
+                this.RegisterClassTypes(classTypesToRegister);
             }
-
-            if (interfaceTypes.Any())
-            {
-                this.RegisterImplementationsOfInterfaceTypes(interfaceTypes);
-            }
-        }
-
-        /// <summary>
-        /// Method to register the specified type and all derivative types in the same assembly.
-        /// </summary>
-        /// <param name="types">Types to register.</param>
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected void RegisterClassTypesAndTheirInheritedTypes(IReadOnlyCollection<Type> types)
-        {
-            new { types }.Must().NotBeNull();
-
-            // ReSharper disable once ArgumentsStyleLiteral - it is clearer with a boolean to have the name of the parameter
-            var allTypes = types.SelectMany(_ => this.GetSubclassTypes(_, includeSpecifiedTypeInReturnList: true)).Distinct().ToList();
-
-            this.RegisterClassTypes(allTypes);
         }
 
         /// <summary>
@@ -438,78 +431,14 @@ namespace Naos.Serialization.Bson
                 .Where(_ => !_.IsInitOnly)
                 .ToList();
 
-            const bool ReturnIfSetMethodIsNotPublic = true;
+            const bool returnIfSetMethodIsNotPublic = true;
             var properties = allMembers
                 .Where(_ => _.MemberType == MemberTypes.Property)
                 .Cast<PropertyInfo>()
-                .Where(_ => _.CanWrite || _.GetSetMethod(ReturnIfSetMethodIsNotPublic) != null)
+                .Where(_ => _.CanWrite || _.GetSetMethod(returnIfSetMethodIsNotPublic) != null)
                 .ToList();
 
             return new MemberInfo[0].Concat(fields).Concat(properties).ToList();
-        }
-
-        /// <summary>
-        /// Get a list of the subclass types of the provided type and the provided type if <paramref name="includeSpecifiedTypeInReturnList"/> is true.
-        /// </summary>
-        /// <param name="classType">Type to find derivatives of.</param>
-        /// <param name="includeSpecifiedTypeInReturnList">Optional value indicating whether or not to include the provided type in the return list; DEFAULT is true.</param>
-        /// <returns>List of the subclass types of the provided type and the provided type if <paramref name="includeSpecifiedTypeInReturnList"/> is true.</returns>
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected IReadOnlyCollection<Type> GetSubclassTypes(Type classType, bool includeSpecifiedTypeInReturnList = false)
-        {
-            new { classType }.Must().NotBeNull();
-            new { classType.IsClass }.Must().BeTrue();
-
-            var derivativeTypes = GetAllTypesToConsiderForRegistration().Where(_ => _.IsSubclassOf(classType)).ToList();
-
-            if (includeSpecifiedTypeInReturnList)
-            {
-                derivativeTypes.Add(classType);
-            }
-
-            return derivativeTypes.Distinct().ToList();
-        }
-
-        /// <summary>
-        /// Get a list of the types that are implemented by the provided interface type.
-        /// </summary>
-        /// <param name="interfaceType">Type to find implementation of.</param>
-        /// <returns>List of the types that are implemented by the provided interface type.</returns>
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        protected IReadOnlyCollection<Type> GetInterfaceImplementations(Type interfaceType)
-        {
-            new { interfaceType }.Must().NotBeNull();
-            new { interfaceType.IsInterface }.Must().BeTrue();
-
-            var derivativeTypes = GetAllTypesToConsiderForRegistration().Where(_ => _.GetInterfaces().Contains(interfaceType)).ToList();
-
-            return derivativeTypes.Distinct().ToList();
-        }
-
-        /// <summary>
-        /// Get all loaded types to use when considering registration.
-        /// </summary>
-        /// <returns>List of all loaded types to use when considering registration.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Not much I can do with an exception here and it's usually caused by some weird dynamic type that I don't need to consider anyway.")]
-        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Don't want an active operation like this in a property.")]
-        public static IReadOnlyCollection<Type> GetAllTypesToConsiderForRegistration()
-        {
-            return AppDomain.CurrentDomain.GetAssemblies().Where(_ => !_.IsDynamic).SelectMany(
-                _ =>
-                    {
-                        try
-                        {
-                            /* For types that have dependent assemblies that are not found on disk this will fail when it tries to get types from the assembly.
-                             * Added because we encountered a FileNotFoundException for an assembly that was not on disk.
-                             */
-
-                            return _.GetExportedTypes();
-                        }
-                        catch (Exception)
-                        {
-                            return new Type[0];
-                        }
-                    }).ToList();
         }
 
         /// <summary>
