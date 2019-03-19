@@ -8,7 +8,7 @@ namespace Naos.Serialization.Json
 {
     using System;
     using System.Collections.Generic;
-
+    using Naos.Serialization.Domain;
     using Naos.Serialization.Domain.Extensions;
 
     using OBeautifulCode.Reflection.Recipes;

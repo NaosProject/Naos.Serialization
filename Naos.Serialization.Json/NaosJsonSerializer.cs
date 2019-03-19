@@ -41,7 +41,12 @@ namespace Naos.Serialization.Json
             this.SerializationKind = serializationKind;
             this.ConfigurationType = configurationType;
 
-            this.SerializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(this.SerializationKind, this.ConfigurationType);
+            // this is a hack to not mess with casing since the case must match for dynamic deserialization...
+            this.DynamicWriteSerializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(this.SerializationKind, SerializationDirection.Serialize, this.ConfigurationType);
+            this.DynamicWriteSerializationSettings.ContractResolver = new DefaultContractResolver();
+
+            this.WriteSerializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(this.SerializationKind, SerializationDirection.Serialize, this.ConfigurationType);
+            this.ReadSerializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(this.SerializationKind, SerializationDirection.Deserialize, this.ConfigurationType);
         }
 
         /// <inheritdoc />
@@ -51,9 +56,19 @@ namespace Naos.Serialization.Json
         public Type ConfigurationType { get; private set; }
 
         /// <summary>
-        /// Gets the serialization settings to use.
+        /// Gets the serialization settings to use for writing dynamic or anonymous objects.
         /// </summary>
-        public JsonSerializerSettings SerializationSettings { get; private set; }
+        public JsonSerializerSettings DynamicWriteSerializationSettings { get; private set; }
+
+        /// <summary>
+        /// Gets the serialization settings to use for writing.
+        /// </summary>
+        public JsonSerializerSettings WriteSerializationSettings { get; private set; }
+
+        /// <summary>
+        /// Gets the serialization settings to use for reading.
+        /// </summary>
+        public JsonSerializerSettings ReadSerializationSettings { get; private set; }
 
         /// <summary>
         /// Converts JSON string into a byte array.
@@ -105,13 +120,9 @@ namespace Naos.Serialization.Json
         /// <inheritdoc />
         public string SerializeToString(object objectToSerialize)
         {
-            var localSerializationSettings = this.SerializationSettings;
-            if (objectToSerialize != null && objectToSerialize.GetType().IsAnonymous())
-            {
-                // this is a hack to not mess with casing since the case must match for dynamic deserialization...
-                localSerializationSettings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(this.SerializationKind, this.ConfigurationType);
-                localSerializationSettings.ContractResolver = new DefaultContractResolver();
-            }
+            var localSerializationSettings = objectToSerialize != null && objectToSerialize.GetType().IsAnonymous()
+                ? this.DynamicWriteSerializationSettings
+                : this.WriteSerializationSettings;
 
             var ret = JsonConvert.SerializeObject(objectToSerialize, localSerializationSettings);
 
@@ -121,7 +132,7 @@ namespace Naos.Serialization.Json
         /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
-            var ret = JsonConvert.DeserializeObject<T>(serializedString, this.SerializationSettings);
+            var ret = JsonConvert.DeserializeObject<T>(serializedString, this.ReadSerializationSettings);
 
             return ret;
         }
@@ -139,7 +150,7 @@ namespace Naos.Serialization.Json
             }
             else
             {
-                ret = JsonConvert.DeserializeObject(serializedString, type, this.SerializationSettings);
+                ret = JsonConvert.DeserializeObject(serializedString, type, this.ReadSerializationSettings);
             }
 
             return ret;

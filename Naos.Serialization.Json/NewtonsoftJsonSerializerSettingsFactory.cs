@@ -26,9 +26,10 @@ namespace Naos.Serialization.Json
         ///  Gets the settings to use from the <see cref="SerializationKind" /> and optional configuration <see cref="Type" /> provided.
         /// </summary>
         /// <param name="serializationKind">Kind to determine the settings.</param>
+        /// <param name="serializationDirection">Direction to determine the settings.</param>
         /// <param name="configurationType">Optional configuration Type.</param>
         /// <returns><see cref="JsonSerializerSettings" /> to use with <see cref="Newtonsoft" /> when serializing.</returns>
-        public static JsonSerializerSettings BuildSettings(SerializationKind serializationKind, Type configurationType = null)
+        public static JsonSerializerSettings BuildSettings(SerializationKind serializationKind, SerializationDirection serializationDirection, Type configurationType = null)
         {
             new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
 
@@ -39,12 +40,21 @@ namespace Naos.Serialization.Json
                     throw new ArgumentException(Invariant($"Must specify {nameof(configurationType)} if using {nameof(serializationKind)} of {nameof(SerializationKind)}.{SerializationKind.Custom}"));
                 }
 
-                var settings = JsonConfigurationManager.Configure(configurationType);
-                return settings.SerializationSettings;
+                var configuration = JsonConfigurationManager.Configure(configurationType);
+
+                switch (serializationDirection)
+                {
+                    case SerializationDirection.Serialize:
+                        return configuration.WriteSerializationSettings;
+                    case SerializationDirection.Deserialize:
+                        return configuration.ReadSerializationSettings;
+                    default:
+                        throw new NotSupportedException(Invariant($"Value of {nameof(serializationDirection)} - {serializationDirection} is not currently supported."));
+                }
             }
             else
             {
-                return JsonConfigurationBase.GetSettingsBySerializationKind(serializationKind);
+                return JsonConfigurationBase.SerializationKindToSettingsSelectorByDirection[serializationKind](serializationDirection);
             }
         }
     }

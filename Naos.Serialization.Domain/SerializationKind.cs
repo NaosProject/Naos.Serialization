@@ -83,4 +83,25 @@ namespace Naos.Serialization.Domain
         /// </summary>
         PropertyBag,
     }
+
+    /// <summary>
+    /// Direction of serialization.
+    /// </summary>
+    public enum SerializationDirection
+    {
+        /// <summary>
+        /// Unknown direction.
+        /// </summary>
+        Unknown,
+
+        /// <summary>
+        /// Serializing object.
+        /// </summary>
+        Serialize,
+
+        /// <summary>
+        /// Deserializing object.
+        /// </summary>
+        Deserialize,
+    }
 }

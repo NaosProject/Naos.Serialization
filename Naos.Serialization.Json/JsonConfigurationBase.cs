@@ -40,14 +40,21 @@ namespace Naos.Serialization.Json
                     {
                         new { this.InheritSettingsFromKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
 
-                        var baseSettings = GetSettingsBySerializationKind(this.InheritSettingsFromKind);
+                        var baseWriteSerializationSettings = SerializationKindToSettingsSelectorByDirection[this.InheritSettingsFromKind](SerializationDirection.Serialize);
+                        var baseReadSerializationSettings = SerializationKindToSettingsSelectorByDirection[this.InheritSettingsFromKind](SerializationDirection.Deserialize);
 
-                        if (this.OverrideContractResolver != null)
+                        if (this.OverrideWriteContractResolver != null)
                         {
-                            baseSettings.ContractResolver = this.OverrideContractResolver;
+                            baseWriteSerializationSettings.ContractResolver = this.OverrideWriteContractResolver;
                         }
 
-                        this.SerializationSettings = baseSettings;
+                        if (this.OverrideReadContractResolver != null)
+                        {
+                            baseReadSerializationSettings.ContractResolver = this.OverrideReadContractResolver;
+                        }
+
+                        this.WriteSerializationSettings = baseWriteSerializationSettings;
+                        this.ReadSerializationSettings = baseReadSerializationSettings;
 
                         this.configured = true;
                     }
@@ -56,14 +63,24 @@ namespace Naos.Serialization.Json
         }
 
         /// <summary>
-        /// Gets the serialization settings (must be configured first).
+        /// Gets the serialization settings to use for writing (must be configured first).
         /// </summary>
-        public JsonSerializerSettings SerializationSettings { get; private set; }
+        public JsonSerializerSettings WriteSerializationSettings { get; private set; }
 
         /// <summary>
-        /// Gets the optional override to the contract resolver of the settings gotten from the provided kind.
+        /// Gets the serialization settings to use for reading (must be configured first).
         /// </summary>
-        protected virtual IContractResolver OverrideContractResolver => null;
+        public JsonSerializerSettings ReadSerializationSettings { get; private set; }
+
+        /// <summary>
+        /// Gets the optional override to the contract resolver of the settings gotten from the provided kind for reading.
+        /// </summary>
+        protected virtual IContractResolver OverrideReadContractResolver => null;
+
+        /// <summary>
+        /// Gets the optional override to the contract resolver of the settings gotten from the provided kind for writing.
+        /// </summary>
+        protected virtual IContractResolver OverrideWriteContractResolver => null;
 
         /// <summary>
         /// Gets the kind to use as the base settings before applying overrides.
@@ -71,25 +88,55 @@ namespace Naos.Serialization.Json
         protected abstract SerializationKind InheritSettingsFromKind { get; }
 
         /// <summary>
-        /// Gets the settings to use from the <see cref="SerializationKind" /> provided.
+        /// Map of <see cref="SerializationKind" /> to a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,TResult}" /> that will take a <see cref="SerializationDirection" /> and return the correct <see cref="JsonSerializerSettings" />.
         /// </summary>
-        /// <param name="serializationKind">Kind to determine the settings.</param>
-        /// <param name="readOrWrite">Read or write?</param>
-        /// <returns><see cref="JsonSerializerSettings" /> to use with <see cref="Newtonsoft" /> when serializing.</returns>
-        public static JsonSerializerSettings GetSettingsBySerializationKind(SerializationKind serializationKind, ReadOrWrite readOrWrite)
-        {
-            switch (serializationKind)
-            {
-                case SerializationKind.Default:
-                    return DefaultSerializerSettings;
-                case SerializationKind.Compact:
-                    return CompactSerializerSettings;
-                case SerializationKind.Minimal:
-                    return MinimalSerializerSettings;
-                default:
-                    throw new NotSupportedException(Invariant($"Value of {nameof(SerializationKind)} - {serializationKind} is not currently supported."));
-            }
-        }
+        internal static readonly Dictionary<SerializationKind, Func<SerializationDirection, JsonSerializerSettings>>
+            SerializationKindToSettingsSelectorByDirection =
+                new Dictionary<SerializationKind, Func<SerializationDirection, JsonSerializerSettings>>
+                {
+                    {
+                        SerializationKind.Default, direction =>
+                        {
+                            switch (direction)
+                            {
+                                case SerializationDirection.Serialize:
+                                    return DefaultSerializerWriterSettings;
+                                case SerializationDirection.Deserialize:
+                                    return DefaultSerializerReaderSettings;
+                                default:
+                                    throw new NotSupportedException(Invariant($"Value of {nameof(direction)} - {direction} is not currently supported."));
+                            }
+                        }
+                    },
+                    {
+                        SerializationKind.Compact, direction =>
+                        {
+                            switch (direction)
+                            {
+                                case SerializationDirection.Serialize:
+                                    return CompactSerializerWriterSettings;
+                                case SerializationDirection.Deserialize:
+                                    return CompactSerializerReaderSettings;
+                                default:
+                                    throw new NotSupportedException(Invariant($"Value of {nameof(direction)} - {direction} is not currently supported."));
+                            }
+                        }
+                    },
+                    {
+                        SerializationKind.Minimal, direction =>
+                        {
+                            switch (direction)
+                            {
+                                case SerializationDirection.Serialize:
+                                    return MinimalSerializerWriterSettings;
+                                case SerializationDirection.Deserialize:
+                                    return MinimalSerializerReaderSettings;
+                                default:
+                                    throw new NotSupportedException(Invariant($"Value of {nameof(direction)} - {direction} is not currently supported."));
+                            }
+                        }
+                    },
+                };
 
         private static JsonSerializerSettings DefaultSerializerReaderSettings =>
             new JsonSerializerSettings
@@ -180,27 +227,6 @@ namespace Naos.Serialization.Json
                     new InheritedTypeWriterJsonConverter(),
                 },
             };
-    }
-
-    /// <summary>
-    /// Read or write.
-    /// </summary>
-    public enum ReadOrWrite
-    {
-        /// <summary>
-        /// Unknown (default).
-        /// </summary>
-        Unknown,
-
-        /// <summary>
-        /// Reading.
-        /// </summary>
-        Read,
-
-        /// <summary>
-        /// Writing
-        /// </summary>
-        Write,
     }
 
     /// <summary>
