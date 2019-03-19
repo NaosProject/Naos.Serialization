@@ -40,7 +40,9 @@ namespace Naos.Serialization.Json
             // If the type has other types that can be assigned into it, then we want to use our implementation of ReadJson to pick the
             // right assignable type, otherwise there is no ambiguity about which type to create and json.net can just handle it.
             var childTypes = this.GetAssignableTypes(objectType);
-            return childTypes.Any();
+            var result = childTypes.Any();
+
+            return result;
         }
 
         /// <inheritdoc />
@@ -131,16 +133,21 @@ namespace Naos.Serialization.Json
                 matchedChild = SelectBestChildUsingStrictPropertyMatching(deserializedChildren, jsonObject, jsonProperties);
             }
 
-            return matchedChild.DeserializedObject;
+            var result = matchedChild.DeserializedObject;
+
+            return result;
         }
 
         private static object ReadUsingTypeSpecifiedInJson(JsonSerializer serializer, JObject jsonObject)
         {
             var concreteType = jsonObject[TypeTokenName].ToString();
             jsonObject.Remove(TypeTokenName);
+
             var objectType = Type.GetType(concreteType);
             var reader = jsonObject.CreateReader();
+
             var result = serializer.Deserialize(reader, objectType);
+
             return result;
         }
 
@@ -173,7 +180,8 @@ namespace Naos.Serialization.Json
 
         private static IEnumerable<CandidateChildType> GetCandidateChildTypes(IEnumerable<Type> childTypes, HashSet<string> jsonProperties)
         {
-            var candidateChildTypes = new List<CandidateChildType>();
+            var result = new List<CandidateChildType>();
+
             foreach (var childType in childTypes)
             {
                 var childTypeProperties = childType.GetProperties().Select(t => t.Name).ToList();
@@ -188,11 +196,11 @@ namespace Naos.Serialization.Json
                         Type = childType,
                         PropertiesAndFields = childTypePropertiesAndFields,
                     };
-                    candidateChildTypes.Add(candidateChildType);
+                    result.Add(candidateChildType);
                 }
             }
 
-            return candidateChildTypes;
+            return result;
         }
 
         private static IEnumerable<CandidateChildType> DeserializeCandidates(IEnumerable<CandidateChildType> candidateChildTypes, JsonSerializer serializer, JObject jsonObject)
@@ -242,7 +250,9 @@ namespace Naos.Serialization.Json
                     string.Format(CultureInfo.InvariantCulture, "The json string can be deserialized into multiple types: {0}, value: {1}", matchingTypes, jsonObject));
             }
 
-            return strictCandidates.Single();
+            var result = strictCandidates.Single();
+
+            return result;
         }
     }
 }
