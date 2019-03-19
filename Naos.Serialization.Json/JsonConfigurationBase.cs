@@ -74,8 +74,9 @@ namespace Naos.Serialization.Json
         /// Gets the settings to use from the <see cref="SerializationKind" /> provided.
         /// </summary>
         /// <param name="serializationKind">Kind to determine the settings.</param>
+        /// <param name="readOrWrite">Read or write?</param>
         /// <returns><see cref="JsonSerializerSettings" /> to use with <see cref="Newtonsoft" /> when serializing.</returns>
-        public static JsonSerializerSettings GetSettingsBySerializationKind(SerializationKind serializationKind)
+        public static JsonSerializerSettings GetSettingsBySerializationKind(SerializationKind serializationKind, ReadOrWrite readOrWrite)
         {
             switch (serializationKind)
             {
@@ -90,7 +91,7 @@ namespace Naos.Serialization.Json
             }
         }
 
-        private static JsonSerializerSettings DefaultSerializerSettings =>
+        private static JsonSerializerSettings DefaultSerializerReaderSettings =>
             new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
@@ -102,11 +103,25 @@ namespace Naos.Serialization.Json
                     new SecureStringJsonConverter(),
                     new DictionaryJsonConverter(),
                     new InheritedTypeReaderJsonConverter(),
+                },
+            };
+
+        private static JsonSerializerSettings DefaultSerializerWriterSettings =>
+            new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Include,
+                ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                Converters = new List<JsonConverter>
+                {
+                    new StringEnumConverter { CamelCaseText = true },
+                    new SecureStringJsonConverter(),
+                    new DictionaryJsonConverter(),
                     new InheritedTypeWriterJsonConverter(),
                 },
             };
 
-        private static JsonSerializerSettings CompactSerializerSettings =>
+        private static JsonSerializerSettings CompactSerializerReaderSettings =>
             new JsonSerializerSettings
             {
                 Formatting = Formatting.None,
@@ -118,11 +133,25 @@ namespace Naos.Serialization.Json
                     new SecureStringJsonConverter(),
                     new DictionaryJsonConverter(),
                     new InheritedTypeReaderJsonConverter(),
+                },
+            };
+
+        private static JsonSerializerSettings CompactSerializerWriterSettings =>
+            new JsonSerializerSettings
+            {
+                Formatting = Formatting.None,
+                NullValueHandling = NullValueHandling.Include,
+                ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                Converters = new List<JsonConverter>
+                {
+                    new StringEnumConverter { CamelCaseText = true },
+                    new SecureStringJsonConverter(),
+                    new DictionaryJsonConverter(),
                     new InheritedTypeWriterJsonConverter(),
                 },
             };
 
-        private static JsonSerializerSettings MinimalSerializerSettings =>
+        private static JsonSerializerSettings MinimalSerializerReaderSettings =>
             new JsonSerializerSettings
             {
                 Formatting = Formatting.None,
@@ -134,9 +163,44 @@ namespace Naos.Serialization.Json
                     new SecureStringJsonConverter(),
                     new DictionaryJsonConverter(),
                     new InheritedTypeReaderJsonConverter(),
+                },
+            };
+
+        private static JsonSerializerSettings MinimalSerializerWriterSettings =>
+            new JsonSerializerSettings
+            {
+                Formatting = Formatting.None,
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                Converters = new List<JsonConverter>
+                {
+                    new StringEnumConverter { CamelCaseText = true },
+                    new SecureStringJsonConverter(),
+                    new DictionaryJsonConverter(),
                     new InheritedTypeWriterJsonConverter(),
                 },
             };
+    }
+
+    /// <summary>
+    /// Read or write.
+    /// </summary>
+    public enum ReadOrWrite
+    {
+        /// <summary>
+        /// Unknown (default).
+        /// </summary>
+        Unknown,
+
+        /// <summary>
+        /// Reading.
+        /// </summary>
+        Read,
+
+        /// <summary>
+        /// Writing
+        /// </summary>
+        Write,
     }
 
     /// <summary>
