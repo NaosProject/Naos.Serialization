@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="InheritedTypeJsonConverter.cs" company="Naos Project">
+// <copyright file="InheritedTypeReaderJsonConverter.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -7,122 +7,25 @@
 namespace Naos.Serialization.Json
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Globalization;
     using System.Linq;
-    using System.Reflection;
-    using System.Threading;
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    /// <summary>
-    /// Insprired by: http://StackOverflow.com/a/17247339/1442829
-    /// --- This requires the base type it's used on to declare all of the types it might use... ---
-    /// Use Bindable Attribute to match a derived class based on the class given to the serializer
-    /// Selected class will be the first class to match all properties in the json object.
-    /// </summary>
-    internal abstract partial class InheritedTypeJsonConverter : JsonConverter
-    {
-        /// <summary>
-        /// The type token name constant.
-        /// </summary>
-        protected const string TypeTokenName = "$concreteType";
-
-        private readonly ConcurrentDictionary<Type, IReadOnlyCollection<Type>> allChildTypes =
-            new ConcurrentDictionary<Type, IReadOnlyCollection<Type>>();
-
-        /// <summary>
-        /// Gets the child types of a specified type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>
-        /// The child types of the specified type.
-        /// </returns>
-        protected IEnumerable<Type> GetChildTypes(Type type)
-        {
-            if (!this.allChildTypes.ContainsKey(type))
-            {
-                var childTypes = AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(a => !a.FullName.Contains("Microsoft.GeneratedCode"))
-                    .SelectMany(
-                        a =>
-                        {
-                            try
-                            {
-                                return a.GetTypes();
-                            }
-                            catch (ReflectionTypeLoadException)
-                            {
-                                return new Type[] { };
-                            }
-                        })
-                    .Where(
-                        t =>
-                            t != null && t.IsClass && !t.IsAbstract && !t.IsGenericTypeDefinition && t != type && type.IsAssignableFrom(t))
-                    .ToList();
-
-                this.allChildTypes.AddOrUpdate(type, t => childTypes, (t, cts) => childTypes);
-            }
-
-            return this.allChildTypes[type];
-        }
-
-        /// <summary>
-        /// Gets the <see cref="BindableAttribute"/> on an object.
-        /// </summary>
-        /// <param name="objectType">The object type.</param>
-        /// <returns>
-        /// The <see cref="BindableAttribute"/> on an object.
-        /// </returns>
-        protected static BindableAttribute GetBindableAttribute(Type objectType)
-        {
-            // If multiple types in the hierarchy have a Bindable attribute, only one is returned.
-            // If the type is Bindable then that attribute is returned.  Otherwise, the attribute on
-            // the type that is closest to the current type, going up the hierarchy, is returned.
-            // A single type cannot specify Bindable multiple times, the compiler throws with CS0579.
-            var attribute = Attribute.GetCustomAttributes(objectType, typeof(BindableAttribute)).OfType<BindableAttribute>().SingleOrDefault();
-            return attribute;
-        }
-
-        /// <summary>
-        /// Determines if <see cref="BindingDirection.TwoWay"/> is set on a <see cref="BindableAttribute"/>.
-        /// </summary>
-        /// <param name="bindableAttribute">The attribute.</param>
-        /// <returns>
-        /// True if the <see cref="BindingDirection.TwoWay"/> is set on the specified <see cref="BindableAttribute"/>.
-        /// </returns>
-        protected static bool IsTwoWayBindable(BindableAttribute bindableAttribute)
-        {
-            var bindingDirectionIsTwoWay = bindableAttribute.Direction == BindingDirection.TwoWay;
-            return bindingDirectionIsTwoWay;
-        }
-    }
+    using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
-    /// An <see cref="InheritedTypeJsonConverter"/> that handles reads/deserialization.
+    /// An <see cref="InheritedTypeJsonConverterBase"/> that handles reads/deserialization.
     /// </summary>
-    internal partial class InheritedTypeReaderJsonConverter : InheritedTypeJsonConverter
+    internal class InheritedTypeReaderJsonConverter : InheritedTypeJsonConverterBase
     {
         /// <inheritdoc />
-        public override bool CanRead
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool CanRead => true;
 
         /// <inheritdoc />
-        public override bool CanWrite
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool CanWrite => false;
 
         /// <inheritdoc />
         public override bool CanConvert(Type objectType)
@@ -134,9 +37,9 @@ namespace Naos.Serialization.Json
             }
 
             // When de-serializing, objectType will be whatever type the caller wants to de-serialize into.
-            // If the type has children, then we want to use our implementation of ReadJson to pick the
-            // right child, otherwise there is no ambiguity about which type to create and json.net can just handle it.
-            var childTypes = this.GetChildTypes(objectType);
+            // If the type has other types that can be assigned into it, then we want to use our implementation of ReadJson to pick the
+            // right assignable type, otherwise there is no ambiguity about which type to create and json.net can just handle it.
+            var childTypes = this.GetAssignableTypes(objectType);
             return childTypes.Any();
         }
 
@@ -189,15 +92,8 @@ namespace Naos.Serialization.Json
         /// </remarks>
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            if (reader == null)
-            {
-                throw new ArgumentNullException("reader");
-            }
-
-            if (serializer == null)
-            {
-                throw new ArgumentNullException("serializer");
-            }
+            new { reader }.Must().NotBeNull();
+            new { serializer }.Must().NotBeNull();
 
             if (reader.TokenType == JsonToken.Null)
             {
@@ -215,7 +111,7 @@ namespace Naos.Serialization.Json
                 return ReadUsingTypeSpecifiedInJson(serializer, jsonObject);
             }
 
-            var childTypes = this.GetChildTypes(objectType);
+            var childTypes = this.GetAssignableTypes(objectType);
             var candidateChildTypes = GetCandidateChildTypes(childTypes, jsonProperties);
             var deserializedChildren = DeserializeCandidates(candidateChildTypes, serializer, jsonObject).ToList();
 
@@ -333,8 +229,8 @@ namespace Naos.Serialization.Json
         {
             candidateChildTypes = candidateChildTypes.ToList();
             var strictCandidates =
-                    candidateChildTypes.Where(cct => cct.PropertiesAndFields.All(pf => jsonProperties.Contains(pf)))
-                        .ToList();
+                candidateChildTypes.Where(cct => cct.PropertiesAndFields.All(pf => jsonProperties.Contains(pf)))
+                    .ToList();
 
             if (strictCandidates.Count != 1)
             {
@@ -347,85 +243,6 @@ namespace Naos.Serialization.Json
             }
 
             return strictCandidates.Single();
-        }
-    }
-
-    /// <summary>
-    /// An <see cref="InheritedTypeJsonConverter"/> that handles writes/serialization.
-    /// </summary>
-    internal partial class InheritedTypeWriterJsonConverter : InheritedTypeJsonConverter
-    {
-        private static readonly ThreadLocal<bool> WriteJsonCalled = new ThreadLocal<bool>(() => false);
-
-        /// <inheritdoc />
-        public override bool CanRead
-        {
-            get
-            {
-                return false;
-            }
-        }
-
-        /// <inheritdoc />
-        public override bool CanWrite
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        /// <inheritdoc />
-        public override bool CanConvert(Type objectType)
-        {
-            // WriteJson needs to use the JsonSerializer passed to the method so that
-            // the various settings in the serializer are utilized for writing.
-            // Using the serializer as-is, however, will cause infinite recursion because
-            // this Converter is utilized by the serializer.  If we modify the serializer
-            // to remove this converter, it will affect all other consumers of the serializer.
-            // Also, the object to serialize might contain types that require this converter.
-            // The only way to manage this to store some state when WriteJson is called,
-            // detect that state here, and tell json.net that we cannot convert the type.
-            if (WriteJsonCalled.Value)
-            {
-                WriteJsonCalled.Value = false;
-                return false;
-            }
-
-            var bindableAttribute = GetBindableAttribute(objectType);
-            if (bindableAttribute == null)
-            {
-                return false;
-            }
-
-            // Two-way instructs the converter to add the name of the type to the JSON payload
-            // when serializing.  This is sometimes required to disambiguate types when de-serializing.
-            // Sometimes, multiple types have the same named properties and share an abstract parent.  De-serializing
-            // the JSON into the abstract parent won't work without some extra information to determine which
-            // of those multiple types to create.  In this case, we want to call our implementation of WriteJson.
-            var isTwoWayBindable = IsTwoWayBindable(bindableAttribute);
-            return isTwoWayBindable;
-        }
-
-        /// <inheritdoc />
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            throw new NotSupportedException("This is a write-only converter");
-        }
-
-        /// <inheritdoc />
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            string typeName = value.GetType().FullName + ", " + value.GetType().Assembly.GetName().Name;
-            WriteJsonCalled.Value = true;
-            var jo = JObject.FromObject(value, serializer);
-            jo.Add(TypeTokenName, typeName);
-            jo.WriteTo(writer);
         }
     }
 }

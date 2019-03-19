@@ -55,13 +55,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include=".recipes\OBeautifulCode.Collection\EnumerableExtensions.cs" />
     <Compile Include=".recipes\OBeautifulCode.Enum\EnumExtensions.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\AssemblyHelper.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\AssemblyLoader.cs" />
+    <Compile Include=".recipes\OBeautifulCode.Reflection\CompressionMethod.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Attribute.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Enum.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Field.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\ReflectionHelper.Property.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\TypeHelper.cs" />
+    <Compile Include=".recipes\OBeautifulCode.String\StringExtensions.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ApplyBecause.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\DictionaryExtensions.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\Parameter.cs" />
@@ -75,7 +80,9 @@
     <Compile Include=".recipes\OBeautifulCode.Validation\Range.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ValidatedNotNullAttribute.cs" />
     <Compile Include="CamelStrictConstructorContractResolver.cs" />
-    <Compile Include="Converters\InheritedTypeJsonConverter.cs" />
+    <Compile Include="Converters\InheritedTypeJsonConverterBase.cs" />
+    <Compile Include="Converters\InheritedTypeReaderJsonConverter.cs" />
+    <Compile Include="Converters\InheritedTypeWriterJsonConverter.cs" />
     <Compile Include="Converters\SecureStringJsonConverter.cs" />
     <Compile Include="Converters\DictionaryJsonConverter.cs" />
     <Compile Include="JsonConfigurationException.cs" />
