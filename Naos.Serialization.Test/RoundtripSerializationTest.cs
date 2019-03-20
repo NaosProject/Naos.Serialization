@@ -8,6 +8,7 @@ namespace Naos.Serialization.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     using FakeItEasy;
@@ -627,6 +628,61 @@ namespace Naos.Serialization.Test
 
             // Act & Assert
             ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+        }
+
+        [Fact]
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "FieldWorks", Justification = "This is spelled correctly.")]
+        public static void RoundtripSerializeDeserialize___Using_Field_NumberField_YearField__Works()
+        {
+            // Arrange
+            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<Field>>();
+
+            var expectedId1 = "my-field-1";
+            var expectedId2 = "my-field-2";
+
+            var expectedTitle1 = "my-title-1";
+            var expectedTitle2 = "my-title-2";
+
+            var expectedNumberOfDecimalPlaces1 = 2;
+            var expectedNumberOfDecimalPlaces2 = 4;
+
+            var expected1 = new NumberField(expectedId1)
+            {
+                Title = expectedTitle1,
+                NumberOfDecimalPlaces = expectedNumberOfDecimalPlaces1,
+            };
+
+            var expected2 = new YearField(expectedId2)
+            {
+                Title = expectedTitle2,
+                NumberOfDecimalPlaces = expectedNumberOfDecimalPlaces2,
+            };
+
+            void ThrowIfObjectsDiffer1(object actualAsObject)
+            {
+                (actualAsObject is YearField).Should().BeFalse();
+
+                var actual = actualAsObject as NumberField;
+                actual.Should().NotBeNull();
+                actual.Id.Should().Be(expectedId1);
+                actual.FieldDataKind.Should().Be(FieldDataKind.NumberWithDecimals);
+                actual.NumberOfDecimalPlaces.Should().Be(expectedNumberOfDecimalPlaces1);
+                actual.Title.Should().Be(expectedTitle1);
+            }
+
+            void ThrowIfObjectsDiffer2(object actualAsObject)
+            {
+                var actual = actualAsObject as YearField;
+                actual.Should().NotBeNull();
+                actual.Id.Should().Be(expectedId2);
+                actual.FieldDataKind.Should().Be(FieldDataKind.Year);
+                actual.NumberOfDecimalPlaces.Should().Be(expectedNumberOfDecimalPlaces2);
+                actual.Title.Should().Be(expectedTitle2);
+            }
+
+            // Act & Assert
+            ActAndAssertForRoundtripSerialization(expected1, ThrowIfObjectsDiffer1, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected2, ThrowIfObjectsDiffer2, bsonSerializer);
         }
 
         private static void ActAndAssertForRoundtripSerialization(

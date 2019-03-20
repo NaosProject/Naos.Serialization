@@ -652,4 +652,99 @@ namespace Naos.Serialization.Test
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Spelling/name is correct.")]
         public FlagsEnumeration Flags { get; set; }
     }
+
+    [Bindable(true, BindingDirection.TwoWay)]
+    public abstract class Field
+    {
+        protected Field(
+            string id)
+        {
+            this.Id = id;
+        }
+
+        public string Id { get; private set; }
+
+        public abstract FieldDataKind FieldDataKind { get; }
+
+        public string Title { get; set; }
+    }
+
+    public abstract class DecimalField : Field
+    {
+        protected DecimalField(string id)
+            : base(id)
+        {
+        }
+
+        public int NumberOfDecimalPlaces { get; set; }
+    }
+
+    public class CurrencyField : DecimalField
+    {
+        public CurrencyField(string id)
+            : base(id)
+        {
+        }
+
+        public override FieldDataKind FieldDataKind
+        {
+            get
+            {
+                var result = this.NumberOfDecimalPlaces == 0
+                    ? FieldDataKind.CurrencyWithoutDecimals
+                    : FieldDataKind.CurrencyWithDecimals;
+
+                return result;
+            }
+        }
+    }
+
+    public class NumberField : DecimalField
+    {
+        public NumberField(string id)
+            : base(id)
+        {
+        }
+
+        public override FieldDataKind FieldDataKind
+        {
+            get
+            {
+                var result = this.NumberOfDecimalPlaces == 0
+                    ? FieldDataKind.NumberWithoutDecimals
+                    : FieldDataKind.NumberWithDecimals;
+
+                return result;
+            }
+        }
+    }
+
+    public class YearField : NumberField
+    {
+        public YearField(string id)
+            : base(id)
+        {
+        }
+
+        public override FieldDataKind FieldDataKind => FieldDataKind.Year;
+    }
+
+    public enum FieldDataKind
+    {
+#pragma warning disable SA1602 // Enumeration items should be documented
+        CurrencyWithDecimals,
+
+        CurrencyWithoutDecimals,
+
+        NumberWithDecimals,
+
+        NumberWithoutDecimals,
+
+        Text,
+
+        Date,
+
+        Year,
+#pragma warning restore SA1602 // Enumeration items should be documented
+    }
 }
