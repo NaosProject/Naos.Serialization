@@ -10,6 +10,7 @@ namespace Naos.Serialization.Json
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using System.Threading;
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -21,6 +22,8 @@ namespace Naos.Serialization.Json
     /// </summary>
     internal class InheritedTypeReaderJsonConverter : InheritedTypeJsonConverterBase
     {
+        private static readonly ThreadLocal<bool> ReadJsonCalled = new ThreadLocal<bool>(() => false);
+
         /// <inheritdoc />
         public override bool CanRead => true;
 
@@ -30,6 +33,29 @@ namespace Naos.Serialization.Json
         /// <inheritdoc />
         public override bool CanConvert(Type objectType)
         {
+            // ReadJson determines which type (if two-way bindable) or type(s) (if not two-way bindable)
+            // to deserialize into and then attempts to deserialize into those type(s) and pick a deserialized
+            // object to return.  In that process Newtonsoft will ask this JSON converter if it can perform
+            // the deserialization, since we are using the same serializer.  At that point, we want to
+            // explicitly say "no" (versus relying on the code below this if statement to return false).
+            // ReadJson is expecting the deserialization to skip over this Converter and go down the "normal"
+            // path, but there's no way to tell it that since we need to use the same serializer which
+            // has other important settings like using camel case property names.  In most cases CanConvert
+            // would have returned false anyways, but consider deserializing into Type that has derivative
+            // types (this type would have to be marked two-way bindable or else the json string would
+            // deserialize into multiple candidate types and the code would throw)
+            // ReadJson determines that the base type is the type we want to deserialize into, but
+            // without the following check (that ReadJson was called), CanConvert would return true because
+            // the type does have child types.  What's worse is that the second call to ReadJson would then
+            // only consider the child types because the TypeTokenName will be stripped out of the
+            // payload by ReadUsingTypeSpecifiedInJson and the code will go down the "candidate" types path.
+            if (ReadJsonCalled.Value)
+            {
+                ReadJsonCalled.Value = false;
+
+                return false;
+            }
+
             var bindableAttribute = GetBindableAttribute(objectType);
             if (bindableAttribute == null)
             {
@@ -105,7 +131,7 @@ namespace Naos.Serialization.Json
             var jsonObject = JObject.Load(reader);
             var jsonProperties = new HashSet<string>(GetProperties(jsonObject), StringComparer.OrdinalIgnoreCase);
 
-            // if two-way bindable then then type should be written into the json
+            // if two-way bindable then type should be written into the json
             // if it's not then fallback on the typical strategy
             var bindableAttribute = GetBindableAttribute(objectType);
             if (IsTwoWayBindable(bindableAttribute) && jsonProperties.Contains(TypeTokenName))
@@ -145,6 +171,8 @@ namespace Naos.Serialization.Json
 
             var objectType = Type.GetType(concreteType);
             var reader = jsonObject.CreateReader();
+
+            ReadJsonCalled.Value = true;
 
             var result = serializer.Deserialize(reader, objectType);
 
@@ -203,14 +231,18 @@ namespace Naos.Serialization.Json
             return result;
         }
 
-        private static IEnumerable<CandidateChildType> DeserializeCandidates(IEnumerable<CandidateChildType> candidateChildTypes, JsonSerializer serializer, JObject jsonObject)
+        private static IReadOnlyCollection<CandidateChildType> DeserializeCandidates(IEnumerable<CandidateChildType> candidateChildTypes, JsonSerializer serializer, JObject jsonObject)
         {
+            var result = new List<CandidateChildType>();
+
             foreach (var candidateChildType in candidateChildTypes)
             {
                 object deserializedObject = null;
 
                 try
                 {
+                    ReadJsonCalled.Value = true;
+
                     deserializedObject = serializer.Deserialize(jsonObject.CreateReader(), candidateChildType.Type);
                 }
                 catch (JsonException)
@@ -222,15 +254,18 @@ namespace Naos.Serialization.Json
 
                 if (deserializedObject != null)
                 {
-                    yield return
-                        new CandidateChildType
-                        {
-                            Type = candidateChildType.Type,
-                            PropertiesAndFields = candidateChildType.PropertiesAndFields,
-                            DeserializedObject = deserializedObject,
-                        };
+                    var deserializedCandidate = new CandidateChildType
+                    {
+                        Type = candidateChildType.Type,
+                        PropertiesAndFields = candidateChildType.PropertiesAndFields,
+                        DeserializedObject = deserializedObject,
+                    };
+
+                    result.Add(deserializedCandidate);
                 }
             }
+
+            return result;
         }
 
         private static CandidateChildType SelectBestChildUsingStrictPropertyMatching(IEnumerable<CandidateChildType> candidateChildTypes, JObject jsonObject, HashSet<string> jsonProperties)
