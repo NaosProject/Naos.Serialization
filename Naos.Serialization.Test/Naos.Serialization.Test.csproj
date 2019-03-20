@@ -113,6 +113,12 @@
     <Compile Include=".recipes\OBeautifulCode.Validation\ValidatedNotNullAttribute.cs" />
     <Compile Include="BsonConfigurationAutoRegisterType.cs" />
     <Compile Include="LambdaSerializerTest.cs" />
+    <Compile Include="Legacy Tests\Animal.cs" />
+    <Compile Include="Legacy Tests\CompactJsonSerializerTest.cs" />
+    <Compile Include="Legacy Tests\DefaultJsonSerializerTest.cs" />
+    <Compile Include="Legacy Tests\JsonConfigurationTest.cs" />
+    <Compile Include="Legacy Tests\Lighting.cs" />
+    <Compile Include="Legacy Tests\MinimalJsonSerializerTest.cs" />
     <Compile Include="PropertyBagSerializerTest.cs" />
     <Compile Include="DoubleInterfaceTest.cs" />
     <Compile Include="JsonConfigurationBaseTest.cs" />
