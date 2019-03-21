@@ -636,6 +636,37 @@ namespace Naos.Serialization.Test
             expected.NamesByColor.Should().BeEquivalentTo(actual.NamesByColor);
         }
 
+        [Fact]
+        public static void Presence_of_concreteType_token_does_not_interfere_with_normal_deserialization()
+        {
+            // Arrange
+            var expectedId = "year-field";
+            var expectedDecimalPlaces = 5;
+            var expectedTitle = "my-title";
+
+            var year = new YearField(expectedId)
+            {
+                NumberOfDecimalPlaces = expectedDecimalPlaces,
+                Title = expectedTitle,
+            };
+
+            var serializer = new NaosJsonSerializer();
+
+            var jsonWithConcreteType = serializer.SerializeToString(year);
+
+            var settings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(SerializationKind.Default, SerializationDirection.Deserialize);
+            settings.Converters = new JsonConverter[0];
+
+            // Act
+            var actual = JsonConvert.DeserializeObject<YearField>(jsonWithConcreteType, settings);
+
+            // Assert
+            jsonWithConcreteType.Should().Contain("$concreteType");
+            actual.Id.Should().Be(expectedId);
+            actual.NumberOfDecimalPlaces.Should().Be(expectedDecimalPlaces);
+            actual.Title.Should().Be(expectedTitle);
+        }
+
         private class CamelCasedPropertyTest
         {
             public string TestName;
@@ -663,7 +694,6 @@ namespace Naos.Serialization.Test
             SecondOption,
         }
 
-        [Bindable(false)]
         private class InheritedTypeBase
         {
             public string Base;
@@ -679,7 +709,6 @@ namespace Naos.Serialization.Test
             public string Child2;
         }
 
-        [Bindable(true)]
         private interface IBaseInterface
         {
             string String { get; set; }
@@ -695,7 +724,6 @@ namespace Naos.Serialization.Test
             public string String { get; set; }
         }
 
-        [Bindable(true)]
         private class Diet
         {
         }
@@ -791,7 +819,6 @@ namespace Naos.Serialization.Test
             public IEnumerable<string> FirstNames { get; }
         }
 
-        [Bindable(true)]
         private abstract class SometimesThrows
         {
         }
@@ -823,7 +850,6 @@ namespace Naos.Serialization.Test
             public int TriggerNumber { get; set; }
         }
         
-        [Bindable(true, BindingDirection.TwoWay)]
         private class SeaCreature
         {
         }

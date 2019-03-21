@@ -7,22 +7,26 @@
 namespace Naos.Serialization.Json
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
-    using System.Threading;
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-
+    using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.Validation.Recipes;
+
+    using static System.FormattableString;
 
     /// <summary>
     /// An <see cref="InheritedTypeJsonConverterBase"/> that handles reads/deserialization.
     /// </summary>
     internal class InheritedTypeReaderJsonConverter : InheritedTypeJsonConverterBase
     {
-        private static readonly ThreadLocal<bool> ReadJsonCalled = new ThreadLocal<bool>(() => false);
+        private readonly ConcurrentDictionary<Type, IReadOnlyCollection<Type>> assignableTypesCache =
+            new ConcurrentDictionary<Type, IReadOnlyCollection<Type>>();
+
+        private bool readJsonCalled = false;
 
         /// <inheritdoc />
         public override bool CanRead => true;
@@ -33,63 +37,31 @@ namespace Naos.Serialization.Json
         /// <inheritdoc />
         public override bool CanConvert(Type objectType)
         {
-            // ReadJson determines which type (if two-way bindable) or type(s) (if not two-way bindable)
-            // to deserialize into and then attempts to deserialize into those type(s) and pick a deserialized
-            // object to return.  In that process Newtonsoft will ask this JSON converter if it can perform
-            // the deserialization, since we are using the same serializer.  At that point, we want to
-            // explicitly say "no" (versus relying on the code below this if statement to return false).
-            // ReadJson is expecting the deserialization to skip over this Converter and go down the "normal"
-            // path, but there's no way to tell it that since we need to use the same serializer which
-            // has other important settings like using camel case property names.  In most cases CanConvert
-            // would have returned false anyways, but consider deserializing into Type that has derivative
-            // types (this type would have to be marked two-way bindable or else the json string would
-            // deserialize into multiple candidate types and the code would throw)
-            // ReadJson determines that the base type is the type we want to deserialize into, but
-            // without the following check (that ReadJson was called), CanConvert would return true because
-            // the type does have child types.  What's worse is that the second call to ReadJson would then
-            // only consider the child types because the TypeTokenName will be stripped out of the
-            // payload by ReadUsingTypeSpecifiedInJson and the code will go down the "candidate" types path.
-            if (ReadJsonCalled.Value)
+            // ReadJson determines which type (if payload is annotated with a concrete type token) or type(s)
+            // (if evaluating candidates) to deserialize into and then attempts to deserialize into those type(s)
+            // and pick a deserialized object to return.  In that process Newtonsoft will ask this JSON converter
+            // if it can perform the deserialization, since we are using the same serializer.
+            // At that point, we want to explicitly say "no".  ReadJson is expecting the deserialization
+            // to skip over this Converter and go down the "normal" path, but there's no way to tell it to do that.
+            // Since we control the "front door" (i.e. NaosJsonSerializer), we can new-up this converter on each
+            // call to Deserialize.   This guarantees that an instance is dedicated to a single Deserialize operation
+            // (which may trigger multiple successive calls to the instance depending on how deep the object graph is).
+            // As such, when this flag is raised, it is guaranteed to have been raised by a prior call to ReadJson for
+            // the same overall (thru the front-door) deserialization operation.
+            if (this.readJsonCalled)
             {
-                ReadJsonCalled.Value = false;
+                this.readJsonCalled = false;
 
                 return false;
             }
 
-            var bindableAttribute = GetBindableAttribute(objectType);
-            if (bindableAttribute == null)
-            {
-                return false;
-            }
-
-            // When de-serializing, objectType will be whatever type the caller wants to de-serialize into.
-            // If the type has other types that can be assigned into it, then we want to use our implementation of ReadJson to pick the
-            // right assignable type, otherwise there is no ambiguity about which type to create and json.net can just handle it.
-            var childTypes = this.GetAssignableTypes(objectType);
-            var result = childTypes.Any();
+            var result = this.ShouldBeHandledByThisConverter(objectType);
 
             return result;
         }
 
         /// <inheritdoc />
         /// <remarks>
-        /// - Methodology
-        ///   - Is the type Two-Way bindable and has the type of the object written into the json?  If yes then strip
-        ///     out the type information and ask Json.net to deserialize into that type.  If not then...
-        ///   - Get all child types of the specified type.
-        ///   - Filter to child types where every 1st level JSON property is either a public (accessor is public)
-        ///     property or a public field of the child type, using case-insensitive matching.  Child types passing
-        ///     this filter are called 'candidates'.
-        ///   - If there are no candidates, then throw.
-        ///   - For all candidates, ask the serializer to deserialize the JSON as the candidate type.  Catch and
-        ///     ignore exceptions when attempting to deserialize.  If only one candidate successfully deserializes
-        ///     then return the deserialized object.
-        ///   - If more than one candidate successfully deserializes, then filter to candidates whose public
-        ///     properties and fields are all 1st level JSON properties, using case-insensitive matching. We call
-        ///     this "strict matching."  If only one candidate has a strict match, return the corresponding
-        ///     deserialized object.  Otherwise, throw.
-        /// - Using the serializer to deserialize enables the method to support types with constructors,
-        ///   which JSON.net does well out-of-the-box and which would be cumbersome to emulate.
         /// - This method does not consider > 1st level JSON properties to determine candidates.  In other words,
         ///   it is not matching on the fields/properties of the child's fields/properties (e.g. the match is done
         ///   on Dog.Owner, not Dog.Owner.OwnersAddress).  The issue is that that kind of matching would require
@@ -118,7 +90,11 @@ namespace Naos.Serialization.Json
         ///   be deserialized.  For example, if constructor parameters are required and a particular parameter is
         ///   excluded from the JSON, then that type cannot be deserialized.
         /// </remarks>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(
+            JsonReader reader,
+            Type objectType,
+            object existingValue,
+            JsonSerializer serializer)
         {
             new { reader }.Must().NotBeNull();
             new { serializer }.Must().NotBeNull();
@@ -129,54 +105,70 @@ namespace Naos.Serialization.Json
             }
 
             var jsonObject = JObject.Load(reader);
-            var jsonProperties = new HashSet<string>(GetProperties(jsonObject), StringComparer.OrdinalIgnoreCase);
+            var jsonProperties = GetProperties(jsonObject);
 
-            // if two-way bindable then type should be written into the json
-            // if it's not then fallback on the typical strategy
-            var bindableAttribute = GetBindableAttribute(objectType);
-            if (IsTwoWayBindable(bindableAttribute) && jsonProperties.Contains(TypeTokenName))
+            var annotatedConcreteType = TryRemoveAnnotatedConcreteType(jsonObject, jsonProperties);
+
+            if (annotatedConcreteType != null)
             {
-                return ReadUsingTypeSpecifiedInJson(serializer, jsonObject);
+                var annotatedConcreteTypeResult = this.Deserialize(jsonObject, annotatedConcreteType, serializer);
+
+                return annotatedConcreteTypeResult;
             }
 
-            var childTypes = this.GetAssignableTypes(objectType);
-            var candidateChildTypes = GetCandidateChildTypes(childTypes, jsonProperties);
-            var deserializedChildren = DeserializeCandidates(candidateChildTypes, serializer, jsonObject).ToList();
-
-            if (deserializedChildren.Count == 0)
+            if (objectType == typeof(object))
             {
-                throw new JsonSerializationException(
-                    string.Format(CultureInfo.InvariantCulture, "Unable to deserialize to type {0}, value: {1}", objectType, jsonObject));
+                throw new JsonSerializationException(Invariant($"Type has too many assignable types (requires annotated concrete type).  target type: {objectType}, json payload {jsonObject}."));
             }
 
-            CandidateChildType matchedChild = null;
-            if (deserializedChildren.Count == 1)
+            var assignableTypes = this.GetAssignableTypes(objectType);
+
+            if (!assignableTypes.Any())
             {
-                matchedChild = deserializedChildren.Single();
+                object assignableTypeAbsentResult;
+                if (objectType.IsClass)
+                {
+                    assignableTypeAbsentResult = this.Deserialize(jsonObject, objectType, serializer);
+                }
+                else
+                {
+                    throw new JsonSerializationException(Invariant($"Could not find a class that's assignable to target type.  target type: {objectType}, json payload {jsonObject}."));
+                }
+
+                return assignableTypeAbsentResult;
             }
-            else if (deserializedChildren.Count > 1)
+
+            var candidates = GetCandidatesUsingMemberMatching(jsonProperties, assignableTypes);
+
+            var deserializedCandidates = this.TryDeserializeCandidates(jsonObject, candidates, serializer);
+
+            if (!deserializedCandidates.Any())
             {
-                matchedChild = SelectBestChildUsingStrictPropertyMatching(deserializedChildren, jsonObject, jsonProperties);
+                throw new JsonSerializationException(Invariant($"The json payload could not be deserialized into any of the candidate types.  target type: {objectType}, json payload: {jsonObject}, deserialized candidate types: {string.Join(",", deserializedCandidates.Select(_ => _.Type.ToString()))}."));
             }
 
-            var result = matchedChild.DeserializedObject;
+            if (deserializedCandidates.Count == 1)
+            {
+                var singleCandidateResult = deserializedCandidates.Single().DeserializedObject;
 
-            return result;
-        }
+                return singleCandidateResult;
+            }
 
-        private static object ReadUsingTypeSpecifiedInJson(JsonSerializer serializer, JObject jsonObject)
-        {
-            var concreteType = jsonObject[TypeTokenName].ToString();
-            jsonObject.Remove(TypeTokenName);
+            var strictCandidates = FilterCandidateUsingStrictMemberMatching(jsonProperties, deserializedCandidates);
 
-            var objectType = Type.GetType(concreteType);
-            var reader = jsonObject.CreateReader();
+            if (!strictCandidates.Any())
+            {
+                throw new JsonSerializationException(Invariant($"None of the deserialized candidates survived strict member matching.  target type: {objectType}, json payload: {jsonObject}, deserialized candidate types: {string.Join(",", deserializedCandidates.Select(_ => _.Type.ToString()))}."));
+            }
 
-            ReadJsonCalled.Value = true;
+            if (strictCandidates.Count == 1)
+            {
+                var strictCandidateResult = strictCandidates.Single().DeserializedObject;
 
-            var result = serializer.Deserialize(reader, objectType);
+                return strictCandidateResult;
+            }
 
-            return result;
+            throw new JsonSerializationException(Invariant($"Multiple deserialized candidates survived strict member matching.  target type: {objectType}, json payload: {jsonObject}, strict deserialized candidate types: {string.Join(",", strictCandidates.Select(_ => _.Type.ToString()))}."));
         }
 
         /// <inheritdoc />
@@ -185,79 +177,147 @@ namespace Naos.Serialization.Json
             throw new NotSupportedException("This is a read-only converter.");
         }
 
-        private class CandidateChildType
+        private static Type TryRemoveAnnotatedConcreteType(
+            JObject jsonObject,
+            HashSet<string> jsonProperties)
         {
-            public Type Type { get; set; }
-
-            public HashSet<string> PropertiesAndFields { get; set; }
-
-            public object DeserializedObject { get; set; }
-        }
-
-        private static IReadOnlyCollection<string> GetProperties(JToken node)
-        {
-            var result = new List<string>();
-
-            if (node.Type == JTokenType.Object)
+            Type result;
+            if (jsonProperties.Contains(ConcreteTypeTokenName))
             {
-                result.AddRange(node.Children<JProperty>().Select(child => child.Name));
+                var concreteType = jsonObject[ConcreteTypeTokenName].ToString();
+
+                jsonObject.Remove(ConcreteTypeTokenName);
+
+                result = Type.GetType(concreteType);
+            }
+            else
+            {
+                result = null;
             }
 
             return result;
         }
 
-        private static IEnumerable<CandidateChildType> GetCandidateChildTypes(IEnumerable<Type> childTypes, HashSet<string> jsonProperties)
+        private IReadOnlyCollection<Type> GetAssignableTypes(
+            Type type)
         {
-            var result = new List<CandidateChildType>();
+            var allTypes = AssemblyLoader.GetLoadedAssemblies().GetTypesFromAssemblies();
 
-            foreach (var childType in childTypes)
+            if (!this.assignableTypesCache.ContainsKey(type))
             {
-                var childTypeProperties = childType.GetProperties().Select(t => t.Name).ToList();
-                var childTypeFields = childType.GetFields().Select(t => t.Name).ToList();
-                var childTypePropertiesAndFields = new HashSet<string>(
-                    childTypeProperties.Concat(childTypeFields),
-                    StringComparer.OrdinalIgnoreCase);
-                if (jsonProperties.All(p => childTypePropertiesAndFields.Contains(p)))
+                var assignableTypes = allTypes
+                    .Where(
+                        typeToConsider =>
+                            typeToConsider != type &&
+                            typeToConsider.IsClass &&
+                            (!typeToConsider.IsAnonymous()) &&
+                            (!typeToConsider.IsGenericTypeDefinition) && // can't do an IsAssignableTo check on generic type definitions
+                            typeToConsider.IsAssignableTo(type))
+                    .ToList();
+
+                this.assignableTypesCache.AddOrUpdate(type, assignableTypes, (t, cts) => assignableTypes);
+            }
+
+            var result = this.assignableTypesCache[type];
+
+            return result;
+        }
+
+        private object Deserialize(
+            JObject jsonObject,
+            Type type,
+            JsonSerializer serializer)
+        {
+            var reader = jsonObject.CreateReader();
+
+            this.readJsonCalled = true;
+
+            var result = serializer.Deserialize(reader, type);
+
+            return result;
+        }
+
+        private class Candidate
+        {
+            public Type Type { get; set; }
+
+            public HashSet<string> Members { get; set; }
+
+            public object DeserializedObject { get; set; }
+        }
+
+        private static HashSet<string> GetProperties(
+            JToken node)
+        {
+            var result = new HashSet<string>();
+
+            if (node.Type == JTokenType.Object)
+            {
+                node.Children<JProperty>().Select(child => child.Name).ToList().ForEach(_ => result.Add(_));
+            }
+
+            return result;
+        }
+
+        private static IReadOnlyCollection<Candidate> GetCandidatesUsingMemberMatching(
+            HashSet<string> jsonProperties,
+            IReadOnlyCollection<Type> assignableTypes)
+        {
+            // Filter to assignable types where every 1st level JSON property is either a public (accessor is public)
+            // property or a public field of the assignable type, using case-insensitive matching.  Child types passing
+            // this filter are called 'candidates'.
+            var result = new List<Candidate>();
+
+            foreach (var assignableType in assignableTypes)
+            {
+                var typeProperties = assignableType.GetProperties().Select(t => t.Name).ToList();
+                var typeFields = assignableType.GetFields().Select(t => t.Name).ToList();
+
+                var typeMembers = new HashSet<string>(new string[0].Concat(typeProperties).Concat(typeFields), StringComparer.CurrentCultureIgnoreCase);
+
+                if (jsonProperties.All(_ => typeMembers.Contains(_)))
                 {
-                    var candidateChildType = new CandidateChildType
+                    var candidateTargetType = new Candidate
                     {
-                        Type = childType,
-                        PropertiesAndFields = childTypePropertiesAndFields,
+                        Type = assignableType,
+                        Members = typeMembers,
                     };
-                    result.Add(candidateChildType);
+
+                    result.Add(candidateTargetType);
                 }
             }
 
             return result;
         }
 
-        private static IReadOnlyCollection<CandidateChildType> DeserializeCandidates(IEnumerable<CandidateChildType> candidateChildTypes, JsonSerializer serializer, JObject jsonObject)
+        private IReadOnlyCollection<Candidate> TryDeserializeCandidates(
+            JObject jsonObject,
+            IReadOnlyCollection<Candidate> candidates,
+            JsonSerializer serializer)
         {
-            var result = new List<CandidateChildType>();
+            var result = new List<Candidate>();
 
-            foreach (var candidateChildType in candidateChildTypes)
+            foreach (var candidate in candidates)
             {
                 object deserializedObject = null;
 
                 try
                 {
-                    ReadJsonCalled.Value = true;
-
-                    deserializedObject = serializer.Deserialize(jsonObject.CreateReader(), candidateChildType.Type);
+                    deserializedObject = this.Deserialize(jsonObject, candidate.Type, serializer);
                 }
-                catch (JsonException)
-                {
-                }
-                catch (ArgumentException)
+#pragma warning disable 168 // Want to keep variable here for use in debugger.
+                catch (Exception ex)
+#pragma warning restore 168
                 {
                 }
 
                 if (deserializedObject != null)
                 {
-                    var deserializedCandidate = new CandidateChildType
+                    // This is just a clone of the candidate with the deserialized object added.
+                    var deserializedCandidate = new Candidate
                     {
-                        Type = candidateChildType.Type,
-                        PropertiesAndFields = candidateChildType.PropertiesAndFields,
+                        Type = candidate.Type,
+                        Members = candidate.Members,
                         DeserializedObject = deserializedObject,
                     };
 
@@ -268,24 +328,13 @@ namespace Naos.Serialization.Json
             return result;
         }
 
-        private static CandidateChildType SelectBestChildUsingStrictPropertyMatching(IEnumerable<CandidateChildType> candidateChildTypes, JObject jsonObject, HashSet<string> jsonProperties)
+        private static IReadOnlyCollection<Candidate> FilterCandidateUsingStrictMemberMatching(
+            HashSet<string> jsonProperties,
+            IReadOnlyCollection<Candidate> deserializedCandidates)
         {
-            candidateChildTypes = candidateChildTypes.ToList();
-            var strictCandidates =
-                candidateChildTypes.Where(cct => cct.PropertiesAndFields.All(pf => jsonProperties.Contains(pf)))
-                    .ToList();
-
-            if (strictCandidates.Count != 1)
-            {
-                var typesToReportInException = strictCandidates.Count == 0 ? candidateChildTypes : strictCandidates;
-                var matchingTypes =
-                    typesToReportInException.Select(_ => _.Type.FullName)
-                        .Aggregate((running, current) => running + " | " + current);
-                throw new JsonSerializationException(
-                    string.Format(CultureInfo.InvariantCulture, "The json string can be deserialized into multiple types: {0}, value: {1}", matchingTypes, jsonObject));
-            }
-
-            var result = strictCandidates.Single();
+            // Filter to candidates whose public properties and fields are all 1st level JSON properties,
+            // using case-insensitive matching. We call this "strict matching."
+            var result = deserializedCandidates.Where(_ => _.Members.All(jsonProperties.Contains)).ToList();
 
             return result;
         }

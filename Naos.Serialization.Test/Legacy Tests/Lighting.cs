@@ -9,7 +9,6 @@ namespace Naos.Serialization.Test
     using System.ComponentModel;
     using System.Diagnostics.CodeAnalysis;
 
-    [Bindable(true)]
     internal class Lighting
     {
     }

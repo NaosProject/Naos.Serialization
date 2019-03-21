@@ -9,7 +9,6 @@ namespace Naos.Serialization.Test
     using System.ComponentModel;
     using System.Diagnostics.CodeAnalysis;
 
-    [Bindable(true)]
     internal class Animal
     {
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Called during JSON deserialization but code analysis cannot detect that.")]

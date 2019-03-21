@@ -304,7 +304,6 @@ namespace Naos.Serialization.Test
         protected override IReadOnlyCollection<Type> ClassTypesToRegisterAlongWithInheritors => new[] { typeof(TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums) };
     }
 
-    [Bindable(BindableSupport.Default)]
     public abstract class TestBase
     {
         public string Message { get; set; }
@@ -477,7 +476,6 @@ namespace Naos.Serialization.Test
         public IReadOnlyCollection<IDeduceWhoLetTheDogsOut> Investigators { get; set; }
     }
 
-    [Bindable(BindableSupport.Default)]
     public interface IDeduceWhoLetTheDogsOut
     {
         string WhoLetTheDogsOut();
@@ -653,7 +651,6 @@ namespace Naos.Serialization.Test
         public FlagsEnumeration Flags { get; set; }
     }
 
-    [Bindable(true, BindingDirection.TwoWay)]
     public abstract class Field
     {
         protected Field(
