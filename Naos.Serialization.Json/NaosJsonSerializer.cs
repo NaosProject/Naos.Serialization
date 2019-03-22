@@ -120,7 +120,7 @@ namespace Naos.Serialization.Json
         {
             var jsonSerializerSettings = objectToSerialize != null && objectToSerialize.GetType().IsAnonymous()
                 ? this.anonymousWriteSerializationSettings
-                : this.configuration.BuildJsonSerializerSettings(this.SerializationKind, SerializationDirection.Serialize);
+                : this.configuration.BuildJsonSerializerSettings(SerializationDirection.Serialize);
 
             var ret = JsonConvert.SerializeObject(objectToSerialize, jsonSerializerSettings);
 
@@ -130,7 +130,7 @@ namespace Naos.Serialization.Json
         /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
-            var jsonSerializerSettings = this.configuration.BuildJsonSerializerSettings(this.SerializationKind, SerializationDirection.Deserialize);
+            var jsonSerializerSettings = this.configuration.BuildJsonSerializerSettings(SerializationDirection.Deserialize);
             var ret = JsonConvert.DeserializeObject<T>(serializedString, jsonSerializerSettings);
 
             return ret;
@@ -149,7 +149,7 @@ namespace Naos.Serialization.Json
             }
             else
             {
-                var jsonSerializerSettings = this.configuration.BuildJsonSerializerSettings(this.SerializationKind, SerializationDirection.Deserialize);
+                var jsonSerializerSettings = this.configuration.BuildJsonSerializerSettings(SerializationDirection.Deserialize);
                 ret = JsonConvert.DeserializeObject(serializedString, type, jsonSerializerSettings);
             }
 

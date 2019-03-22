@@ -654,7 +654,7 @@ namespace Naos.Serialization.Test
 
             var jsonWithConcreteType = serializer.SerializeToString(year);
 
-            var settings = new NullJsonConfiguration().BuildJsonSerializerSettings(SerializationKind.Default, SerializationDirection.Deserialize);
+            var settings = new NullJsonConfiguration().BuildJsonSerializerSettings(SerializationDirection.Deserialize);
             settings.Converters = new JsonConverter[0];
 
             // Act

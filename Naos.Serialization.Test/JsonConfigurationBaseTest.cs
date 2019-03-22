@@ -51,8 +51,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             actual.Should().NotBeNull();
-            actual.BuildJsonSerializerSettings(SerializationKind.Default, SerializationDirection.Serialize).ContractResolver.Should().BeOfType<DefaultContractResolver>();
-            actual.BuildJsonSerializerSettings(SerializationKind.Default, SerializationDirection.Deserialize).ContractResolver.Should().BeOfType<DefaultContractResolver>();
+            actual.BuildJsonSerializerSettings(SerializationDirection.Serialize).ContractResolver.Should().BeOfType<DefaultContractResolver>();
+            actual.BuildJsonSerializerSettings(SerializationDirection.Deserialize).ContractResolver.Should().BeOfType<DefaultContractResolver>();
         }
 
         [Fact]
@@ -66,8 +66,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             actual.Should().NotBeNull();
-            actual.BuildJsonSerializerSettings(SerializationKind.Default, SerializationDirection.Serialize).ContractResolver.GetType().FullName.Should().Be("Naos.Serialization.Json.CamelStrictConstructorContractResolver"); // this type is not public so we can't use nameof()
-            actual.BuildJsonSerializerSettings(SerializationKind.Default, SerializationDirection.Deserialize).ContractResolver.GetType().FullName.Should().Be("Naos.Serialization.Json.CamelStrictConstructorContractResolver"); // this type is not public so we can't use nameof()
+            actual.BuildJsonSerializerSettings(SerializationDirection.Serialize).ContractResolver.GetType().FullName.Should().Be("Naos.Serialization.Json.CamelStrictConstructorContractResolver"); // this type is not public so we can't use nameof()
+            actual.BuildJsonSerializerSettings(SerializationDirection.Deserialize).ContractResolver.GetType().FullName.Should().Be("Naos.Serialization.Json.CamelStrictConstructorContractResolver"); // this type is not public so we can't use nameof()
         }
     }
 

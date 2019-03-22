@@ -50,7 +50,7 @@ namespace Naos.Serialization.Json
                             new StringEnumConverter { CamelCaseText = true },
                             new SecureStringJsonConverter(),
                             new DictionaryJsonConverter(),
-  //                          new DateTimeJsonConverter(),
+                            new DateTimeJsonConverter(),
                         }
                     },
                     {
@@ -61,7 +61,7 @@ namespace Naos.Serialization.Json
                             new StringEnumConverter { CamelCaseText = true },
                             new SecureStringJsonConverter(),
                             new DictionaryJsonConverter(),
-//                            new DateTimeJsonConverter(),
+                            new DateTimeJsonConverter(),
                         }
                     },
                 };
@@ -184,10 +184,9 @@ namespace Naos.Serialization.Json
         /// <summary>
         /// Build <see cref="JsonSerializerSettings" /> to use for serialization using Newtonsoft.
         /// </summary>
-        /// <param name="serializationKind">Kind of serialization.</param>
         /// <param name="serializationDirection">Direction of serialization.</param>
         /// <returns>Prepared settings to use with Newtonsoft.</returns>
-        public JsonSerializerSettings BuildJsonSerializerSettings(SerializationKind serializationKind, SerializationDirection serializationDirection)
+        public JsonSerializerSettings BuildJsonSerializerSettings(SerializationDirection serializationDirection)
         {
             var result = SerializationKindToSettingsSelectorByDirection[this.InheritSettingsFromKind](SerializationDirection.Serialize);
 

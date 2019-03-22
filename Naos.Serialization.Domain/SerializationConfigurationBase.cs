@@ -136,6 +136,7 @@ namespace Naos.Serialization.Domain
         /// Discover all types that should considered for registration when looking for derivative types.
         /// </summary>
         /// <returns>All types that should be considered for registration.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Want this to be a method since it's running logic.")]
         protected static IReadOnlyCollection<Type> GetAllTypesToConsiderForRegistration()
         {
             return AssemblyLoader.GetLoadedAssemblies().GetTypesFromAssemblies();

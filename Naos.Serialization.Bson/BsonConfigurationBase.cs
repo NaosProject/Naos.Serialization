@@ -48,6 +48,7 @@ namespace Naos.Serialization.Bson
         /// <summary>
         /// Track types statically because <see cref="BsonClassMap" /> will handle statically.
         /// </summary>
+        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is immutable.")]
         protected static readonly Tracker<Type> TypeTracker = new Tracker<Type>((first, second) =>
         {
             if (ReferenceEquals(first, second))
