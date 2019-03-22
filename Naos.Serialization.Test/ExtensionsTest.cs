@@ -14,10 +14,9 @@ namespace Naos.Serialization.Test
 
     using Naos.Compression.Domain;
     using Naos.Serialization.Domain;
-    using Naos.Serialization.Domain.Extensions;
     using Naos.Serialization.Factory;
     using Naos.Serialization.Factory.Extensions;
-
+    using Naos.Serialization.Json;
     using OBeautifulCode.TypeRepresentation;
 
     using Xunit;
@@ -229,7 +228,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var expected = A.Dummy<string>();
-            var serializerDescription = new SerializationDescription(SerializationFormat.Json, SerializationRepresentation.String, SerializationKind.Minimal, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+            var serializerDescription = new SerializationDescription(SerializationFormat.Json, SerializationRepresentation.String, SerializationKind.Minimal, typeof(NullJsonConfiguration).ToTypeDescription(), CompressionKind.None);
             var payload = "\"" + expected + "\"";
             var describedSerialization = new DescribedSerialization(
                 expected.GetType().ToTypeDescription(),

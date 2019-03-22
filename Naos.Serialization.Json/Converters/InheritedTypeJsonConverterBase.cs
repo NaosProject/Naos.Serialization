@@ -17,6 +17,17 @@ namespace Naos.Serialization.Json
     /// </summary>
     internal abstract class InheritedTypeJsonConverterBase : JsonConverter
     {
+        private readonly IReadOnlyCollection<Type> typesToHandle;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InheritedTypeJsonConverterBase"/> class.
+        /// </summary>
+        /// <param name="typesToHandle">Types that when encountered should trigger usage of the converter.</param>
+        protected InheritedTypeJsonConverterBase(IReadOnlyCollection<Type> typesToHandle)
+        {
+            this.typesToHandle = typesToHandle ?? new List<Type>();
+        }
+
         /// <summary>
         /// The concrete type token name constant.
         /// </summary>
@@ -32,30 +43,7 @@ namespace Naos.Serialization.Json
         protected bool ShouldBeHandledByThisConverter(
             Type objectType)
         {
-            if (objectType == typeof(object))
-            {
-                return true;
-            }
-
-            var ancestry = new List<Type>();
-            var currentType = objectType;
-            while (currentType.BaseType != null)
-            {
-                ancestry.Add(currentType.BaseType);
-                currentType = currentType.BaseType;
-            }
-
-            if (ancestry.Any(_ => _ == typeof(ValueType)))
-            {
-                return false;
-            }
-
-            if (ancestry.Any(_ => _.IsAbstract))
-            {
-                return true;
-            }
-
-            return false;
+            return this.typesToHandle.Contains(objectType);
         }
     }
 }

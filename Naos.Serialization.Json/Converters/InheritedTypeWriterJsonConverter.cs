@@ -7,7 +7,7 @@
 namespace Naos.Serialization.Json
 {
     using System;
-
+    using System.Collections.Generic;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
@@ -18,6 +18,15 @@ namespace Naos.Serialization.Json
     /// </summary>
     internal class InheritedTypeWriterJsonConverter : InheritedTypeJsonConverterBase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InheritedTypeWriterJsonConverter"/> class.
+        /// </summary>
+        /// <param name="typesToHandle">Types that when encountered should trigger usage of the converter.</param>
+        public InheritedTypeWriterJsonConverter(IReadOnlyCollection<Type> typesToHandle)
+            : base(typesToHandle)
+        {
+        }
+
         private bool writeJsonCalled;
 
         /// <inheritdoc />

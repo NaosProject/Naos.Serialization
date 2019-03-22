@@ -28,7 +28,7 @@ namespace Naos.Serialization.Bson
         {
             new { map }.Must().NotBeNull();
 
-            var serializer = BsonConfigurationBase.GetSerializer(map.MemberType);
+            var serializer = BsonConfigurationBase.GetAppropriateSerializer(map.MemberType);
 
             return map.SetSerializer(serializer);
         }
@@ -52,16 +52,6 @@ namespace Naos.Serialization.Bson
                     return ((PropertyInfo)member).PropertyType;
                 default: throw new ArgumentException("Input MemberInfo must be if type EventInfo, FieldInfo, MethodInfo, or PropertyInfo");
             }
-        }
-
-        /// <summary>
-        /// Converts a <see cref="DateTime"/> to the <see cref="DateTimeKind"/> of <see cref="DateTimeKind.Unspecified"/>.
-        /// </summary>
-        /// <param name="dateTime"><see cref="DateTime"/> to convert.</param>
-        /// <returns>Converted <see cref="DateTime"/>.</returns>
-        public static DateTime ToUnspecified(this DateTime dateTime)
-        {
-            return new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond, DateTimeKind.Unspecified);
         }
     }
 }

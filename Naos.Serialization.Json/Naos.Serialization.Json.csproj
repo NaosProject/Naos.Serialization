@@ -80,6 +80,7 @@
     <Compile Include=".recipes\OBeautifulCode.Validation\Range.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ValidatedNotNullAttribute.cs" />
     <Compile Include="CamelStrictConstructorContractResolver.cs" />
+    <Compile Include="Converters\DateTimeJsonConverter.cs" />
     <Compile Include="Converters\InheritedTypeJsonConverterBase.cs" />
     <Compile Include="Converters\InheritedTypeReaderJsonConverter.cs" />
     <Compile Include="Converters\InheritedTypeWriterJsonConverter.cs" />
@@ -91,7 +92,6 @@
     <Compile Include="JsonConfigurationBase.cs" />
     <Compile Include="JsonSerializerFactory.cs" />
     <Compile Include="NaosJsonSerializer.cs" />
-    <Compile Include="NewtonsoftJsonSerializerSettingsFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

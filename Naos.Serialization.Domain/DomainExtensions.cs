@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Naos.Serialization.Domain.Extensions
+namespace Naos.Serialization.Domain
 {
     using System;
     using System.Linq;
@@ -306,6 +306,26 @@ namespace Naos.Serialization.Domain.Extensions
             var ret = ((NaosElementStringSerializerAttribute)Attribute.GetCustomAttribute(propertyInfo, typeof(NaosElementStringSerializerAttribute)))
                 ?.ElementSerializerType;
             return ret;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="DateTime"/> to the <see cref="DateTimeKind"/> of <see cref="DateTimeKind.Unspecified"/>.
+        /// </summary>
+        /// <param name="dateTime"><see cref="DateTime"/> to convert.</param>
+        /// <returns>Converted <see cref="DateTime"/>.</returns>
+        public static DateTime ToUnspecified(this DateTime dateTime)
+        {
+            return new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond, DateTimeKind.Unspecified);
+        }
+
+        /// <summary>
+        /// Converts a nullable <see cref="DateTime"/> to the <see cref="DateTimeKind"/> of <see cref="DateTimeKind.Unspecified"/>.
+        /// </summary>
+        /// <param name="dateTime">Nullable <see cref="DateTime"/> to convert.</param>
+        /// <returns>Converted nullable <see cref="DateTime"/>.</returns>
+        public static DateTime? ToUnspecified(this DateTime? dateTime)
+        {
+            return dateTime is DateTime notNull ? (DateTime?)notNull.ToUnspecified() : null;
         }
     }
 }

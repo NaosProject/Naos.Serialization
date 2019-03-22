@@ -6,8 +6,10 @@
 
 namespace Naos.Serialization.Test
 {
-    using System.ComponentModel;
+    using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using Naos.Serialization.Json;
 
     internal class Animal
     {

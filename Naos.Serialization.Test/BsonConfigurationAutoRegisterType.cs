@@ -47,7 +47,7 @@ namespace Naos.Serialization.Test
         /// </summary>
         public const string ExceptionMessage = "Expected to be thrown.";
 
-        protected override void CustomConfiguration()
+        protected override void FinalConfiguration()
         {
             throw new ArgumentException(ExceptionMessage);
         }

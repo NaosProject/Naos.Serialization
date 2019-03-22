@@ -15,7 +15,6 @@ namespace Naos.Serialization.Test
     using FluentAssertions;
 
     using Naos.Serialization.Domain;
-    using Naos.Serialization.Domain.Extensions;
     using Naos.Serialization.PropertyBag;
 
     using OBeautifulCode.Validation.Recipes;

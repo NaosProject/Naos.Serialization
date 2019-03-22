@@ -21,7 +21,7 @@ namespace Naos.Serialization.Test
             // If Default is being used then there should be new lines
             var dog = new Dog(5, "spud", FurColor.Brindle);
 
-            var json = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(dog);
+            var json = new NaosJsonSerializer().SerializeToString(dog);
 
             json.Should().Be("{\r\n  \"name\": \"spud\",\r\n  \"furColor\": \"brindle\",\r\n  \"dogTag\": \"my name is spud\",\r\n  \"nickname\": null,\r\n  \"age\": 5\r\n}");
         }
@@ -32,7 +32,7 @@ namespace Naos.Serialization.Test
             // If Default is being used then strict constructor matching will result in a Dog and not a Mouse
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(dogJson) as Dog;
+            var dog = new NaosJsonSerializer().Deserialize<Animal>(dogJson) as Dog;
 
             dog.Should().NotBeNull();
             dog.Name.Should().Be("Barney");
@@ -47,7 +47,7 @@ namespace Naos.Serialization.Test
             // If Default is being used then strict constructor matching will result in a Dog and not a Mouse
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer(SerializationKind.Default).Deserialize(dogJson, typeof(Animal)) as Dog;
+            var dog = new NaosJsonSerializer().Deserialize(dogJson, typeof(Animal)) as Dog;
 
             dog.Should().NotBeNull();
             dog.Name.Should().Be("Barney");
@@ -61,7 +61,7 @@ namespace Naos.Serialization.Test
         {
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer(SerializationKind.Default).Deserialize<dynamic>(dogJson) as JObject;
+            var dog = new NaosJsonSerializer().Deserialize<dynamic>(dogJson) as JObject;
 
             dog.Properties().Count().Should().Be(3);
             dog["name"].ToString().Should().Be("Barney");

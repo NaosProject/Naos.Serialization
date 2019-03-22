@@ -8,7 +8,6 @@ namespace Naos.Serialization.Factory.Extensions
 {
     using Naos.Compression.Domain;
     using Naos.Serialization.Domain;
-    using Naos.Serialization.Domain.Extensions;
 
     using OBeautifulCode.TypeRepresentation;
 

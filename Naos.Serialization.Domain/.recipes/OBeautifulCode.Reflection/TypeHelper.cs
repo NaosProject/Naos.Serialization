@@ -139,5 +139,16 @@ namespace OBeautifulCode.Reflection.Recipes
 
             return false;
         }
+
+        public static bool IsAssignableType(
+            this Type type)
+        {
+            var result =
+                type.IsClass &&
+                (!type.IsAnonymous()) &&
+                (!type.IsGenericTypeDefinition); // can't do an IsAssignableTo check on generic type definitions
+
+            return result;
+        }
     }
 }

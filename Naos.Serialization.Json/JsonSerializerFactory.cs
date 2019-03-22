@@ -45,7 +45,7 @@ namespace Naos.Serialization.Json
 
                 switch (serializationDescription.SerializationFormat)
                 {
-                    case SerializationFormat.Json: return new NaosJsonSerializer(serializationDescription.SerializationKind, configurationType);
+                    case SerializationFormat.Json: return new NaosJsonSerializer(configurationType, serializationDescription.SerializationKind);
                     default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationFormat)} of {serializationDescription.SerializationFormat} is not supported."));
                 }
             }

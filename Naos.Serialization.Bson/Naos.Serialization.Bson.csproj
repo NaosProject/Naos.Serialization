@@ -79,7 +79,6 @@
     <Compile Include=".recipes\OBeautifulCode.Validation\ParameterValidator.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\Range.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ValidatedNotNullAttribute.cs" />
-    <Compile Include="BsonConfigurationManager.cs" />
     <Compile Include="BsonConfigurationBase.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="BsonSerializerFactory.cs" />

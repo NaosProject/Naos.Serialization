@@ -43,7 +43,7 @@ namespace Naos.Serialization.Bson
 
                 switch (serializationDescription.SerializationFormat)
                 {
-                    case SerializationFormat.Bson: return new NaosBsonSerializer(serializationDescription.SerializationKind, configurationType);
+                    case SerializationFormat.Bson: return new NaosBsonSerializer(configurationType, serializationDescription.SerializationKind);
                     default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationFormat)} of {serializationDescription.SerializationFormat} is not supported."));
                 }
             }

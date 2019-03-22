@@ -10,7 +10,6 @@ namespace Naos.Serialization.Bson
     using MongoDB.Bson;
 
     using Naos.Serialization.Domain;
-    using Naos.Serialization.Domain.Extensions;
 
     using OBeautifulCode.Validation.Recipes;
 
@@ -24,11 +23,13 @@ namespace Naos.Serialization.Bson
         /// <summary>
         /// Initializes a new instance of the <see cref="NaosBsonSerializer"/> class.
         /// </summary>
+        /// <param name="configurationType">Optional <see cref="BsonConfigurationBase"/> implementation to use; default is <see cref="NullBsonConfiguration"/>.</param>
         /// <param name="serializationKind">Optional kind of serialization to use; default is <see cref="Domain.SerializationKind.Custom"/>.</param>
-        /// <param name="configurationType">Optional <see cref="BsonConfigurationBase"/> implmentation to use; default is <see cref="NullBsonConfiguration"/>.</param>
-        public NaosBsonSerializer(SerializationKind serializationKind = SerializationKind.Custom, Type configurationType = null)
+        public NaosBsonSerializer(
+            Type configurationType = null,
+            SerializationKind serializationKind = SerializationKind.Default)
         {
-            new { serializationKind }.Must().BeEqualTo(SerializationKind.Custom);
+            new { serializationKind }.Must().BeEqualTo(SerializationKind.Default);
 
             if (configurationType != null)
             {
@@ -41,6 +42,8 @@ namespace Naos.Serialization.Bson
 
             this.SerializationKind = serializationKind;
             this.ConfigurationType = configurationType ?? typeof(NullBsonConfiguration);
+
+            SerializationConfigurationManager.Configure(this.ConfigurationType);
         }
 
         /// <inheritdoc />
@@ -52,16 +55,12 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public byte[] SerializeToBytes(object objectToSerialize)
         {
-            BsonConfigurationManager.Configure(this.ConfigurationType);
-
             return NaosBsonSerializerHelper.SerializeToBytes(objectToSerialize);
         }
 
         /// <inheritdoc />
         public T Deserialize<T>(byte[] serializedBytes)
         {
-            BsonConfigurationManager.Configure(this.ConfigurationType);
-
             return NaosBsonSerializerHelper.Deserialize<T>(serializedBytes);
         }
 
@@ -70,16 +69,12 @@ namespace Naos.Serialization.Bson
         {
             new { type }.Must().NotBeNull();
 
-            BsonConfigurationManager.Configure(this.ConfigurationType);
-
             return NaosBsonSerializerHelper.Deserialize(serializedBytes, type);
         }
 
         /// <inheritdoc />
         public string SerializeToString(object objectToSerialize)
         {
-            BsonConfigurationManager.Configure(this.ConfigurationType);
-
             var document = NaosBsonSerializerHelper.SerializeToDocument(objectToSerialize);
             var json = document.ToJson();
             return json;
@@ -88,8 +83,6 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
-            BsonConfigurationManager.Configure(this.ConfigurationType);
-
             var document = serializedString.ToBsonDocument();
             return NaosBsonSerializerHelper.DeserializeFromDocument<T>(document);
         }
@@ -98,8 +91,6 @@ namespace Naos.Serialization.Bson
         public object Deserialize(string serializedString, Type type)
         {
             new { type }.Must().NotBeNull();
-
-            BsonConfigurationManager.Configure(this.ConfigurationType);
 
             var document = serializedString.ToBsonDocument();
             return NaosBsonSerializerHelper.DeserializeFromDocument(document, type);
@@ -117,8 +108,8 @@ namespace Naos.Serialization.Bson
         /// Initializes a new instance of the <see cref="NaosBsonSerializer{TBsonConfiguration}"/> class.
         /// </summary>
         /// <param name="serializationKind">Type of serialization to use.</param>
-        public NaosBsonSerializer(SerializationKind serializationKind = SerializationKind.Custom)
-            : base(serializationKind, typeof(TBsonConfiguration))
+        public NaosBsonSerializer(SerializationKind serializationKind = SerializationKind.Default)
+            : base(typeof(TBsonConfiguration), serializationKind)
         {
         }
     }

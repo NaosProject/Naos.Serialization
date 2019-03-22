@@ -25,10 +25,10 @@ namespace Naos.Serialization.Test
         public static void NaosBsonSerializer___Not_Custom_SerializationKind___Throws()
         {
             // Arrange
-            Action action1 = () => new NaosBsonSerializer(SerializationKind.Invalid);
-            Action action2 = () => new NaosBsonSerializer(SerializationKind.Default);
-            Action action3 = () => new NaosBsonSerializer(SerializationKind.Compact);
-            Action action4 = () => new NaosBsonSerializer(SerializationKind.Minimal);
+            Action action1 = () => new NaosBsonSerializer(serializationKind: SerializationKind.Invalid);
+            Action action2 = () => new NaosBsonSerializer(serializationKind: SerializationKind.Custom);
+            Action action3 = () => new NaosBsonSerializer(serializationKind: SerializationKind.Compact);
+            Action action4 = () => new NaosBsonSerializer(serializationKind: SerializationKind.Minimal);
 
             // Act
             var exception1 = Record.Exception(action1);
@@ -56,7 +56,7 @@ namespace Naos.Serialization.Test
         public static void NaosBsonSerializer___Invalid_configuration_type___Throws()
         {
             // Arrange
-            Action action = () => new NaosBsonSerializer(SerializationKind.Custom, typeof(string));
+            Action action = () => new NaosBsonSerializer(typeof(string), SerializationKind.Default);
 
             // Act
             var exception = Record.Exception(action);
@@ -71,7 +71,7 @@ namespace Naos.Serialization.Test
         public static void Constructor___Type_without_default_constructor___Throws()
         {
             // Arrange
-            Action action = () => new NaosBsonSerializer(SerializationKind.Custom, typeof(CustomNoPublicConstructor));
+            Action action = () => new NaosBsonSerializer(typeof(CustomNoPublicConstructor), SerializationKind.Default);
 
             // Act
             var exception = Record.Exception(action);

@@ -12,7 +12,7 @@ namespace Naos.Serialization.Test
     using FluentAssertions;
 
     using Naos.Serialization.Bson;
-
+    using Naos.Serialization.Domain;
     using Xunit;
 
     public static class DoubleInterfaceTest
@@ -21,7 +21,7 @@ namespace Naos.Serialization.Test
         public static void NaosJsonSerializer___With_kind_Invalid___Throws()
         {
             // Arrange
-            BsonConfigurationManager.Configure<DoubleInterfaceBsonConfiguration>();
+            SerializationConfigurationManager.Configure<DoubleInterfaceBsonConfiguration>();
             var expected = new Dog
             {
                 Name = "fido",

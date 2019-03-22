@@ -27,7 +27,7 @@ namespace Naos.Serialization.Test
         public static void NaosJsonSerializer___With_kind_Invalid___Throws()
         {
             // Arrange
-            Action action = () => new NaosJsonSerializer(SerializationKind.Invalid);
+            Action action = () => new NaosJsonSerializer(serializationKind: SerializationKind.Invalid);
 
             // Act
             var exception = Record.Exception(action);
@@ -43,7 +43,7 @@ namespace Naos.Serialization.Test
         public static void NaosJsonSerializer___With_kind_Custom_and_null_Configuration_type___Throws()
         {
             // Arrange
-            Action action = () => new NaosJsonSerializer(SerializationKind.Custom, null);
+            Action action = () => new NaosJsonSerializer(null, SerializationKind.Custom);
 
             // Act
             var exception = Record.Exception(action);
@@ -71,7 +71,7 @@ namespace Naos.Serialization.Test
                            + "}";
 
             var test = new TestObject { Property1 = property1, Property2 = property2, Property3 = property3, };
-            var serializer = new NaosJsonSerializer(SerializationKind.Default);
+            var serializer = new NaosJsonSerializer();
 
             // Act
             var actual = serializer.SerializeToString(test);
@@ -97,7 +97,7 @@ namespace Naos.Serialization.Test
                            + "}";
 
             var test = new TestObject { Property1 = property1, Property2 = property2, Property3 = property3, };
-            var serializer = new NaosJsonSerializer(SerializationKind.Compact);
+            var serializer = new NaosJsonSerializer(serializationKind: SerializationKind.Compact);
 
             // Act
             var actual = serializer.SerializeToString(test);
@@ -121,7 +121,7 @@ namespace Naos.Serialization.Test
                            + "}";
 
             var test = new TestObject { Property1 = property1, Property2 = property2, Property3 = property3, };
-            var serializer = new NaosJsonSerializer(SerializationKind.Minimal);
+            var serializer = new NaosJsonSerializer(serializationKind: SerializationKind.Minimal);
 
             // Act
             var actual = serializer.SerializeToString(test);

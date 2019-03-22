@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BsonConfigurationManagerTest.cs" company="Naos Project">
+// <copyright file="SerializationConfigurationManagerTest.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -11,16 +11,16 @@ namespace Naos.Serialization.Test
     using FluentAssertions;
 
     using Naos.Serialization.Bson;
-
+    using Naos.Serialization.Domain;
     using Xunit;
 
-    public static class BsonConfigurationManagerTest
+    public static class SerializationConfigurationManagerTest
     {
         [Fact]
         public static void Configure___Type_not_BsonConfigurationBase___Throws()
         {
             // Arrange
-            Action action = () => BsonConfigurationManager.Configure(typeof(string));
+            Action action = () => SerializationConfigurationManager.Configure(typeof(string));
 
             // Act
             var exception = Record.Exception(action);
@@ -28,14 +28,14 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Parameter 'typeMustBeSubclassOfBsonConfigurationBase' is not true.  Parameter value is 'False'.");
+            exception.Message.Should().Be("Parameter 'typeMustBeSubclassOfSerializationConfigurationBase' is not true.  Parameter value is 'False'.");
         }
 
         [Fact]
         public static void Configure___Type_does_not_have_default_constructor___Throws()
         {
             // Arrange
-            Action action = () => BsonConfigurationManager.Configure(typeof(TestConfigureParameterConstructor));
+            Action action = () => SerializationConfigurationManager.Configure(typeof(TestConfigureParameterConstructor));
 
             // Act
             var exception = Record.Exception(action);
@@ -49,7 +49,7 @@ namespace Naos.Serialization.Test
         [Fact]
         public static void Configure___Valid_type_as_generic___Works()
         {
-            BsonConfigurationManager.Configure<TestConfigure>();
+            SerializationConfigurationManager.Configure<TestConfigure>();
             TestConfigure.Configured.Should().BeTrue();
         }
     }
@@ -62,7 +62,7 @@ namespace Naos.Serialization.Test
         public static bool Configured { get; private set; }
 
         /// <inheritdoc cref="BsonConfigurationBase" />
-        protected override void CustomConfiguration()
+        protected override void FinalConfiguration()
         {
             if (Configured)
             {
@@ -83,7 +83,7 @@ namespace Naos.Serialization.Test
         public string Thingy { get; set; }
 
         /// <inheritdoc cref="BsonConfigurationBase" />
-        protected override void CustomConfiguration()
+        protected override void FinalConfiguration()
         {
             /* no-op */
         }

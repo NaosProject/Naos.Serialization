@@ -29,7 +29,7 @@ namespace Naos.Serialization.Test
                 TestName = "Hello",
             };
             
-            var result = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(value);
+            var result = new NaosJsonSerializer().SerializeToString(value);
 
             var serializedValue = "{" + Environment.NewLine +
                                   "  \"testName\": \"Hello\"" + Environment.NewLine +
@@ -45,7 +45,7 @@ namespace Naos.Serialization.Test
                                   "  \"testName\": \"there\"" + Environment.NewLine +
                                   "}";
 
-            var result = new NaosJsonSerializer(SerializationKind.Default).Deserialize<CamelCasedPropertyTest>(serializedValue);
+            var result = new NaosJsonSerializer().Deserialize<CamelCasedPropertyTest>(serializedValue);
 
             result.TestName.Should().Be("there");
         }
@@ -58,7 +58,7 @@ namespace Naos.Serialization.Test
                 Value = TestEnum.FirstOption,
             };
 
-            var result = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(value);
+            var result = new NaosJsonSerializer().SerializeToString(value);
 
             var serializedValue = "{" + Environment.NewLine +
                                   "  \"value\": \"firstOption\"" + Environment.NewLine +
@@ -74,7 +74,7 @@ namespace Naos.Serialization.Test
                                   "  \"value\": \"secondOption\"" + Environment.NewLine +
                                   "}";
 
-            var result = new NaosJsonSerializer(SerializationKind.Default).Deserialize<CamelCasedEnumTest>(serializedValue);
+            var result = new NaosJsonSerializer().Deserialize<CamelCasedEnumTest>(serializedValue);
 
             result.Value.Should().Be(TestEnum.SecondOption);
         }
@@ -86,9 +86,9 @@ namespace Naos.Serialization.Test
                                   "  \"secure\": \"Password\"" + Environment.NewLine +
                                   "}";
 
-            var deserialized = new NaosJsonSerializer(SerializationKind.Default).Deserialize<SecureStringTest>(serializedValue);
+            var deserialized = new NaosJsonSerializer().Deserialize<SecureStringTest>(serializedValue);
 
-            var result = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(deserialized);
+            var result = new NaosJsonSerializer().SerializeToString(deserialized);
 
             result.Should().Be(serializedValue);
         }
@@ -110,7 +110,7 @@ namespace Naos.Serialization.Test
                 },
             };
 
-            var result = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(value);
+            var result = new NaosJsonSerializer().SerializeToString(value);
 
             var serializedValue = "[" + Environment.NewLine +
                                   "  {" + Environment.NewLine +
@@ -140,7 +140,7 @@ namespace Naos.Serialization.Test
                                   "  }" + Environment.NewLine +
                                   "]";
 
-            var result = new NaosJsonSerializer(SerializationKind.Default).Deserialize<InheritedTypeBase[]>(serializedValue);
+            var result = new NaosJsonSerializer().Deserialize<InheritedTypeBase[]>(serializedValue);
 
             result.Length.Should().Be(2);
             result[0].Base.Should().Be("My base");
@@ -165,7 +165,7 @@ namespace Naos.Serialization.Test
                                   "  }" + Environment.NewLine +
                                   "]";
 
-            var result = new NaosJsonSerializer(SerializationKind.Default).Deserialize<IBaseInterface[]>(serializedValue);
+            var result = new NaosJsonSerializer().Deserialize<IBaseInterface[]>(serializedValue);
 
             result.Length.Should().Be(2);
             result[0].String.Should().Be("My string");
@@ -186,10 +186,10 @@ namespace Naos.Serialization.Test
             var tigerJson = "{\"tailLength\":2,\"name\":\"Ronny\",\"numberOfTeeth\":50,\"age\":5}";
             var mouseJson = "{\"tailLength\":8,\"name\":\"Missy\",\"furColor\":\"black\",\"age\":7}";
 
-            var dog = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(dogJson) as Dog;
-            var cat = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(catJson) as Cat;
-            var tiger = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(tigerJson) as Tiger;
-            var mouse = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(mouseJson) as Mouse;
+            var dog = new NaosJsonSerializer().Deserialize<Animal>(dogJson) as Dog;
+            var cat = new NaosJsonSerializer().Deserialize<Animal>(catJson) as Cat;
+            var tiger = new NaosJsonSerializer().Deserialize<Animal>(tigerJson) as Tiger;
+            var mouse = new NaosJsonSerializer().Deserialize<Animal>(mouseJson) as Mouse;
 
             dog.Should().NotBeNull();
             dog.Name.Should().Be("Barney");
@@ -220,7 +220,7 @@ namespace Naos.Serialization.Test
         {
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(dogJson) as Dog;
+            var dog = new NaosJsonSerializer().Deserialize<Animal>(dogJson) as Dog;
 
             dog.Should().NotBeNull();
             dog.Name.Should().Be("Barney");
@@ -234,7 +234,7 @@ namespace Naos.Serialization.Test
         {
             var inheritedTypeJson = "{\"base\":\"my base string\"}";
 
-            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).Deserialize<InheritedTypeBase>(inheritedTypeJson));
+            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().Deserialize<InheritedTypeBase>(inheritedTypeJson));
             ex.Message.Should().Contain("InheritedType1");
             ex.Message.Should().Contain("InheritedType2");
         }
@@ -244,7 +244,7 @@ namespace Naos.Serialization.Test
         {
             var lightingJson = "{\"watts\":10, \"wattageEquivalent\":60}";
 
-            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).Deserialize<Lighting>(lightingJson));
+            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().Deserialize<Lighting>(lightingJson));
 
             ex.Message.Should().Contain("CompactFluorescent");
             ex.Message.Should().Contain("Led");
@@ -257,8 +257,8 @@ namespace Naos.Serialization.Test
             var noLightingJson = "{}";
             var incandescentJson = "{\"watts\":60}";
 
-            var noLighting = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Lighting>(noLightingJson) as NoLighting;
-            var incandescent = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Lighting>(incandescentJson) as Incandescent;
+            var noLighting = new NaosJsonSerializer().Deserialize<Lighting>(noLightingJson) as NoLighting;
+            var incandescent = new NaosJsonSerializer().Deserialize<Lighting>(incandescentJson) as Incandescent;
 
             noLighting.Should().NotBeNull();
 
@@ -271,7 +271,7 @@ namespace Naos.Serialization.Test
         {
             var json = "{\"none\":\"none\"}";
 
-            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(json));
+            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().Deserialize<Animal>(json));
 
             ex.Message.Should().Contain("Unable to deserialize");
         }
@@ -281,7 +281,7 @@ namespace Naos.Serialization.Test
         {
             var json = "{\"float\":.2,\"int32\":50}";
 
-            var inheritedType3 = new NaosJsonSerializer(SerializationKind.Default).Deserialize<IBaseInterface>(json) as InheritedType3;
+            var inheritedType3 = new NaosJsonSerializer().Deserialize<IBaseInterface>(json) as InheritedType3;
 
             inheritedType3.Should().NotBeNull();
             inheritedType3.Int32.Should().Be(50);
@@ -294,7 +294,7 @@ namespace Naos.Serialization.Test
         {
             var tigerJson = "{\"tailLength\":2,\"name\":\"Ronny\",\"numberOfTeeth\":50,\"age\":5, \"newProperty\":66}";
 
-            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(tigerJson));
+            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().Deserialize<Animal>(tigerJson));
 
             ex.Message.Should().Contain("Unable to deserialize");
         }
@@ -305,7 +305,7 @@ namespace Naos.Serialization.Test
             // name was changed from string to object
             var tigerJson = "{\"tailLength\":2,\"name\":{ \"first\":\"Ronny\",\"last\":\"Ronnerson\" },\"numberOfTeeth\":50,\"age\":5}";
 
-            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(tigerJson));
+            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().Deserialize<Animal>(tigerJson));
 
             ex.Message.Should().Contain("Unable to deserialize");
         }
@@ -315,7 +315,7 @@ namespace Naos.Serialization.Test
         {
             var atkinsJson = "{}";
 
-            var atkins = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Diet>(atkinsJson) as Atkins;
+            var atkins = new NaosJsonSerializer().Deserialize<Diet>(atkinsJson) as Atkins;
 
             atkins.Should().NotBeNull();
         }
@@ -326,8 +326,8 @@ namespace Naos.Serialization.Test
             var catJson1 = "{\"numberOfLives\":9,\"name\":\"Cleo\"}";
             var catJson2 = "{\"numberOfLives\":9,\"age\":3}";
 
-            var ex1 = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(catJson1));
-            var ex2 = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).Deserialize<Animal>(catJson2));
+            var ex1 = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().Deserialize<Animal>(catJson1));
+            var ex2 = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().Deserialize<Animal>(catJson2));
 
             ex1.Message.Should().Contain("Unable to deserialize");
             ex2.Message.Should().Contain("Unable to deserialize");
@@ -338,7 +338,7 @@ namespace Naos.Serialization.Test
         {
             var fructoseJson = "{\"minOuncesOfFructose\":5}";
 
-            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).Deserialize<Diet>(fructoseJson));
+            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().Deserialize<Diet>(fructoseJson));
 
             ex.Message.Should().Contain("Unable to deserialize");
         }
@@ -348,7 +348,7 @@ namespace Naos.Serialization.Test
         {
             var fructoseJson = "{\"minGramsOfFructose\":5}";
 
-            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).Deserialize<Diet>(fructoseJson));
+            var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().Deserialize<Diet>(fructoseJson));
 
             ex.Message.Should().Contain("Unable to deserialize");
         }
@@ -358,7 +358,7 @@ namespace Naos.Serialization.Test
         {
             var dogDietJson = "{\"dog\":{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}, \"diet\":{}}";
 
-            var dogDiet = new NaosJsonSerializer(SerializationKind.Default).Deserialize<DogDiet>(dogDietJson);
+            var dogDiet = new NaosJsonSerializer().Deserialize<DogDiet>(dogDietJson);
 
             dogDiet.Should().NotBeNull();
 
@@ -376,7 +376,7 @@ namespace Naos.Serialization.Test
         {
             var dogDietJson = "{\"dog\":{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}, \"diet\":null}";
 
-            var dogDiet = new NaosJsonSerializer(SerializationKind.Default).Deserialize<DogDiet>(dogDietJson);
+            var dogDiet = new NaosJsonSerializer().Deserialize<DogDiet>(dogDietJson);
 
             dogDiet.Should().NotBeNull();
 
@@ -394,7 +394,7 @@ namespace Naos.Serialization.Test
         {
             var catDietJson = "{\"cat\":{\"numberOfLives\":9,\"name\":\"Cleo\",\"age\":3}, \"diet\":{}}";
             
-            var catDiet = new NaosJsonSerializer(SerializationKind.Default).Deserialize<CatDiet>(catDietJson);
+            var catDiet = new NaosJsonSerializer().Deserialize<CatDiet>(catDietJson);
 
             catDiet.Should().NotBeNull();
             catDiet.Cat.Should().NotBeNull();
@@ -410,7 +410,7 @@ namespace Naos.Serialization.Test
         {
             var catDietJson = "{\"cat\":{\"numberOfLives\":9,\"name\":\"Cleo\",\"age\":3}, \"diet\":null}";
 
-            var catDiet = new NaosJsonSerializer(SerializationKind.Default).Deserialize<CatDiet>(catDietJson);
+            var catDiet = new NaosJsonSerializer().Deserialize<CatDiet>(catDietJson);
 
             catDiet.Should().NotBeNull();
             catDiet.Cat.Should().NotBeNull();
@@ -426,7 +426,7 @@ namespace Naos.Serialization.Test
         {
             var familyJson = "{\"firstNames\": [\"joe\",\"jane\",\"jackie\"]}";
 
-            var family = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Family>(familyJson);
+            var family = new NaosJsonSerializer().Deserialize<Family>(familyJson);
             var expectedFirstNames = new[] { "joe", "jane", "jackie" };
 
             family.Should().NotBeNull();
@@ -438,7 +438,7 @@ namespace Naos.Serialization.Test
         {
             var friendsJson = "{\"firstNames\": [\"betty\",\"bob\",\"bailey\"]}";
 
-            Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).Deserialize<Friends>(friendsJson));            
+            Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().Deserialize<Friends>(friendsJson));            
         }
 
         [Fact]
@@ -447,7 +447,7 @@ namespace Naos.Serialization.Test
             var family = new Family(new List<string> { "joe", "jane", "jackie" });
             var expectedFamilyJson = "{\r\n  \"firstNames\": [\r\n    \"joe\",\r\n    \"jane\",\r\n    \"jackie\"\r\n  ]\r\n}";
 
-            var actualFamilyJson = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(family);
+            var actualFamilyJson = new NaosJsonSerializer().SerializeToString(family);
 
             expectedFamilyJson.Should().Be(actualFamilyJson);
         }
@@ -457,7 +457,7 @@ namespace Naos.Serialization.Test
         {
             var friends = new Friends(new List<string> { "betty", "bob", "bailey" });
 
-            Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(SerializationKind.Default).SerializeToString(friends));
+            Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer().SerializeToString(friends));
         }
 
         [Fact]
@@ -466,7 +466,7 @@ namespace Naos.Serialization.Test
             var sometimesThrowsJson = "{\"triggerNumber\":123456}";
 
             var doesNotThrow =
-                new NaosJsonSerializer(SerializationKind.Default).Deserialize<SometimesThrows>(sometimesThrowsJson) as DoesNotThrow;
+                new NaosJsonSerializer().Deserialize<SometimesThrows>(sometimesThrowsJson) as DoesNotThrow;
             
             doesNotThrow.Should().NotBeNull();
             doesNotThrow.TriggerNumber.Should().Be(123456);
@@ -484,9 +484,9 @@ namespace Naos.Serialization.Test
             var expectedCrabJson = "{\r\n  \"size\": \"large\",\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Crab, Naos.Serialization.Test\"\r\n}";
             var expectedSalmonJson = "{\r\n  \"color\": \"brown\",\r\n  \"size\": \"medium\",\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Salmon, Naos.Serialization.Test\"\r\n}";
 
-            var actualStarfishJson = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(starfish);
-            var actualCrabJson = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(crab);
-            var actualSalmonJson = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(salmon);
+            var actualStarfishJson = new NaosJsonSerializer().SerializeToString(starfish);
+            var actualCrabJson = new NaosJsonSerializer().SerializeToString(crab);
+            var actualSalmonJson = new NaosJsonSerializer().SerializeToString(salmon);
 
             expectedStarfishJson.Should().Be(actualStarfishJson);
             expectedCrabJson.Should().Be(actualCrabJson);
@@ -498,7 +498,7 @@ namespace Naos.Serialization.Test
         {
             var salmonJson = "{\r\n  \"color\": \"brown\",\r\n  \"size\": \"medium\",\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Salmon, Naos.Serialization.Test\"\r\n}";
 
-            var salmon = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Salmon>(salmonJson);
+            var salmon = new NaosJsonSerializer().Deserialize<Salmon>(salmonJson);
 
             salmon.Should().NotBeNull();
             salmon.Color.Should().Be("brown");
@@ -510,8 +510,8 @@ namespace Naos.Serialization.Test
         {
             var salmonJson = "{\r\n  \"color\": \"brown\",\r\n  \"size\": \"medium\",\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Salmon, Naos.Serialization.Test\"\r\n}";
 
-            var salmon1 = new NaosJsonSerializer(SerializationKind.Default).Deserialize<SeaCreature>(salmonJson) as Salmon;
-            var salmon2 = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Fish>(salmonJson) as Salmon;
+            var salmon1 = new NaosJsonSerializer().Deserialize<SeaCreature>(salmonJson) as Salmon;
+            var salmon2 = new NaosJsonSerializer().Deserialize<Fish>(salmonJson) as Salmon;
 
             salmon1.Should().NotBeNull();
             salmon1.Color.Should().Be("brown");
@@ -529,7 +529,7 @@ namespace Naos.Serialization.Test
             
             var expectedWhaleJson = "{\r\n  \"name\": \"willy\",\r\n  \"diet\": {\r\n    \"maxCalories\": 50000\r\n  },\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Whale, Naos.Serialization.Test\"\r\n}";
             
-            var actualWhaleJson = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(whale);
+            var actualWhaleJson = new NaosJsonSerializer().SerializeToString(whale);
 
             expectedWhaleJson.Should().Be(actualWhaleJson);
         }
@@ -539,7 +539,7 @@ namespace Naos.Serialization.Test
         {
             var whaleJson = "{\r\n  \"name\": \"willy\",\r\n  \"diet\": {\r\n    \"maxCalories\": 50000\r\n  },\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Whale, Naos.Serialization.Test\"\r\n}";
 
-            var whale = new NaosJsonSerializer(SerializationKind.Default).Deserialize<SeaCreature>(whaleJson) as Whale;
+            var whale = new NaosJsonSerializer(typeof(GenericJsonConfiguration<SeaCreature>)).Deserialize<SeaCreature>(whaleJson) as Whale;
 
             whale.Should().NotBeNull();
             whale.Name.Should().Be("willy");
@@ -556,7 +556,7 @@ namespace Naos.Serialization.Test
 
             var expectedSharkJson = "{\r\n  \"name\": \"sammy\",\r\n  \"likesToEat\": {\r\n    \"color\": \"black\",\r\n    \"size\": \"medium\",\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Tuna, Naos.Serialization.Test\"\r\n  },\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Shark, Naos.Serialization.Test\"\r\n}";
 
-            var actualSharkJson = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(shark);
+            var actualSharkJson = new NaosJsonSerializer().SerializeToString(shark);
 
             expectedSharkJson.Should().Be(actualSharkJson);
         }
@@ -566,7 +566,7 @@ namespace Naos.Serialization.Test
         {
             var sharkJson = "{\r\n  \"name\": \"sammy\",\r\n  \"likesToEat\": {\r\n    \"color\": \"black\",\r\n    \"size\": \"medium\",\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Tuna, Naos.Serialization.Test\"\r\n  },\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Shark, Naos.Serialization.Test\"\r\n}";
 
-            var shark = new NaosJsonSerializer(SerializationKind.Default).Deserialize<SeaCreature>(sharkJson) as Shark;
+            var shark = new NaosJsonSerializer(typeof(GenericJsonConfiguration<SeaCreature>)).Deserialize<SeaCreature>(sharkJson) as Shark;
 
             shark.Should().NotBeNull();
             shark.Name.Should().Be("sammy");
@@ -583,7 +583,7 @@ namespace Naos.Serialization.Test
             
             var expectedSeafoodDietJson = "{\r\n  \"seaCreature\": {\r\n    \"color\": \"red\",\r\n    \"size\": \"medium\",\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Salmon, Naos.Serialization.Test\"\r\n  },\r\n  \"amount\": 345\r\n}";
 
-            var actualSeafoodDietJson = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(seafoodDiet);
+            var actualSeafoodDietJson = new NaosJsonSerializer().SerializeToString(seafoodDiet);
 
             expectedSeafoodDietJson.Should().Be(actualSeafoodDietJson);
         }
@@ -593,7 +593,7 @@ namespace Naos.Serialization.Test
         {
             var seafoodDietJson = "{\r\n  \"seaCreature\": {\r\n    \"color\": \"red\",\r\n    \"size\": \"medium\",\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Salmon, Naos.Serialization.Test\"\r\n  },\r\n  \"amount\": 345\r\n}";
 
-            var seafoodDiet = new NaosJsonSerializer(SerializationKind.Default).Deserialize<Diet>(seafoodDietJson) as SeafoodDiet;
+            var seafoodDiet = new NaosJsonSerializer().Deserialize<Diet>(seafoodDietJson) as SeafoodDiet;
 
             seafoodDiet.Should().NotBeNull();
             seafoodDiet.Amount.Should().Be(345);
@@ -626,9 +626,9 @@ namespace Naos.Serialization.Test
                 },
             };
 
-            var json = new NaosJsonSerializer(SerializationKind.Default).SerializeToString(expected);
+            var json = new NaosJsonSerializer().SerializeToString(expected);
 
-            var actual = new NaosJsonSerializer(SerializationKind.Default).Deserialize<DictionaryPropertiesTest>(json);
+            var actual = new NaosJsonSerializer().Deserialize<DictionaryPropertiesTest>(json);
 
             actual.Should().NotBeNull();
             expected.Names.Should().BeEquivalentTo(actual.Names);
@@ -650,11 +650,11 @@ namespace Naos.Serialization.Test
                 Title = expectedTitle,
             };
 
-            var serializer = new NaosJsonSerializer();
+            var serializer = new NaosJsonSerializer(typeof(FieldConfiguration));
 
             var jsonWithConcreteType = serializer.SerializeToString(year);
 
-            var settings = NewtonsoftJsonSerializerSettingsFactory.BuildSettings(SerializationKind.Default, SerializationDirection.Deserialize);
+            var settings = new NullJsonConfiguration().BuildJsonSerializerSettings(SerializationKind.Default, SerializationDirection.Deserialize);
             settings.Converters = new JsonConverter[0];
 
             // Act

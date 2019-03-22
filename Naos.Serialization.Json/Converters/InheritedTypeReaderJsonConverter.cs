@@ -23,6 +23,15 @@ namespace Naos.Serialization.Json
     /// </summary>
     internal class InheritedTypeReaderJsonConverter : InheritedTypeJsonConverterBase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InheritedTypeReaderJsonConverter"/> class.
+        /// </summary>
+        /// <param name="typesToHandle">Types that when encountered should trigger usage of the converter.</param>
+        public InheritedTypeReaderJsonConverter(IReadOnlyCollection<Type> typesToHandle)
+            : base(typesToHandle)
+        {
+        }
+
         private readonly ConcurrentDictionary<Type, IReadOnlyCollection<Type>> assignableTypesCache =
             new ConcurrentDictionary<Type, IReadOnlyCollection<Type>>();
 
@@ -206,13 +215,7 @@ namespace Naos.Serialization.Json
             if (!this.assignableTypesCache.ContainsKey(type))
             {
                 var assignableTypes = allTypes
-                    .Where(
-                        typeToConsider =>
-                            typeToConsider != type &&
-                            typeToConsider.IsClass &&
-                            (!typeToConsider.IsAnonymous()) &&
-                            (!typeToConsider.IsGenericTypeDefinition) && // can't do an IsAssignableTo check on generic type definitions
-                            typeToConsider.IsAssignableTo(type))
+                    .Where(_ => _.IsAssignableType() && _ != type && _.IsAssignableTo(type))
                     .ToList();
 
                 this.assignableTypesCache.AddOrUpdate(type, assignableTypes, (t, cts) => assignableTypes);

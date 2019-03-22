@@ -7,7 +7,7 @@
 namespace Naos.Serialization.Test
 {
     using System;
-
+    using System.Collections.Generic;
     using FakeItEasy;
 
     using FluentAssertions;
@@ -51,8 +51,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             actual.Should().NotBeNull();
-            actual.WriteSerializationSettings.ContractResolver.Should().BeOfType<DefaultContractResolver>();
-            actual.ReadSerializationSettings.ContractResolver.Should().BeOfType<DefaultContractResolver>();
+            actual.BuildJsonSerializerSettings(SerializationKind.Default, SerializationDirection.Serialize).ContractResolver.Should().BeOfType<DefaultContractResolver>();
+            actual.BuildJsonSerializerSettings(SerializationKind.Default, SerializationDirection.Deserialize).ContractResolver.Should().BeOfType<DefaultContractResolver>();
         }
 
         [Fact]
@@ -66,8 +66,8 @@ namespace Naos.Serialization.Test
 
             // Assert
             actual.Should().NotBeNull();
-            actual.WriteSerializationSettings.ContractResolver.GetType().FullName.Should().Be("Naos.Serialization.Json.CamelStrictConstructorContractResolver"); // this type is not public so we can't use nameof()
-            actual.ReadSerializationSettings.ContractResolver.GetType().FullName.Should().Be("Naos.Serialization.Json.CamelStrictConstructorContractResolver"); // this type is not public so we can't use nameof()
+            actual.BuildJsonSerializerSettings(SerializationKind.Default, SerializationDirection.Serialize).ContractResolver.GetType().FullName.Should().Be("Naos.Serialization.Json.CamelStrictConstructorContractResolver"); // this type is not public so we can't use nameof()
+            actual.BuildJsonSerializerSettings(SerializationKind.Default, SerializationDirection.Deserialize).ContractResolver.GetType().FullName.Should().Be("Naos.Serialization.Json.CamelStrictConstructorContractResolver"); // this type is not public so we can't use nameof()
         }
     }
 
@@ -75,9 +75,12 @@ namespace Naos.Serialization.Test
     {
         protected override SerializationKind InheritSettingsFromKind => SerializationKind.Default;
 
-        protected override IContractResolver OverrideWriteContractResolver => new DefaultContractResolver();
-
-        protected override IContractResolver OverrideReadContractResolver => new DefaultContractResolver();
+        protected override IReadOnlyDictionary<SerializationDirection, IContractResolver> OverrideContractResolver =>
+            new Dictionary<SerializationDirection, IContractResolver>
+            {
+                { SerializationDirection.Serialize, new DefaultContractResolver() },
+                { SerializationDirection.Deserialize, new DefaultContractResolver() },
+            };
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Used above in Configure<T>.")]

@@ -6,6 +6,8 @@
 
 namespace Naos.Serialization.Domain
 {
+    using System;
+
     /// <summary>
     /// Kind of serialization to use.
     /// </summary>
@@ -103,5 +105,32 @@ namespace Naos.Serialization.Domain
         /// Deserializing object.
         /// </summary>
         Deserialize,
+    }
+
+    /// <summary>
+    /// Directions of serialization.
+    /// </summary>
+    [Flags]
+    public enum SerializationDirections
+    {
+        /// <summary>
+        /// No direction.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Serializing direction.
+        /// </summary>
+        Serialize = 1,
+
+        /// <summary>
+        /// Deserializing direction.
+        /// </summary>
+        Deserialize = 2,
+
+        /// <summary>
+        /// Both directions.
+        /// </summary>
+        Both = Serialize | Deserialize,
     }
 }

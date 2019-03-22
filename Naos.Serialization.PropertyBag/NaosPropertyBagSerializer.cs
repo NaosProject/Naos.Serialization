@@ -15,7 +15,6 @@ namespace Naos.Serialization.PropertyBag
     using System.Text;
 
     using Naos.Serialization.Domain;
-    using Naos.Serialization.Domain.Extensions;
 
     using OBeautifulCode.Collection.Recipes;
     using OBeautifulCode.Reflection.Recipes;

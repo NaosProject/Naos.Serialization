@@ -14,7 +14,6 @@ namespace Naos.Serialization.Test
     using FluentAssertions;
 
     using Naos.Serialization.Domain;
-    using Naos.Serialization.Domain.Extensions;
     using Naos.Serialization.Factory.Extensions;
 
     using OBeautifulCode.TypeRepresentation;
@@ -205,7 +204,7 @@ namespace Naos.Serialization.Test
             // Arrange
             var input = new { Item = "item", Items = new[] { "item1", "item2" } };
             var serializationDescriptionJson = new SerializationDescription(SerializationFormat.Json, SerializationRepresentation.String, SerializationKind.Compact);
-            var serializationDescriptionBson = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.String, SerializationKind.Custom);
+            var serializationDescriptionBson = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.String, SerializationKind.Default);
 
             // Act
             var serializedJson = input.ToDescribedSerialization(serializationDescriptionJson);

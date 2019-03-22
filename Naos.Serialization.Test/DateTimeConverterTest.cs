@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DateTimeStringSerializerTest.cs" company="Naos Project">
+// <copyright file="DateTimeConverterTest.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -9,18 +9,18 @@ namespace Naos.Serialization.Test
     using System;
 
     using FluentAssertions;
-
-    using Naos.Serialization.Domain;
+    using Naos.Serialization.Domain.Extensions;
+    using Naos.Serialization.Json;
     using Xunit;
 
-    public static class DateTimeStringSerializerTest
+    public static class DateTimeConverterTest
     {
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_utc___Works()
         {
             // Arrange
             var expected = DateTime.UtcNow;
-            var serializer = new NaosDateTimeStringSerializer();
+            var serializer = new NaosJsonSerializer();
 
             // Act
             var serialized = serializer.SerializeToString(expected);
@@ -36,7 +36,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var expected = DateTime.UtcNow.ToUnspecified();
-            var serializer = new NaosDateTimeStringSerializer();
+            var serializer = new NaosJsonSerializer();
 
             // Act
             var serialized = serializer.SerializeToString(expected);
@@ -52,7 +52,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var expected = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time"));
-            var serializer = new NaosDateTimeStringSerializer();
+            var serializer = new NaosJsonSerializer();
 
             // Act
             var serialized = serializer.SerializeToString(expected);
@@ -68,7 +68,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var expected = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("New Zealand Standard Time"));
-            var serializer = new NaosDateTimeStringSerializer();
+            var serializer = new NaosJsonSerializer();
 
             // Act
             var serialized = serializer.SerializeToString(expected);
@@ -84,7 +84,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var expected = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
-            var serializer = new NaosDateTimeStringSerializer();
+            var serializer = new NaosJsonSerializer();
 
             // Act
             var serialized = serializer.SerializeToString(expected);
@@ -99,7 +99,7 @@ namespace Naos.Serialization.Test
         public static void Serialize___Not_date_time___Throws()
         {
             // Arrange
-            var serializer = new NaosDateTimeStringSerializer();
+            var serializer = new NaosJsonSerializer();
             Action action = () => serializer.SerializeToString("not a datetime");
 
             // Act
@@ -115,7 +115,7 @@ namespace Naos.Serialization.Test
         public static void Deserialize___Null_type___Throws()
         {
             // Arrange
-            var serializer = new NaosDateTimeStringSerializer();
+            var serializer = new NaosJsonSerializer();
             Action action = () => serializer.Deserialize(string.Empty, null);
 
             // Act

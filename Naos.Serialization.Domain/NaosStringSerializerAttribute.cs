@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Naos.Serialization.Domain.Extensions
+namespace Naos.Serialization.Domain
 {
     using System;
 

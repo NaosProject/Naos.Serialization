@@ -21,7 +21,7 @@ namespace Naos.Serialization.Test
             // If Minimal is being used then the null Nickname property won't be serialized
             var dog = new Dog(5, "spud", FurColor.Brindle);
 
-            var json = new NaosJsonSerializer(SerializationKind.Minimal).SerializeToString(dog);
+            var json = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>), SerializationKind.Minimal).SerializeToString(dog);
 
             json.Should().Be("{\"name\":\"spud\",\"furColor\":\"brindle\",\"dogTag\":\"my name is spud\",\"age\":5}");
         }
@@ -33,7 +33,7 @@ namespace Naos.Serialization.Test
             // otherwise, out-of-the-box json.net will create an anonymous object
             var lightingJson = "{}";
 
-            var lighting = new NaosJsonSerializer(SerializationKind.Minimal).Deserialize<Lighting>(lightingJson) as NoLighting;
+            var lighting = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Lighting>), SerializationKind.Minimal).Deserialize<Lighting>(lightingJson) as NoLighting;
 
             lighting.Should().NotBeNull();
         }
@@ -45,7 +45,7 @@ namespace Naos.Serialization.Test
             // otherwise, out-of-the-box json.net will create an anonymous object
             var lightingJson = "{}";
 
-            var lighting = new NaosJsonSerializer(SerializationKind.Minimal).Deserialize(lightingJson, typeof(Lighting)) as NoLighting;
+            var lighting = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Lighting>), SerializationKind.Minimal).Deserialize(lightingJson, typeof(Lighting)) as NoLighting;
 
             lighting.Should().NotBeNull();
         }
@@ -55,7 +55,7 @@ namespace Naos.Serialization.Test
         {
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer(SerializationKind.Minimal).Deserialize<dynamic>(dogJson) as JObject;
+            var dog = new NaosJsonSerializer(serializationKind: SerializationKind.Minimal).Deserialize<dynamic>(dogJson) as JObject;
 
             dog.Properties().Count().Should().Be(3);
             dog["name"].ToString().Should().Be("Barney");
