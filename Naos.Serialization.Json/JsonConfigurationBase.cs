@@ -44,14 +44,15 @@ namespace Naos.Serialization.Json
                         (inheritedTypeConverterTypes, serializationKind) =>
 
                             (serializationKind == JsonFormattingKind.Minimal
-                                ? new[] { new InheritedTypeWriterJsonConverter(inheritedTypeConverterTypes), }
-                                : new JsonConverter[0]).Concat(new JsonConverter[]
-                            {
-                                new StringEnumConverter { CamelCaseText = true },
-                                new SecureStringJsonConverter(),
-                                new DictionaryJsonConverter(),
-                                new DateTimeJsonConverter(),
-                            }).ToList()
+                                ? new JsonConverter[0]
+                                : new[] { new InheritedTypeWriterJsonConverter(inheritedTypeConverterTypes), }).Concat(
+                                new JsonConverter[]
+                                {
+                                    new StringEnumConverter { CamelCaseText = true },
+                                    new SecureStringJsonConverter(),
+                                    new DictionaryJsonConverter(),
+                                    new DateTimeJsonConverter(),
+                                }).ToList()
                     },
                     {
                         SerializationDirection.Deserialize,
@@ -172,7 +173,7 @@ namespace Naos.Serialization.Json
         {
             new { types }.Must().NotBeNull();
 
-            this.inheritedTypeConverterTypes = types.Where(t => types.Any(a => a.IsAssignableTo(t))).ToList();
+            this.inheritedTypeConverterTypes = types.Where(t => t.IsAbstract || t.IsInterface || types.Any(a => a.IsAssignableTo(t))).Distinct().ToList();
         }
 
         /// <summary>

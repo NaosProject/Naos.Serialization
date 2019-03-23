@@ -85,7 +85,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             string objectToPackageIntoDescribedSerialization = null;
-            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(NullJsonConfiguration).ToTypeDescription(), CompressionKind.None);
 
             // Act
             var describedSerialization = objectToPackageIntoDescribedSerialization.ToDescribedSerializationUsingSpecificFactory(
@@ -105,7 +105,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             string objectToPackageIntoDescribedSerialization = null;
-            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(NullJsonConfiguration).ToTypeDescription(), CompressionKind.None);
 
             // Act
             var describedSerialization = objectToPackageIntoDescribedSerialization.ToDescribedSerializationUsingSpecificFactory(
@@ -125,7 +125,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var objectToPackageIntoDescribedSerialization = A.Dummy<string>();
-            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(NullJsonConfiguration).ToTypeDescription(), CompressionKind.None);
 
             // Act
             var describedSerialization = DomainExtensions.ToDescribedSerializationUsingSpecificFactory(
@@ -146,7 +146,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             string expected = null;
-            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(NullJsonConfiguration).ToTypeDescription(), CompressionKind.None);
             var payload = "null";
             var describedSerialization = new DescribedSerialization(
                 typeof(string).ToTypeDescription(),
@@ -168,7 +168,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var expected = A.Dummy<string>();
-            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(NullJsonConfiguration).ToTypeDescription(), CompressionKind.None);
             var payload = "\"" + expected + "\"";
             var describedSerialization = new DescribedSerialization(
                 expected.GetType().ToTypeDescription(),
@@ -191,7 +191,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var objectToPackageIntoDescribedSerialization = A.Dummy<string>();
-            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(NullJsonConfiguration).ToTypeDescription(), CompressionKind.None);
 
             // Act
             var describedSerialization = objectToPackageIntoDescribedSerialization.ToDescribedSerialization(serializerDescription);
@@ -208,7 +208,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var expected = A.Dummy<string>();
-            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(BsonConfigurationTestAutoConstrainedType).ToTypeDescription(), CompressionKind.None);
+            var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(NullJsonConfiguration).ToTypeDescription(), CompressionKind.None);
             var payload = "\"" + expected + "\"";
             var describedSerialization = new DescribedSerialization(
                 expected.GetType().ToTypeDescription(),

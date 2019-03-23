@@ -24,7 +24,8 @@ namespace Naos.Serialization.Test
 
             var json = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>), JsonFormattingKind.Compact).SerializeToString(dog);
 
-            json.Should().Be("{\"name\":\"spud\",\"furColor\":\"brindle\",\"dogTag\":\"my name is spud\",\"nickname\":null,\"age\":5,\"$concreteType\": \"Naos.Serialization.Test.Dog, Naos.Serialization.Test\"}");
+            var expected = "{\"name\":\"spud\",\"furColor\":\"brindle\",\"dogTag\":\"my name is spud\",\"nickname\":null,\"age\":5,\"$concreteType\":\"Naos.Serialization.Test.Dog, Naos.Serialization.Test\"}";
+            json.Should().Be(expected);
         }
 
         [Fact]

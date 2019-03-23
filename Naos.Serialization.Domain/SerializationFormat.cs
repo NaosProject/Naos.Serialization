@@ -7,7 +7,7 @@
 namespace Naos.Serialization.Domain
 {
     /// <summary>
-    /// Representation of serialization.
+    /// Format of serialization.
     /// </summary>
     public enum SerializationFormat
     {
@@ -17,12 +17,12 @@ namespace Naos.Serialization.Domain
         Invalid,
 
         /// <summary>
-        /// String representation.
+        /// String format.
         /// </summary>
         String,
 
         /// <summary>
-        /// Binary representation.
+        /// Binary format.
         /// </summary>
         Binary,
     }

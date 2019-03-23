@@ -26,7 +26,7 @@ namespace Naos.Serialization.Test
     public static class SerializerDescriptionTest
     {
         [Fact]
-        public static void Constructor___Invalid_SerializationFormat___Throws()
+        public static void Constructor___Invalid_SerializationKind___Throws()
         {
             // Arrange
             Action action = () => new SerializationDescription(
@@ -43,7 +43,7 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
-        public static void Constructor___Invalid_SerializationRepresentation___Throws()
+        public static void Constructor___Invalid_SerializationFormat___Throws()
         {
             // Arrange
             Action action = () => new SerializationDescription(

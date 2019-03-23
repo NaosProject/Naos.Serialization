@@ -25,14 +25,13 @@ namespace Naos.Serialization.Test
 
     public static class RoundtripSerializationTest
     {
-        private static readonly NaosJsonSerializer JsonSerializerToUse = new NaosJsonSerializer();
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_ClassWithGetterOnlysBase___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<ClassWithGetterOnlysBase>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<ClassWithGetterOnlys>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<ClassWithGetterOnlys>);
 
             var expected = new ClassWithGetterOnlys();
 
@@ -47,7 +46,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Unconfigured", Justification = "Spelling/name is correct.")]
@@ -55,7 +54,9 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_Unconfigured_Bson___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer();
+
+            Type bsonConfigType = null;
+            Type jsonConfigType = null;
 
             var expected = new VanillaClass { Something = A.Dummy<string>() };
 
@@ -67,14 +68,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_ClassWithPrivateSetter___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<ClassWithPrivateSetter>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<ClassWithPrivateSetter>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<ClassWithPrivateSetter>);
 
             var privateValue = A.Dummy<string>();
             var expected = new ClassWithPrivateSetter(privateValue);
@@ -87,14 +89,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestWrappedFields___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestWrappedFields>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestWrappedFields>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestWrappedFields>);
 
             var expected = new TestWrappedFields
             {
@@ -118,14 +121,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestWithInheritor___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestWithInheritorExtraProperty>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithInheritorExtraProperty>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithInheritorExtraProperty>);
 
             var expected = new TestWithInheritorExtraProperty { Id = Guid.NewGuid().ToString(), Name = Guid.NewGuid().ToString(), AnotherName = Guid.NewGuid().ToString(), };
 
@@ -139,14 +143,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestWithId___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestWithId>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithId>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithId>);
 
             var expected = new TestWithId { Id = Guid.NewGuid().ToString(), };
 
@@ -158,14 +163,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestMapping_with_all_defaults___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestMapping>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestMapping>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestMapping>);
 
             var expected = new TestMapping();
 
@@ -189,14 +195,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestMapping___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestMapping>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestMapping>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestMapping>);
 
             var expected = new TestMapping
             {
@@ -239,14 +246,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestDictionaryMapping_with_all_nulls___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestDictionaryFields>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestDictionaryFields>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestDictionaryFields>);
 
             var expected = new TestDictionaryFields();
 
@@ -265,14 +273,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestDictionaryMapping___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestDictionaryFields>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestDictionaryFields>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestDictionaryFields>);
 
             var expected = A.Dummy<TestDictionaryFields>();
 
@@ -291,14 +300,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestDictionaryMixedKeyValues_with_all_nulls___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestDictionaryMixedKeyValues>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestDictionaryMixedKeyValues>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestDictionaryMixedKeyValues>);
 
             var expected = new TestDictionaryMixedKeyValues();
 
@@ -345,14 +355,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestDictionaryMixedKeyValues___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestDictionaryMixedKeyValues>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestDictionaryMixedKeyValues>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestDictionaryMixedKeyValues>);
 
             var expected = A.Dummy<TestDictionaryMixedKeyValues>();
 
@@ -399,14 +410,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestCollectionFields_with_all_nulls___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestCollectionFields>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestCollectionFields>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestCollectionFields>);
 
             var expected = new TestCollectionFields();
 
@@ -424,14 +436,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestCollectionFields___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestCollectionFields>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestCollectionFields>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestCollectionFields>);
 
             var expected = A.Dummy<TestCollectionFields>();
 
@@ -449,14 +462,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_collection_of_Interface_type___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<InvestigationConfiguration>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<IDeduceWhoLetTheDogsOut>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<IDeduceWhoLetTheDogsOut>);
 
             IDeduceWhoLetTheDogsOut investigator1 = new NamedInvestigator("bob", 2);
             IDeduceWhoLetTheDogsOut investigator2 = new AnonymousInvestigator(4000);
@@ -483,13 +497,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_SerializationDescription___Works()
         {
             // Arrange
+            var bsonConfigType = typeof(NullBsonConfiguration);
+            var jsonConfigType = typeof(NullJsonConfiguration);
             var expected = A.Dummy<SerializationDescription>();
 
             void ThrowIfObjectsDiffer(object actualAsObject)
@@ -500,7 +516,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, new NaosBsonSerializer());
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Spelling/name is correct.")]
@@ -508,7 +524,9 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_ClassWithFlagsEnums___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<ClassWithFlagsEnums>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<ClassWithFlagsEnums>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<ClassWithFlagsEnums>);
+
             var expected = new ClassWithFlagsEnums { Flags = FlagsEnumeration.SecondValue | FlagsEnumeration.ThirdValue };
 
             void ThrowIfObjectsDiffer(object actualAsObject)
@@ -519,14 +537,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestWithDictionaryKeyedOnEnum___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<TestWithDictionaryKeyedOnEnum>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithDictionaryKeyedOnEnum>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithDictionaryKeyedOnEnum>);
 
             var expected = A.Dummy<TestWithDictionaryKeyedOnEnum>();
 
@@ -540,14 +559,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestWithEmptyReadOnlyCollectionOfBaseClass___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<TestWithReadOnlyCollectionOfBaseClassConfig>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
 
             var expected = new TestWithReadOnlyCollectionOfBaseClass { TestCollection = new List<TestBase>() };
 
@@ -560,14 +580,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestWithReadOnlyCollectionOfBaseClass___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<TestWithReadOnlyCollectionOfBaseClassConfig>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
 
             var expected = new TestWithReadOnlyCollectionOfBaseClass
                                {
@@ -590,14 +611,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums___Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<TestWithDictionaryOfEnumToReadOnlyCollectionOfEnumsConfig>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums>);
 
             var expected = new TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums
             {
@@ -627,7 +649,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -635,7 +657,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_Field_NumberField_YearField__Works()
         {
             // Arrange
-            var bsonSerializer = new NaosBsonSerializer<BsonConfigurationAutoRegisterType<Field>>();
+            var bsonConfigType = typeof(GenericBsonConfiguration<Field>);
+            var jsonConfigType = typeof(GenericJsonConfiguration<Field>);
 
             var expectedId1 = "my-field-1";
             var expectedId2 = "my-field-2";
@@ -681,14 +704,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            ActAndAssertForRoundtripSerialization(expected1, ThrowIfObjectsDiffer1, bsonSerializer);
-            ActAndAssertForRoundtripSerialization(expected2, ThrowIfObjectsDiffer2, bsonSerializer);
+            ActAndAssertForRoundtripSerialization(expected1, ThrowIfObjectsDiffer1, jsonConfigType, bsonConfigType);
+            ActAndAssertForRoundtripSerialization(expected2, ThrowIfObjectsDiffer2, jsonConfigType, bsonConfigType);
         }
 
         private static void ActAndAssertForRoundtripSerialization(
             object expected,
             Action<object> throwIfObjectsDiffer,
-            NaosBsonSerializer bsonSerializer,
+            Type jsonConfigType,
+            Type bsonConfigType,
             bool testBson = true,
             bool testJson = true)
         {
@@ -697,12 +721,14 @@ namespace Naos.Serialization.Test
 
             if (testJson)
             {
-                stringSerializers.Add(JsonSerializerToUse);
-                binarySerializers.Add(JsonSerializerToUse);
+                var jsonSerializer = new NaosJsonSerializer(jsonConfigType);
+                stringSerializers.Add(jsonSerializer);
+                binarySerializers.Add(jsonSerializer);
             }
 
             if (testBson)
             {
+                var bsonSerializer = new NaosBsonSerializer(bsonConfigType);
                 stringSerializers.Add(bsonSerializer);
                 binarySerializers.Add(bsonSerializer);
             }

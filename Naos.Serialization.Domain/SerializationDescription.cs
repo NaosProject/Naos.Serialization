@@ -32,7 +32,7 @@ namespace Naos.Serialization.Domain
         public SerializationDescription(SerializationKind serializationKind, SerializationFormat serializationFormat, TypeDescription configurationTypeDescription = null, CompressionKind compressionKind = CompressionKind.None, IReadOnlyDictionary<string, string> metadata = null)
         {
             new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
-            new { serializationRepresentation = serializationFormat }.Must().NotBeEqualTo(SerializationFormat.Invalid);
+            new { serializationFormat }.Must().NotBeEqualTo(SerializationFormat.Invalid);
             new { compressionKind }.Must().NotBeEqualTo(CompressionKind.Invalid);
 
             this.SerializationKind = serializationKind;

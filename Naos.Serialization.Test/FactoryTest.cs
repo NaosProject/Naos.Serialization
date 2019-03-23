@@ -87,7 +87,7 @@ namespace Naos.Serialization.Test
         public static void BuildSerializer___Bson___Gets_Bson_serializer()
         {
             // Arrange
-            var expectedConfigType = typeof(CustomThrowsConfig);
+            var expectedConfigType = typeof(NullBsonConfiguration);
             var serializerDescription = new SerializationDescription(
                 SerializationKind.Bson,
                 SerializationFormat.String,
