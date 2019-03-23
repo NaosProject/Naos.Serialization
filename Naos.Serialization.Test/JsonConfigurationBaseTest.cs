@@ -26,21 +26,6 @@ namespace Naos.Serialization.Test
     public static class JsonConfigurationBaseTest
     {
         [Fact]
-        public static void JsonConfigurationBase___With_kind_Invalid___Throws()
-        {
-            // Arrange
-            Action action = () => JsonConfigurationManager.Configure<InvalidKindConfiguration>();
-
-            // Act
-            var exception = Record.Exception(action);
-
-            // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
-            exception.Message.Should().Be("Parameter 'InheritSettingsFromKind' is equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationKind.  Specified 'comparisonValue' is 'Invalid'.");
-        }
-
-        [Fact]
         public static void JsonConfigurationBase___With_contract_override___Works()
         {
             // Arrange
@@ -73,19 +58,11 @@ namespace Naos.Serialization.Test
 
     internal class DefaultTestConfiguration : JsonConfigurationBase
     {
-        protected override SerializationKind InheritSettingsFromKind => SerializationKind.Default;
-
         protected override IReadOnlyDictionary<SerializationDirection, IContractResolver> OverrideContractResolver =>
             new Dictionary<SerializationDirection, IContractResolver>
             {
                 { SerializationDirection.Serialize, new DefaultContractResolver() },
                 { SerializationDirection.Deserialize, new DefaultContractResolver() },
             };
-    }
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Used above in Configure<T>.")]
-    internal class InvalidKindConfiguration : JsonConfigurationBase
-    {
-        protected override SerializationKind InheritSettingsFromKind => SerializationKind.Invalid;
     }
 }

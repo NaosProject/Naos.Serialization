@@ -68,9 +68,9 @@ namespace Naos.Serialization.Domain
 
                         var typesToAutoRegister = new Type[0]
                             .Concat(InternallyRequiredTypes)
-                            .Concat(this.TypesToAutoRegister)
-                            .Concat(this.InterfaceTypesToRegisterImplementationOf)
-                            .Concat(this.ClassTypesToRegisterAlongWithInheritors)
+                            .Concat(this.TypesToAutoRegister ?? new List<Type>())
+                            .Concat(this.InterfaceTypesToRegisterImplementationOf ?? new List<Type>())
+                            .Concat(this.ClassTypesToRegisterAlongWithInheritors ?? new List<Type>())
                             .Concat(discoveredTypes)
                             .ToList();
 

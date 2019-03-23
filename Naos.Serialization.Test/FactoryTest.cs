@@ -47,9 +47,8 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var serializerDescription = new SerializationDescription(
-                SerializationFormat.Json,
-                SerializationRepresentation.String,
-                SerializationKind.Default,
+                SerializationKind.Json,
+                SerializationFormat.String,
                 null,
                 CompressionKind.None);
 
@@ -90,9 +89,8 @@ namespace Naos.Serialization.Test
             // Arrange
             var expectedConfigType = typeof(CustomThrowsConfig);
             var serializerDescription = new SerializationDescription(
-                SerializationFormat.Bson,
-                SerializationRepresentation.String,
-                SerializationKind.Custom,
+                SerializationKind.Bson,
+                SerializationFormat.String,
                 expectedConfigType.ToTypeDescription());
 
             // Act

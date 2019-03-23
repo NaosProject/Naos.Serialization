@@ -30,17 +30,6 @@ namespace Naos.Serialization.Domain
     }
 
     /// <summary>
-    /// Interface to expose <see cref="SerializationKind" />.
-    /// </summary>
-    public interface IHaveSerializationKind
-    {
-        /// <summary>
-        /// Gets the <see cref="SerializationKind" />.
-        /// </summary>
-        SerializationKind SerializationKind { get; }
-    }
-
-    /// <summary>
     /// Interface to expose the <see cref="Type" /> of configuration.
     /// </summary>
     public interface IHaveConfigurationType

@@ -68,9 +68,6 @@ namespace Naos.Serialization.Domain
         public string NullValueEncoding { get; private set; }
 
         /// <inheritdoc />
-        public SerializationKind SerializationKind => SerializationKind.Default;
-
-        /// <inheritdoc />
         public Type ConfigurationType => null;
 
         /// <inheritdoc />

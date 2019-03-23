@@ -24,11 +24,6 @@ namespace Naos.Serialization.Json
     public abstract class JsonConfigurationBase : SerializationConfigurationBase
     {
         /// <summary>
-        /// Gets the kind to use as the base settings before applying overrides.
-        /// </summary>
-        protected virtual SerializationKind InheritSettingsFromKind => SerializationKind.Default;
-
-        /// <summary>
         /// Gets the optional override to the contract resolver of the settings gotten from the provided kind for reading.
         /// </summary>
         protected virtual IReadOnlyDictionary<SerializationDirection, IContractResolver> OverrideContractResolver => null;
@@ -38,24 +33,29 @@ namespace Naos.Serialization.Json
         /// </summary>
         protected virtual IReadOnlyDictionary<SerializationDirection, IReadOnlyCollection<JsonConverter>> ConvertersToPushOnStack => null;
 
-        private static readonly IReadOnlyDictionary<SerializationDirection, Func<IReadOnlyCollection<Type>, IList<JsonConverter>>>
+        private static readonly IReadOnlyDictionary<SerializationDirection,
+                Func<IReadOnlyCollection<Type>, JsonFormattingKind, IList<JsonConverter>>>
             GetDefaultConverters =
-                new Dictionary<SerializationDirection, Func<IReadOnlyCollection<Type>, IList<JsonConverter>>>
+                new Dictionary<SerializationDirection,
+                    Func<IReadOnlyCollection<Type>, JsonFormattingKind, IList<JsonConverter>>>
                 {
                     {
                         SerializationDirection.Serialize,
-                        inheritedTypeConverterTypes => new JsonConverter[]
-                        {
-                            new InheritedTypeWriterJsonConverter(inheritedTypeConverterTypes),
-                            new StringEnumConverter { CamelCaseText = true },
-                            new SecureStringJsonConverter(),
-                            new DictionaryJsonConverter(),
-                            new DateTimeJsonConverter(),
-                        }
+                        (inheritedTypeConverterTypes, serializationKind) =>
+
+                            (serializationKind == JsonFormattingKind.Minimal
+                                ? new[] { new InheritedTypeWriterJsonConverter(inheritedTypeConverterTypes), }
+                                : new JsonConverter[0]).Concat(new JsonConverter[]
+                            {
+                                new StringEnumConverter { CamelCaseText = true },
+                                new SecureStringJsonConverter(),
+                                new DictionaryJsonConverter(),
+                                new DateTimeJsonConverter(),
+                            }).ToList()
                     },
                     {
                         SerializationDirection.Deserialize,
-                        inheritedTypeConverterTypes => new JsonConverter[]
+                        (inheritedTypeConverterTypes, serializationKind) => new JsonConverter[]
                         {
                             new InheritedTypeReaderJsonConverter(inheritedTypeConverterTypes),
                             new StringEnumConverter { CamelCaseText = true },
@@ -67,14 +67,14 @@ namespace Naos.Serialization.Json
                 };
 
         /// <summary>
-        /// Map of <see cref="SerializationKind" /> to a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,TResult}" /> that will take a <see cref="SerializationDirection" /> and return the correct <see cref="JsonSerializerSettings" />.
+        /// Map of <see cref="JsonFormattingKind" /> to a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,TResult}" /> that will take a <see cref="SerializationDirection" /> and return the correct <see cref="JsonSerializerSettings" />.
         /// </summary>
-        internal static readonly Dictionary<SerializationKind, Func<SerializationDirection, JsonSerializerSettings>>
+        internal static readonly Dictionary<JsonFormattingKind, Func<SerializationDirection, JsonSerializerSettings>>
             SerializationKindToSettingsSelectorByDirection =
-                new Dictionary<SerializationKind, Func<SerializationDirection, JsonSerializerSettings>>
+                new Dictionary<JsonFormattingKind, Func<SerializationDirection, JsonSerializerSettings>>
                 {
                     {
-                        SerializationKind.Default, direction =>
+                        JsonFormattingKind.Default, direction =>
                         {
                             switch (direction)
                             {
@@ -88,7 +88,7 @@ namespace Naos.Serialization.Json
                         }
                     },
                     {
-                        SerializationKind.Compact, direction =>
+                        JsonFormattingKind.Compact, direction =>
                         {
                             switch (direction)
                             {
@@ -102,7 +102,7 @@ namespace Naos.Serialization.Json
                         }
                     },
                     {
-                        SerializationKind.Minimal, direction =>
+                        JsonFormattingKind.Minimal, direction =>
                         {
                             switch (direction)
                             {
@@ -168,12 +168,6 @@ namespace Naos.Serialization.Json
             };
 
         /// <inheritdoc />
-        protected override void InternalConfigure()
-        {
-            new { this.InheritSettingsFromKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
-        }
-
-        /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull();
@@ -185,17 +179,18 @@ namespace Naos.Serialization.Json
         /// Build <see cref="JsonSerializerSettings" /> to use for serialization using Newtonsoft.
         /// </summary>
         /// <param name="serializationDirection">Direction of serialization.</param>
+        /// <param name="formattingKind">Kind of formatting to use.</param>
         /// <returns>Prepared settings to use with Newtonsoft.</returns>
-        public JsonSerializerSettings BuildJsonSerializerSettings(SerializationDirection serializationDirection)
+        public JsonSerializerSettings BuildJsonSerializerSettings(SerializationDirection serializationDirection, JsonFormattingKind formattingKind = JsonFormattingKind.Default)
         {
-            var result = SerializationKindToSettingsSelectorByDirection[this.InheritSettingsFromKind](SerializationDirection.Serialize);
+            var result = SerializationKindToSettingsSelectorByDirection[formattingKind](SerializationDirection.Serialize);
 
             var specifiedConverters =
                 this.ConvertersToPushOnStack != null && this.ConvertersToPushOnStack.ContainsKey(serializationDirection)
                     ? this.ConvertersToPushOnStack[serializationDirection] ?? new JsonConverter[0]
                     : new JsonConverter[0];
 
-            var defaultConverters = GetDefaultConverters[serializationDirection](this.inheritedTypeConverterTypes);
+            var defaultConverters = GetDefaultConverters[serializationDirection](this.inheritedTypeConverterTypes, formattingKind);
 
             var converters = new JsonConverter[0]
                 .Concat(specifiedConverters)
@@ -217,15 +212,15 @@ namespace Naos.Serialization.Json
         /// <summary>
         /// Build <see cref="JsonSerializerSettings" /> to use for serialization of anonymous types using Newtonsoft.
         /// </summary>
-        /// <param name="serializationKind">Kind of serialization.</param>
         /// <param name="serializationDirection">Direction of serialization.</param>
+        /// <param name="formattingKind">Kind of formatting to use.</param>
         /// <returns>Prepared settings to use with Newtonsoft.</returns>
-        public JsonSerializerSettings BuildAnonymousJsonSerializerSettings(SerializationKind serializationKind, SerializationDirection serializationDirection)
+        public JsonSerializerSettings BuildAnonymousJsonSerializerSettings(SerializationDirection serializationDirection, JsonFormattingKind formattingKind = JsonFormattingKind.Default)
         {
             // this is a hack to not mess with casing since the case must match for dynamic deserialization...
-            var result = SerializationKindToSettingsSelectorByDirection[serializationKind](serializationDirection);
+            var result = SerializationKindToSettingsSelectorByDirection[formattingKind](serializationDirection);
             result.ContractResolver = new DefaultContractResolver();
-            result.Converters = GetDefaultConverters[serializationDirection](this.inheritedTypeConverterTypes);
+            result.Converters = GetDefaultConverters[serializationDirection](this.inheritedTypeConverterTypes, formattingKind);
             return result;
         }
     }

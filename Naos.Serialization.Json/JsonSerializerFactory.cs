@@ -43,10 +43,10 @@ namespace Naos.Serialization.Json
             {
                 var configurationType = serializationDescription.ConfigurationTypeDescription?.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
 
-                switch (serializationDescription.SerializationFormat)
+                switch (serializationDescription.SerializationKind)
                 {
-                    case SerializationFormat.Json: return new NaosJsonSerializer(configurationType, serializationDescription.SerializationKind);
-                    default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationFormat)} of {serializationDescription.SerializationFormat} is not supported."));
+                    case SerializationKind.Json: return new NaosJsonSerializer(configurationType);
+                    default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationKind)} of {serializationDescription.SerializationKind} is not supported."));
                 }
             }
         }

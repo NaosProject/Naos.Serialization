@@ -22,9 +22,6 @@ namespace Naos.Serialization.Domain
     public class NaosDateTimeStringSerializer : IStringSerializeAndDeserialize
     {
         /// <inheritdoc />
-        public SerializationKind SerializationKind => SerializationKind.Default;
-
-        /// <inheritdoc />
         public Type ConfigurationType => null;
 
         /// <summary>

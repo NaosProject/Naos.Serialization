@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SerializationKind.cs" company="Naos Project">
+// <copyright file="SerializationDirection.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -7,28 +7,23 @@
 namespace Naos.Serialization.Domain
 {
     /// <summary>
-    /// Format of serialization.
+    /// Direction of serialization.
     /// </summary>
-    public enum SerializationKind
+    public enum SerializationDirection
     {
         /// <summary>
-        /// Invalid default option.
+        /// Unknown direction.
         /// </summary>
-        Invalid,
+        Unknown,
 
         /// <summary>
-        /// JSON format.
+        /// Serializing object.
         /// </summary>
-        Json,
+        Serialize,
 
         /// <summary>
-        /// BSON format.
+        /// Deserializing object.
         /// </summary>
-        Bson,
-
-        /// <summary>
-        /// Property bag (Dictionary{string, string} format.
-        /// </summary>
-        PropertyBag,
+        Deserialize,
     }
 }

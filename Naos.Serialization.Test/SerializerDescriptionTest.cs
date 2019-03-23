@@ -16,7 +16,7 @@ namespace Naos.Serialization.Test
 
     using Naos.Compression.Domain;
     using Naos.Serialization.Domain;
-
+    using Naos.Serialization.Json;
     using OBeautifulCode.TypeRepresentation;
 
     using Xunit;
@@ -30,43 +30,8 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             Action action = () => new SerializationDescription(
-                SerializationFormat.Invalid,
-                SerializationRepresentation.Binary);
-
-            // Act
-            var exception = Record.Exception(action);
-
-            // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
-            exception.Message.Should().Be("Parameter 'serializationFormat' is equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationFormat.  Specified 'comparisonValue' is 'Invalid'.");
-        }
-
-        [Fact]
-        public static void Constructor___Invalid_SerializationRepresentation___Throws()
-        {
-            // Arrange
-            Action action = () => new SerializationDescription(
-                SerializationFormat.Bson,
-                SerializationRepresentation.Invalid);
-
-            // Act
-            var exception = Record.Exception(action);
-
-            // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
-            exception.Message.Should().Be("Parameter 'serializationRepresentation' is equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationRepresentation.  Specified 'comparisonValue' is 'Invalid'.");
-        }
-
-        [Fact]
-        public static void Constructor___Invalid_SerializationKind___Throws()
-        {
-            // Arrange
-            Action action = () => new SerializationDescription(
-                SerializationFormat.Bson,
-                SerializationRepresentation.String,
-                SerializationKind.Invalid);
+                SerializationKind.Invalid,
+                SerializationFormat.Binary);
 
             // Act
             var exception = Record.Exception(action);
@@ -78,13 +43,29 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
+        public static void Constructor___Invalid_SerializationRepresentation___Throws()
+        {
+            // Arrange
+            Action action = () => new SerializationDescription(
+                SerializationKind.Bson,
+                SerializationFormat.Invalid);
+
+            // Act
+            var exception = Record.Exception(action);
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.Message.Should().Be("Parameter 'serializationFormat' is equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationFormat.  Specified 'comparisonValue' is 'Invalid'.");
+        }
+
+        [Fact]
         public static void Constructor___Invalid_CompressionKind___Throws()
         {
             // Arrange
             Action action = () => new SerializationDescription(
-                SerializationFormat.Bson,
-                SerializationRepresentation.String,
-                SerializationKind.Compact,
+                SerializationKind.Bson,
+                SerializationFormat.String,
                 null,
                 CompressionKind.Invalid);
 
@@ -118,48 +99,43 @@ namespace Naos.Serialization.Test
                                     {
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.DotNetZip, metadata1),
-                                                Second = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.DotNetZip, metadata1Plus),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.DotNetZip, metadata1),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.DotNetZip, metadata1Plus),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.DotNetZip, metadata1),
-                                                Second = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.DotNetZip, metadata2),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.DotNetZip, metadata1),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.DotNetZip, metadata2),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.DotNetZip),
-                                                Second = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1, CompressionKind.None),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.DotNetZip),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.None),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1),
-                                                Second = new SerializationDescription(SerializationFormat.Json, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1),
+                                                Second = new SerializationDescription(SerializationKind.Json, SerializationFormat.Binary, typeDescription1),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1),
-                                                Second = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.String, SerializationKind.Default, typeDescription1),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.String, typeDescription1),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1),
-                                                Second = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Compact, typeDescription1),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription2),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1),
-                                                Second = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription2),
-                                            },
-                                        new
-                                            {
-                                                First = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription1),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1),
                                                 Second = (SerializationDescription)null,
                                             },
                                         new
                                             {
                                                 First = (SerializationDescription)null,
-                                                Second = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.Binary, SerializationKind.Default, typeDescription2),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription2),
                                             },
                                     }.ToList();
 
@@ -184,15 +160,14 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var typeDescription = typeof(string).ToTypeDescription();
-            var serializationFormat = SerializationFormat.Bson;
-            var serializationRepresentation = SerializationRepresentation.Binary;
-            var serializationKind = SerializationKind.Default;
+            var serializationKind = SerializationKind.Bson;
+            var serializationRepresentation = SerializationFormat.Binary;
             var notEqualTests = new[]
                                     {
                                         new
                                             {
-                                                First = new SerializationDescription(serializationFormat, serializationRepresentation, serializationKind, typeDescription),
-                                                Second = new SerializationDescription(serializationFormat, serializationRepresentation, serializationKind, typeDescription),
+                                                First = new SerializationDescription(serializationKind, serializationRepresentation, typeDescription),
+                                                Second = new SerializationDescription(serializationKind, serializationRepresentation, typeDescription),
                                             },
                                         new
                                             {

@@ -44,9 +44,6 @@ namespace Naos.Serialization.Domain
         }
 
         /// <inheritdoc />
-        public SerializationKind SerializationKind => SerializationKind.Default;
-
-        /// <inheritdoc />
         public Type ConfigurationType => null;
 
         /// <inheritdoc />

@@ -19,7 +19,7 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Interface to serialize to a string.
     /// </summary>
-    public interface IPropertyBagSerialize : IHaveSerializationKind, IHaveConfigurationType
+    public interface IPropertyBagSerialize : IHaveConfigurationType
     {
         /// <summary>
         /// Serializes an object into a string.
@@ -33,7 +33,7 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Interface to deserialize from a string.
     /// </summary>
-    public interface IPropertyBagDeserialize : IHaveSerializationKind, IHaveConfigurationType
+    public interface IPropertyBagDeserialize : IHaveConfigurationType
     {
         /// <summary>
         /// Deserializes the Property Bag into an object.

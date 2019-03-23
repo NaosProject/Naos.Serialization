@@ -18,7 +18,7 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Interface to serialize to a byte array.
     /// </summary>
-    public interface IBinarySerialize : IHaveSerializationKind, IHaveConfigurationType
+    public interface IBinarySerialize : IHaveConfigurationType
     {
         /// <summary>
         /// Serializes an object into a byte array.
@@ -32,7 +32,7 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Interface to deserialize from a byte array.
     /// </summary>
-    public interface IBinaryDeserialize : IHaveSerializationKind, IHaveConfigurationType
+    public interface IBinaryDeserialize : IHaveConfigurationType
     {
         /// <summary>
         /// Deserializes the byte array into an object.

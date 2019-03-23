@@ -24,41 +24,33 @@ namespace Naos.Serialization.Domain
         /// <summary>
         /// Initializes a new instance of the <see cref="SerializationDescription"/> class.
         /// </summary>
+        /// <param name="serializationKind">The <see cref="SerializationKind" /> to serialize into.</param>
         /// <param name="serializationFormat">The <see cref="SerializationFormat" /> to serialize into.</param>
-        /// <param name="serializationRepresentation">The <see cref="SerializationRepresentation" /> to serialize into.</param>
-        /// <param name="serializationKind">Optional <see cref="SerializationKind" /> to use; DEFAULT is Default.</param>
         /// <param name="compressionKind">Optional <see cref="CompressionKind" /> to use; DEFAULT is None.</param>
         /// <param name="configurationTypeDescription">Optional configuration to use; DEFAULT is null.</param>
         /// <param name="metadata">Optional metadata to put, especially useful for customer serializer factory; DEFAULT is empty.</param>
-        public SerializationDescription(SerializationFormat serializationFormat, SerializationRepresentation serializationRepresentation, SerializationKind serializationKind = SerializationKind.Default, TypeDescription configurationTypeDescription = null, CompressionKind compressionKind = CompressionKind.None, IReadOnlyDictionary<string, string> metadata = null)
+        public SerializationDescription(SerializationKind serializationKind, SerializationFormat serializationFormat, TypeDescription configurationTypeDescription = null, CompressionKind compressionKind = CompressionKind.None, IReadOnlyDictionary<string, string> metadata = null)
         {
-            new { serializationFormat }.Must().NotBeEqualTo(SerializationFormat.Invalid);
-            new { serializationRepresentation }.Must().NotBeEqualTo(SerializationRepresentation.Invalid);
             new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
+            new { serializationRepresentation = serializationFormat }.Must().NotBeEqualTo(SerializationFormat.Invalid);
             new { compressionKind }.Must().NotBeEqualTo(CompressionKind.Invalid);
 
-            this.SerializationFormat = serializationFormat;
-            this.SerializationRepresentation = serializationRepresentation;
             this.SerializationKind = serializationKind;
+            this.SerializationFormat = serializationFormat;
             this.ConfigurationTypeDescription = configurationTypeDescription;
             this.CompressionKind = compressionKind;
             this.Metadata = metadata ?? new Dictionary<string, string>();
         }
 
         /// <summary>
+        /// Gets the <see cref="SerializationKind" /> to serialize into.
+        /// </summary>
+        public SerializationKind SerializationKind { get; private set; }
+
+        /// <summary>
         /// Gets the <see cref="SerializationFormat" /> to serialize into.
         /// </summary>
         public SerializationFormat SerializationFormat { get; private set; }
-
-        /// <summary>
-        /// Gets the <see cref="SerializationRepresentation" /> to serialize into.
-        /// </summary>
-        public SerializationRepresentation SerializationRepresentation { get; private set; }
-
-        /// <summary>
-        /// Gets the <see cref="SerializationKind" /> to use.
-        /// </summary>
-        public SerializationKind SerializationKind { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="CompressionKind" /> to use.
@@ -104,8 +96,8 @@ namespace Naos.Serialization.Domain
                 metadataEqual = second.Metadata.ContainsKey(firstKey) && second.Metadata[firstKey] == first.Metadata[firstKey];
             }
 
-            return first.SerializationFormat == second.SerializationFormat && first.SerializationRepresentation == second.SerializationRepresentation
-                   && first.SerializationKind == second.SerializationKind && first.CompressionKind == second.CompressionKind
+            return first.SerializationKind == second.SerializationKind && first.SerializationFormat == second.SerializationFormat
+                   && first.CompressionKind == second.CompressionKind
                    && first.ConfigurationTypeDescription == second.ConfigurationTypeDescription && metadataEqual;
         }
 
@@ -124,8 +116,8 @@ namespace Naos.Serialization.Domain
         public override bool Equals(object obj) => this == (obj as SerializationDescription);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCodeHelper.Initialize().Hash(this.SerializationFormat).Hash(this.SerializationRepresentation)
-            .Hash(this.SerializationKind).Hash(this.CompressionKind).Hash(this.ConfigurationTypeDescription)
+        public override int GetHashCode() => HashCodeHelper.Initialize().Hash(this.SerializationKind).Hash(this.SerializationFormat)
+            .Hash(this.CompressionKind).Hash(this.ConfigurationTypeDescription)
             .HashElements(this.Metadata.OrderBy(_ => _.Key).Select(_ => new Tuple<string, string>(_.Key, _.Value))).Value;
     }
 }

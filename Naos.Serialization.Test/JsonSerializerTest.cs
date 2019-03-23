@@ -24,37 +24,6 @@ namespace Naos.Serialization.Test
     public static class JsonSerializerTest
     {
         [Fact]
-        public static void NaosJsonSerializer___With_kind_Invalid___Throws()
-        {
-            // Arrange
-            Action action = () => new NaosJsonSerializer(serializationKind: SerializationKind.Invalid);
-
-            // Act
-            var exception = Record.Exception(action);
-
-            // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
-            exception.Message.Should().Be("Parameter 'serializationKind' is equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationKind.  Specified 'comparisonValue' is 'Invalid'.");
-        }
-
-        [Fact]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Newtonsoft", Justification = "Spelling/name is correct.")]
-        public static void NaosJsonSerializer___With_kind_Custom_and_null_Configuration_type___Throws()
-        {
-            // Arrange
-            Action action = () => new NaosJsonSerializer(null, SerializationKind.Custom);
-
-            // Act
-            var exception = Record.Exception(action);
-
-            // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Must specify configurationType if using serializationKind of SerializationKind.Custom");
-        }
-
-        [Fact]
         public static void NaosJsonSerializer___With_type_Default___Uses_default()
         {
             // Arrange
@@ -97,7 +66,7 @@ namespace Naos.Serialization.Test
                            + "}";
 
             var test = new TestObject { Property1 = property1, Property2 = property2, Property3 = property3, };
-            var serializer = new NaosJsonSerializer(serializationKind: SerializationKind.Compact);
+            var serializer = new NaosJsonSerializer(formattingKind: JsonFormattingKind.Compact);
 
             // Act
             var actual = serializer.SerializeToString(test);
@@ -121,7 +90,7 @@ namespace Naos.Serialization.Test
                            + "}";
 
             var test = new TestObject { Property1 = property1, Property2 = property2, Property3 = property3, };
-            var serializer = new NaosJsonSerializer(serializationKind: SerializationKind.Minimal);
+            var serializer = new NaosJsonSerializer(formattingKind: JsonFormattingKind.Minimal);
 
             // Act
             var actual = serializer.SerializeToString(test);

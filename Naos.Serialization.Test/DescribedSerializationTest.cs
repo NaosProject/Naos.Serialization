@@ -203,8 +203,8 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var input = new { Item = "item", Items = new[] { "item1", "item2" } };
-            var serializationDescriptionJson = new SerializationDescription(SerializationFormat.Json, SerializationRepresentation.String, SerializationKind.Compact);
-            var serializationDescriptionBson = new SerializationDescription(SerializationFormat.Bson, SerializationRepresentation.String, SerializationKind.Default);
+            var serializationDescriptionJson = new SerializationDescription(SerializationKind.Json, SerializationFormat.String);
+            var serializationDescriptionBson = new SerializationDescription(SerializationKind.Bson, SerializationFormat.String);
 
             // Act
             var serializedJson = input.ToDescribedSerialization(serializationDescriptionJson);

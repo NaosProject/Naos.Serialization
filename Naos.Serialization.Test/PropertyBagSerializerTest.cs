@@ -24,25 +24,10 @@ namespace Naos.Serialization.Test
     public static class PropertyBagSerializerTest
     {
         [Fact]
-        public static void Constructor___Kind_not_default___Throws()
-        {
-            // Arrange
-            Action action = () => new NaosPropertyBagSerializer(SerializationKind.Custom);
-
-            // Act
-            var exception = Record.Exception(action);
-
-            // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
-            exception.Message.Should().Be("Parameter 'serializationKind' is not equal to the comparison value using EqualityComparer<T>.Default, where T: SerializationKind.  Parameter value is 'Custom'.  Specified 'comparisonValue' is 'Default'.");
-        }
-
-        [Fact]
         public static void Constructor___Configuration_type_not_null___Throws()
         {
             // Arrange
-            Action action = () => new NaosPropertyBagSerializer(SerializationKind.Default, typeof(string));
+            Action action = () => new NaosPropertyBagSerializer(typeof(string));
 
             // Act
             var exception = Record.Exception(action);
@@ -210,7 +195,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var configurationType = typeof(PropertyBagConfig);
-            var serializer = new NaosPropertyBagSerializer(SerializationKind.Default, configurationType);
+            var serializer = new NaosPropertyBagSerializer(configurationType);
             var input = new StringProperty { StringItem = A.Dummy<string>() };
 
             // Act
@@ -394,8 +379,6 @@ namespace Naos.Serialization.Test
         {
             public const string CustomSerializedString = "We have a serializer attribute.";
 
-            public SerializationKind SerializationKind => SerializationKind.Default;
-
             public Type ConfigurationType => null;
 
             public string SerializeToString(object objectToSerialize)
@@ -422,8 +405,6 @@ namespace Naos.Serialization.Test
             public const string CustomReplacementString = "We have a string overwriting.";
 
             public const string CustomSerializedString = "We have a string overwriting serializer attribute.";
-
-            public SerializationKind SerializationKind => SerializationKind.Default;
 
             public Type ConfigurationType => null;
 
@@ -454,8 +435,6 @@ namespace Naos.Serialization.Test
         {
             public const string CustomSerializedString = "Array of these.";
 
-            public SerializationKind SerializationKind => SerializationKind.Default;
-
             public Type ConfigurationType => null;
 
             public string SerializeToString(object objectToSerialize)
@@ -481,8 +460,6 @@ namespace Naos.Serialization.Test
         {
             public const string CustomSerializedString = "Enum attribute.";
 
-            public SerializationKind SerializationKind => SerializationKind.Default;
-
             public Type ConfigurationType => null;
 
             public string SerializeToString(object objectToSerialize)
@@ -507,8 +484,6 @@ namespace Naos.Serialization.Test
         private class EnumAttributePropertySerializer : IStringSerializeAndDeserialize
         {
             public const string CustomSerializedString = "Enum attribute on property.";
-
-            public SerializationKind SerializationKind => SerializationKind.Default;
 
             public Type ConfigurationType => null;
 
@@ -614,8 +589,6 @@ namespace Naos.Serialization.Test
         private class InheritTestSerializer : IStringSerializeAndDeserialize
         {
             public const string CustomSerializedString = "We have a serializer inherited.";
-
-            public SerializationKind SerializationKind => SerializationKind.Default;
 
             public Type ConfigurationType => null;
 

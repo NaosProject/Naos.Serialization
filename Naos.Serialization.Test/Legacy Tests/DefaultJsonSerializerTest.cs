@@ -32,7 +32,7 @@ namespace Naos.Serialization.Test
             // If Default is being used then strict constructor matching will result in a Dog and not a Mouse
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer().Deserialize<Animal>(dogJson) as Dog;
+            var dog = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>)).Deserialize<Animal>(dogJson) as Dog;
 
             dog.Should().NotBeNull();
             dog.Name.Should().Be("Barney");
@@ -47,7 +47,7 @@ namespace Naos.Serialization.Test
             // If Default is being used then strict constructor matching will result in a Dog and not a Mouse
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer().Deserialize(dogJson, typeof(Animal)) as Dog;
+            var dog = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>)).Deserialize(dogJson, typeof(Animal)) as Dog;
 
             dog.Should().NotBeNull();
             dog.Name.Should().Be("Barney");

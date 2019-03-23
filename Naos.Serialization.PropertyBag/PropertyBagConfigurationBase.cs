@@ -19,12 +19,13 @@ namespace Naos.Serialization.PropertyBag
     /// <summary>
     /// Base class to use for creating a <see cref="NaosPropertyBagSerializer" /> configuration.
     /// </summary>
-    public abstract class PropertyBagConfigurationBase
+    public abstract class PropertyBagConfigurationBase : SerializationConfigurationBase
     {
-        /// <summary>
-        /// Gets a list of <see cref="PropertyBagConfigurationBase"/>'s that are needed for the current implemenation of <see cref="PropertyBagConfigurationBase"/>.  Optionally overrideable, DEFAULT is empty collection.
-        /// </summary>
-        protected virtual IReadOnlyCollection<Type> DependentConfigurationTypes => new Type[0];
+        /// <inheritdoc />
+        protected override void RegisterTypes(IReadOnlyCollection<Type> types)
+        {
+            /* no-op */
+        }
 
         /// <summary>
         /// Gets the key value delimiter to use for string serialization of the property bag.

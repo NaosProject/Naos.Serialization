@@ -41,10 +41,10 @@ namespace Naos.Serialization.Bson
             {
                 var configurationType = serializationDescription.ConfigurationTypeDescription?.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
 
-                switch (serializationDescription.SerializationFormat)
+                switch (serializationDescription.SerializationKind)
                 {
-                    case SerializationFormat.Bson: return new NaosBsonSerializer(configurationType, serializationDescription.SerializationKind);
-                    default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationFormat)} of {serializationDescription.SerializationFormat} is not supported."));
+                    case SerializationKind.Bson: return new NaosBsonSerializer(configurationType);
+                    default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationKind)} of {serializationDescription.SerializationKind} is not supported."));
                 }
             }
         }

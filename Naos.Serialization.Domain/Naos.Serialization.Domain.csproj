@@ -80,6 +80,7 @@
     <Compile Include=".recipes\OBeautifulCode.Validation\ParameterValidator.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\Range.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ValidatedNotNullAttribute.cs" />
+    <Compile Include="SerializationDirection.cs" />
     <Compile Include="SerializationConfigurationManager.cs" />
     <Compile Include="DomainExtensions.cs" />
     <Compile Include="DescribedSerialization.cs" />
@@ -92,8 +93,9 @@
     <Compile Include="LambdaSerializer.cs" />
     <Compile Include="NaosDictionaryStringStringSerializer.cs" />
     <Compile Include="NaosStringSerializerAttribute.cs" />
-    <Compile Include="SerializationKind.cs" />
     <Compile Include="SerializationDescription.cs" />
+    <Compile Include="SerializationKind.cs" />
+    <Compile Include="SerializationFormat.cs" />
     <Compile Include="Tracker.cs" />
     <Compile Include="NaosSerializationException.cs" />
     <Compile Include="NaosDateTimeStringSerializer.cs" />

@@ -36,16 +36,19 @@ namespace Naos.Serialization.Json
 
         private readonly JsonConfigurationBase configuration;
 
+        private readonly JsonFormattingKind formattingKind;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NaosJsonSerializer"/> class.
         /// </summary>
         /// <param name="configurationType">Type of configuration to use.</param>
-        /// <param name="serializationKind">Type of serialization to use.</param>
+        /// <param name="formattingKind">Type of serialization to use.</param>
         public NaosJsonSerializer(
             Type configurationType = null,
-            SerializationKind serializationKind = SerializationKind.Default)
+            JsonFormattingKind formattingKind = JsonFormattingKind.Default)
         {
-            new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
+            new { formattingKind }.Must().NotBeEqualTo(JsonFormattingKind.Invalid);
+            this.formattingKind = formattingKind;
 
             if (configurationType != null)
             {
@@ -56,14 +59,10 @@ namespace Naos.Serialization.Json
                     Invariant($"{nameof(configurationType)} must contain a default constructor to use in {nameof(NaosJsonSerializer)}.")).Must().BeTrue();
             }
 
-            this.SerializationKind = serializationKind;
             this.ConfigurationType = configurationType ?? typeof(NullJsonConfiguration);
             this.configuration = SerializationConfigurationManager.ConfigureWithReturn<JsonConfigurationBase>(this.ConfigurationType);
-            this.anonymousWriteSerializationSettings = this.configuration.BuildAnonymousJsonSerializerSettings(serializationKind, SerializationDirection.Serialize);
+            this.anonymousWriteSerializationSettings = this.configuration.BuildAnonymousJsonSerializerSettings(SerializationDirection.Serialize, this.formattingKind);
         }
-
-        /// <inheritdoc />
-        public SerializationKind SerializationKind { get; private set; }
 
         /// <inheritdoc />
         public Type ConfigurationType { get; private set; }
@@ -120,9 +119,14 @@ namespace Naos.Serialization.Json
         {
             var jsonSerializerSettings = objectToSerialize != null && objectToSerialize.GetType().IsAnonymous()
                 ? this.anonymousWriteSerializationSettings
-                : this.configuration.BuildJsonSerializerSettings(SerializationDirection.Serialize);
+                : this.configuration.BuildJsonSerializerSettings(SerializationDirection.Serialize, this.formattingKind);
 
             var ret = JsonConvert.SerializeObject(objectToSerialize, jsonSerializerSettings);
+
+            if (this.formattingKind == JsonFormattingKind.Compact)
+            {
+                ret = ret.Replace(Environment.NewLine, string.Empty);
+            }
 
             return ret;
         }
@@ -130,7 +134,7 @@ namespace Naos.Serialization.Json
         /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
-            var jsonSerializerSettings = this.configuration.BuildJsonSerializerSettings(SerializationDirection.Deserialize);
+            var jsonSerializerSettings = this.configuration.BuildJsonSerializerSettings(SerializationDirection.Deserialize, this.formattingKind);
             var ret = JsonConvert.DeserializeObject<T>(serializedString, jsonSerializerSettings);
 
             return ret;
@@ -149,7 +153,7 @@ namespace Naos.Serialization.Json
             }
             else
             {
-                var jsonSerializerSettings = this.configuration.BuildJsonSerializerSettings(SerializationDirection.Deserialize);
+                var jsonSerializerSettings = this.configuration.BuildJsonSerializerSettings(SerializationDirection.Deserialize, this.formattingKind);
                 ret = JsonConvert.DeserializeObject(serializedString, type, jsonSerializerSettings);
             }
 

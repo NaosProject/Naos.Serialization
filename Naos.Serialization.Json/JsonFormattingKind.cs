@@ -1,34 +1,34 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SerializationKind.cs" company="Naos Project">
+// <copyright file="JsonFormattingKind.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Naos.Serialization.Domain
+namespace Naos.Serialization.Json
 {
     /// <summary>
-    /// Format of serialization.
+    /// Kind of serialization to use.
     /// </summary>
-    public enum SerializationKind
+    public enum JsonFormattingKind
     {
         /// <summary>
-        /// Invalid default option.
+        /// Default option.
+        /// </summary>
+        Default,
+
+        /// <summary>
+        /// Compact option.
+        /// </summary>
+        Compact,
+
+        /// <summary>
+        /// Minimal option.
+        /// </summary>
+        Minimal,
+
+        /// <summary>
+        /// Invalid option.
         /// </summary>
         Invalid,
-
-        /// <summary>
-        /// JSON format.
-        /// </summary>
-        Json,
-
-        /// <summary>
-        /// BSON format.
-        /// </summary>
-        Bson,
-
-        /// <summary>
-        /// Property bag (Dictionary{string, string} format.
-        /// </summary>
-        PropertyBag,
     }
 }

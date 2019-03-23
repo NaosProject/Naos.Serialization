@@ -54,12 +54,9 @@ namespace Naos.Serialization.PropertyBag
         /// <summary>
         /// Initializes a new instance of the <see cref="NaosPropertyBagSerializer"/> class.
         /// </summary>
-        /// <param name="serializationKind">Type of serialization to use.</param>
         /// <param name="configurationType">Type of configuration to use.</param>
-        public NaosPropertyBagSerializer(SerializationKind serializationKind = SerializationKind.Default, Type configurationType = null)
+        public NaosPropertyBagSerializer(Type configurationType = null)
         {
-            new { serializationKind }.Must().BeEqualTo(SerializationKind.Default);
-
             if (configurationType != null)
             {
                 configurationType.IsSubclassOf(typeof(PropertyBagConfigurationBase)).Named(
@@ -70,7 +67,6 @@ namespace Naos.Serialization.PropertyBag
                     .BeTrue();
             }
 
-            this.SerializationKind = serializationKind;
             this.ConfigurationType = configurationType ?? typeof(NullPropertyBagConfiguration);
 
             var configuration = this.ConfigurationType.Construct<PropertyBagConfigurationBase>();
@@ -81,9 +77,6 @@ namespace Naos.Serialization.PropertyBag
             this.configuredTypeToSerializerMap = configuration.BuildTypeToSerializerMap();
             this.cachedAttributeSerializerTypeToObjectMap = new Dictionary<Type, IStringSerializeAndDeserialize>();
         }
-
-        /// <inheritdoc />
-        public SerializationKind SerializationKind { get; private set; }
 
         /// <inheritdoc />
         public Type ConfigurationType { get; private set; }

@@ -34,9 +34,8 @@ namespace Naos.Serialization.Recipes
         /// </summary>
         public SerializationDummyFactory()
         {
-            AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationFormat.Invalid);
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationKind.Invalid);
-            AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationRepresentation.Invalid);
+            AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationFormat.Invalid);
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(CompressionKind.Invalid);
 
             AutoFixtureBackedDummyFactory.UseRandomConcreteSubclassForDummy<TestBase>();

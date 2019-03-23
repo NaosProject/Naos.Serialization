@@ -24,13 +24,9 @@ namespace Naos.Serialization.Bson
         /// Initializes a new instance of the <see cref="NaosBsonSerializer"/> class.
         /// </summary>
         /// <param name="configurationType">Optional <see cref="BsonConfigurationBase"/> implementation to use; default is <see cref="NullBsonConfiguration"/>.</param>
-        /// <param name="serializationKind">Optional kind of serialization to use; default is <see cref="Domain.SerializationKind.Custom"/>.</param>
         public NaosBsonSerializer(
-            Type configurationType = null,
-            SerializationKind serializationKind = SerializationKind.Default)
+            Type configurationType = null)
         {
-            new { serializationKind }.Must().BeEqualTo(SerializationKind.Default);
-
             if (configurationType != null)
             {
                 configurationType.IsSubclassOf(typeof(BsonConfigurationBase)).Named(
@@ -40,14 +36,10 @@ namespace Naos.Serialization.Bson
                     Invariant($"{nameof(configurationType)} must contain a default constructor to use in {nameof(NaosBsonSerializer)}.")).Must().BeTrue();
             }
 
-            this.SerializationKind = serializationKind;
             this.ConfigurationType = configurationType ?? typeof(NullBsonConfiguration);
 
             SerializationConfigurationManager.Configure(this.ConfigurationType);
         }
-
-        /// <inheritdoc />
-        public SerializationKind SerializationKind { get; private set; }
 
         /// <inheritdoc />
         public Type ConfigurationType { get; private set; }
@@ -107,9 +99,8 @@ namespace Naos.Serialization.Bson
         /// <summary>
         /// Initializes a new instance of the <see cref="NaosBsonSerializer{TBsonConfiguration}"/> class.
         /// </summary>
-        /// <param name="serializationKind">Type of serialization to use.</param>
-        public NaosBsonSerializer(SerializationKind serializationKind = SerializationKind.Default)
-            : base(typeof(TBsonConfiguration), serializationKind)
+        public NaosBsonSerializer()
+            : base(typeof(TBsonConfiguration))
         {
         }
     }

@@ -88,17 +88,17 @@ namespace Naos.Serialization.Domain
             localCompressor.CompressionKind.Named(Invariant($"{nameof(serializationDescription)}.{nameof(serializationDescription.CompressionKind)}-Must-match-{nameof(compressor)}.{nameof(compressor.CompressionKind)}")).Must().BeEqualTo(serializationDescription.CompressionKind);
 
             string payload;
-            switch (serializationDescription.SerializationRepresentation)
+            switch (serializationDescription.SerializationFormat)
             {
-                case SerializationRepresentation.Binary:
+                case SerializationFormat.Binary:
                     var rawBytes = serializer.SerializeToBytes(objectToPackageIntoDescribedSerialization);
                     var compressedBytes = localCompressor.CompressBytes(rawBytes);
                     payload = DescribedSerialization.BinaryPayloadEncoding.GetString(compressedBytes);
                     break;
-                case SerializationRepresentation.String:
+                case SerializationFormat.String:
                     payload = serializer.SerializeToString(objectToPackageIntoDescribedSerialization);
                     break;
-                default: throw new NotSupportedException(Invariant($"{nameof(SerializationRepresentation)} - {serializationDescription.SerializationRepresentation} is not supported."));
+                default: throw new NotSupportedException(Invariant($"{nameof(SerializationFormat)} - {serializationDescription.SerializationFormat} is not supported."));
             }
 
             var payloadType = objectToPackageIntoDescribedSerialization?.GetType() ?? typeof(T);
@@ -172,17 +172,17 @@ namespace Naos.Serialization.Domain
             var targetType = describedSerialization.PayloadTypeDescription.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
 
             object ret;
-            switch (describedSerialization.SerializationDescription.SerializationRepresentation)
+            switch (describedSerialization.SerializationDescription.SerializationFormat)
             {
-                case SerializationRepresentation.Binary:
+                case SerializationFormat.Binary:
                     var rawBytes = DescribedSerialization.BinaryPayloadEncoding.GetBytes(describedSerialization.SerializedPayload);
                     var decompressedBytes = localDecompressor.DecompressBytes(rawBytes);
                     ret = deserializer.Deserialize(decompressedBytes, targetType);
                     break;
-                case SerializationRepresentation.String:
+                case SerializationFormat.String:
                     ret = deserializer.Deserialize(describedSerialization.SerializedPayload, targetType);
                     break;
-                default: throw new NotSupportedException(Invariant($"{nameof(SerializationRepresentation)} - {describedSerialization.SerializationDescription.SerializationRepresentation} is not supported."));
+                default: throw new NotSupportedException(Invariant($"{nameof(SerializationFormat)} - {describedSerialization.SerializationDescription.SerializationFormat} is not supported."));
             }
 
             return ret;

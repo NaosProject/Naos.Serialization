@@ -46,12 +46,12 @@ namespace Naos.Serialization.Factory
             {
                 var configurationType = serializationDescription.ConfigurationTypeDescription?.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
 
-                switch (serializationDescription.SerializationFormat)
+                switch (serializationDescription.SerializationKind)
                 {
-                    case SerializationFormat.Bson: return new NaosBsonSerializer(configurationType, serializationDescription.SerializationKind);
-                    case SerializationFormat.Json: return new NaosJsonSerializer(configurationType, serializationDescription.SerializationKind);
-                    case SerializationFormat.PropertyBag: return new NaosPropertyBagSerializer(serializationDescription.SerializationKind, configurationType);
-                    default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationFormat)} of {serializationDescription.SerializationFormat} is not supported."));
+                    case SerializationKind.Bson: return new NaosBsonSerializer(configurationType);
+                    case SerializationKind.Json: return new NaosJsonSerializer(configurationType);
+                    case SerializationKind.PropertyBag: return new NaosPropertyBagSerializer(configurationType);
+                    default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationKind)} of {serializationDescription.SerializationKind} is not supported."));
                 }
             }
         }
