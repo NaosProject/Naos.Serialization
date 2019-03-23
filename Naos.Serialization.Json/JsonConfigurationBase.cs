@@ -23,6 +23,13 @@ namespace Naos.Serialization.Json
     /// </summary>
     public abstract class JsonConfigurationBase : SerializationConfigurationBase
     {
+        private static readonly IReadOnlyCollection<Type> InheritedTypeConverterBlackList =
+            new[]
+            {
+                typeof(string),
+                typeof(object),
+            };
+
         /// <summary>
         /// Gets the optional override to the contract resolver of the settings gotten from the provided kind for reading.
         /// </summary>
@@ -173,7 +180,7 @@ namespace Naos.Serialization.Json
         {
             new { types }.Must().NotBeNull();
 
-            this.inheritedTypeConverterTypes = types.Where(t => t.IsAbstract || t.IsInterface || types.Any(a => a.IsAssignableTo(t))).Distinct().ToList();
+            this.inheritedTypeConverterTypes = types.Where(t => !InheritedTypeConverterBlackList.Contains(t) && (t.IsAbstract || t.IsInterface || types.Any(a => a.IsAssignableTo(t)))).Distinct().ToList();
         }
 
         /// <summary>

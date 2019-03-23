@@ -72,6 +72,7 @@ namespace Naos.Serialization.Domain
                             .Concat(this.InterfaceTypesToRegisterImplementationOf ?? new List<Type>())
                             .Concat(this.ClassTypesToRegisterAlongWithInheritors ?? new List<Type>())
                             .Concat(discoveredTypes)
+                            .Distinct()
                             .ToList();
 
                         var typesToAutoRegisterWithAssignables = DiscoverAllAssignableTypes(typesToAutoRegister);
@@ -98,14 +99,37 @@ namespace Naos.Serialization.Domain
 
             while (typeQueue.Any() && (type = typeQueue.Dequeue()) != null)
             {
-                if (!typeFullNameToTypeObjectMap.ContainsKey(type.FullName))
+                if (type.IsGenericType)
                 {
-                    typeFullNameToTypeObjectMap.Add(type.FullName, type);
+                    type.GetGenericArguments().ToList().ForEach(_ => typeQueue.Enqueue(_));
                 }
+                else
+                {
+                    if (!typeFullNameToTypeObjectMap.ContainsKey(type.FullName))
+                    {
+                        typeFullNameToTypeObjectMap.Add(type.FullName, type);
+                    }
 
-                var allCurrentTypeMembers = type.GetMembers(DiscoveryBindingFlags).Where(FilterToUsableTypes).ToList();
-                var newTypes = allCurrentTypeMembers.Select(_ => _.DeclaringType).Distinct().ToList();
-                newTypes.Where(_ => !typeFullNameToTypeObjectMap.ContainsKey(_.FullName)).ToList().ForEach(_ => typeQueue.Enqueue(_));
+                    var newTypes = type.GetMembers(DiscoveryBindingFlags).Where(FilterToUsableTypes).Select(
+                        _ =>
+                        {
+                            if (_ is PropertyInfo propertyInfo)
+                            {
+                                return propertyInfo.PropertyType;
+                            }
+                            else if (_ is FieldInfo fieldInfo)
+                            {
+                                return fieldInfo.FieldType;
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        }).Where(_ => _ != null).ToList();
+
+                    newTypes.Distinct().Where(_ => !typeFullNameToTypeObjectMap.ContainsKey(_.FullName)).ToList()
+                        .ForEach(_ => typeQueue.Enqueue(_));
+                }
             }
 
             var result = typeFullNameToTypeObjectMap.Values.Where(_ => _.IsAssignableType()).ToList();

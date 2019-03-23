@@ -140,7 +140,7 @@ namespace Naos.Serialization.Test
                                   "  }" + Environment.NewLine +
                                   "]";
 
-            var result = new NaosJsonSerializer(typeof(GenericJsonConfiguration<InheritedType1>)).Deserialize<InheritedTypeBase[]>(serializedValue);
+            var result = new NaosJsonSerializer(typeof(GenericJsonConfiguration<InheritedTypeBase>)).Deserialize<InheritedTypeBase[]>(serializedValue);
 
             result.Length.Should().Be(2);
             result[0].Base.Should().Be("My base");
