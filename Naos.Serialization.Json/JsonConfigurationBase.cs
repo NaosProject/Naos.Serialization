@@ -133,6 +133,7 @@ namespace Naos.Serialization.Json
                 Formatting = Formatting.Indented,
                 NullValueHandling = NullValueHandling.Include,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                DateParseHandling = DateParseHandling.None,
             };
 
         private static JsonSerializerSettings DefaultSerializingSettings =>
@@ -141,6 +142,7 @@ namespace Naos.Serialization.Json
                 Formatting = Formatting.Indented,
                 NullValueHandling = NullValueHandling.Include,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                DateParseHandling = DateParseHandling.None,
             };
 
         private static JsonSerializerSettings CompactDeserializingSettings =>
@@ -149,6 +151,7 @@ namespace Naos.Serialization.Json
                 Formatting = Formatting.None,
                 NullValueHandling = NullValueHandling.Include,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                DateParseHandling = DateParseHandling.None,
             };
 
         private static JsonSerializerSettings CompactSerializingSettings =>
@@ -157,6 +160,7 @@ namespace Naos.Serialization.Json
                 Formatting = Formatting.None,
                 NullValueHandling = NullValueHandling.Include,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                DateParseHandling = DateParseHandling.None,
             };
 
         private static JsonSerializerSettings MinimalDeserializingSettings =>
@@ -165,6 +169,7 @@ namespace Naos.Serialization.Json
                 Formatting = Formatting.None,
                 NullValueHandling = NullValueHandling.Ignore,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                DateParseHandling = DateParseHandling.None,
             };
 
         private static JsonSerializerSettings MinimalSerializingSettings =>
@@ -173,6 +178,7 @@ namespace Naos.Serialization.Json
                 Formatting = Formatting.None,
                 NullValueHandling = NullValueHandling.Ignore,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
+                DateParseHandling = DateParseHandling.None,
             };
 
         /// <inheritdoc />
