@@ -277,7 +277,7 @@ namespace Naos.Serialization.Test
 
             var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>)).Deserialize<Animal>(json));
 
-            ex.Message.Should().Contain("Unable to deserialize");
+            ex.Message.Should().StartWith("The json payload could not be deserialized into any of the candidate types.");
         }
 
         [Fact]
@@ -300,7 +300,7 @@ namespace Naos.Serialization.Test
 
             var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>)).Deserialize<Animal>(tigerJson));
 
-            ex.Message.Should().Contain("Unable to deserialize");
+            ex.Message.Should().StartWith("The json payload could not be deserialized into any of the candidate types.");
         }
 
         [Fact]
@@ -311,7 +311,7 @@ namespace Naos.Serialization.Test
 
             var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>)).Deserialize<Animal>(tigerJson));
 
-            ex.Message.Should().Contain("Unable to deserialize");
+            ex.Message.Should().StartWith("The json payload could not be deserialized into any of the candidate types.");
         }
 
         [Fact]
@@ -335,8 +335,8 @@ namespace Naos.Serialization.Test
             var ex1 = Assert.Throws<JsonSerializationException>(() => jsonSerializer.Deserialize<Animal>(catJson1));
             var ex2 = Assert.Throws<JsonSerializationException>(() => jsonSerializer.Deserialize<Animal>(catJson2));
 
-            ex1.Message.Should().Contain("Unable to deserialize");
-            ex2.Message.Should().Contain("Unable to deserialize");
+            ex1.Message.Should().StartWith("The json payload could not be deserialized into any of the candidate types.");
+            ex2.Message.Should().StartWith("The json payload could not be deserialized into any of the candidate types.");
         }
 
         [Fact]
@@ -346,7 +346,7 @@ namespace Naos.Serialization.Test
 
             var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(typeof(GenericJsonConfiguration<Diet>)).Deserialize<Diet>(fructoseJson));
 
-            ex.Message.Should().Contain("Unable to deserialize");
+            ex.Message.Should().StartWith("The json payload could not be deserialized into any of the candidate types.");
         }
 
         [Fact]
@@ -356,7 +356,7 @@ namespace Naos.Serialization.Test
 
             var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(typeof(GenericJsonConfiguration<Diet>)).Deserialize<Diet>(fructoseJson));
 
-            ex.Message.Should().Contain("Unable to deserialize");
+            ex.Message.Should().StartWith("The json payload could not be deserialized into any of the candidate types.");
         }
 
         [Fact]
@@ -545,7 +545,7 @@ namespace Naos.Serialization.Test
         {
             var whaleJson = "{\r\n  \"name\": \"willy\",\r\n  \"diet\": {\r\n    \"maxCalories\": 50000\r\n  },\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Whale, Naos.Serialization.Test\"\r\n}";
 
-            var whale = new NaosJsonSerializer(typeof(GenericJsonConfiguration<SeaCreature>)).Deserialize<SeaCreature>(whaleJson) as Whale;
+            var whale = new NaosJsonSerializer(typeof(GenericJsonConfiguration<SeaCreature, Diet>)).Deserialize<SeaCreature>(whaleJson) as Whale;
 
             whale.Should().NotBeNull();
             whale.Name.Should().Be("willy");
