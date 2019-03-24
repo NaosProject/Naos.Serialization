@@ -68,6 +68,7 @@ namespace Naos.Serialization.Domain
 
                         var typesToAutoRegister = new Type[0]
                             .Concat(InternallyRequiredTypes)
+                            .Concat(this.TypesToAutoRegisterWithDiscovery ?? new List<Type>())
                             .Concat(this.TypesToAutoRegister ?? new List<Type>())
                             .Concat(this.InterfaceTypesToRegisterImplementationOf ?? new List<Type>())
                             .Concat(this.ClassTypesToRegisterAlongWithInheritors ?? new List<Type>())
@@ -91,7 +92,7 @@ namespace Naos.Serialization.Domain
 
         private static IReadOnlyCollection<Type> DiscoverAllContainedTypes(IReadOnlyCollection<Type> types)
         {
-            var typeFullNameToTypeObjectMap = new Dictionary<string, Type>();
+            var typeHashSet = new HashSet<Type>();
             var typeQueue = new Queue<Type>(types);
             Type type;
 
@@ -105,34 +106,34 @@ namespace Naos.Serialization.Domain
                 }
                 else
                 {
-                    if (!typeFullNameToTypeObjectMap.ContainsKey(type.FullName))
+                    if (!typeHashSet.Contains(type))
                     {
-                        typeFullNameToTypeObjectMap.Add(type.FullName, type);
+                        typeHashSet.Add(type);
                     }
 
-                    var newTypes = type.GetMembers(DiscoveryBindingFlags).Where(FilterToUsableTypes).Select(
+                    var newTypes = type.GetMembers(DiscoveryBindingFlags).Where(FilterToUsableTypes).SelectMany(
                         _ =>
                         {
                             if (_ is PropertyInfo propertyInfo)
                             {
-                                return propertyInfo.PropertyType;
+                                return new[] { propertyInfo.PropertyType };
                             }
                             else if (_ is FieldInfo fieldInfo)
                             {
-                                return fieldInfo.FieldType;
+                                return new[] { fieldInfo.FieldType };
                             }
                             else
                             {
-                                return null;
+                                return new Type[0];
                             }
-                        }).Where(_ => _ != null).ToList();
+                        }).Where(_ => !_.IsGenericParameter).ToList();
 
-                    newTypes.Distinct().Where(_ => !typeFullNameToTypeObjectMap.ContainsKey(_.FullName)).ToList()
+                    newTypes.Distinct().Where(_ => !typeHashSet.Contains(_)).ToList()
                         .ForEach(_ => typeQueue.Enqueue(_));
                 }
             }
 
-            var result = typeFullNameToTypeObjectMap.Values.Where(_ => _.IsAssignableType()).ToList();
+            var result = typeHashSet.Where(_ => _.IsAssignableType()).ToList();
             return result;
         }
 
@@ -149,8 +150,10 @@ namespace Naos.Serialization.Domain
             var classTypesToRegister = allTypesToConsiderForRegistration.Where(typeToConsider =>
                         typeToConsider.IsClass &&
                         (!typeToConsider.IsAnonymous()) &&
-                        (!typeToConsider.IsGenericTypeDefinition) && // can't do an IsAssignableTo check on generic type definitions
+                        (!typeToConsider
+                            .IsGenericTypeDefinition) && // can't do an IsAssignableTo check on generic type definitions
                         types.Any(typeToAutoRegister => typeToConsider.IsAssignableTo(typeToAutoRegister)))
+                .Concat(types.Where(_ => _.IsInterface)) // add interfaces back as they were explicitly provided.
                 .ToList();
 
             return classTypesToRegister;
