@@ -261,6 +261,42 @@ namespace Naos.Serialization.Domain
     }
 
     /// <summary>
+    /// Generic implementation of <see cref="SerializationConfigurationBase" /> that will depend on config using type <typeparamref name="T" />.
+    /// </summary>
+    /// <typeparam name="T">Type to auto register with discovery.</typeparam>
+    public sealed class GenericDependencyConfiguration<T> : SerializationConfigurationBase
+        where T : SerializationConfigurationBase
+    {
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> DependentConfigurationTypes => new[] { typeof(T) };
+
+        /// <inheritdoc />
+        protected override void RegisterTypes(IReadOnlyCollection<Type> types)
+        {
+            /* no-op */
+        }
+    }
+
+    /// <summary>
+    /// Generic implementation of <see cref="SerializationConfigurationBase" /> that will depend on config using type <typeparamref name="T1" />, <typeparamref name="T2" />.
+    /// </summary>
+    /// <typeparam name="T1">Type one to auto register with discovery.</typeparam>
+    /// <typeparam name="T2">Type two to auto register with discovery.</typeparam>
+    public sealed class GenericDependencyConfiguration<T1, T2> : SerializationConfigurationBase
+        where T1 : SerializationConfigurationBase
+        where T2 : SerializationConfigurationBase
+    {
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> DependentConfigurationTypes => new[] { typeof(T1), typeof(T2) };
+
+        /// <inheritdoc />
+        protected override void RegisterTypes(IReadOnlyCollection<Type> types)
+        {
+            /* no-op */
+        }
+    }
+
+    /// <summary>
     /// Null implementation of <see cref="SerializationConfigurationBase"/>.
     /// </summary>
     public sealed class NullSerializationConfiguration : SerializationConfigurationBase
