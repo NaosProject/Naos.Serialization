@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PropertyBagSerializerTest.cs" company="Naos Project">
+// <copyright file="NaosPropertyBagSerializerTest.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ namespace Naos.Serialization.Test
 
     using Xunit;
 
-    public static class PropertyBagSerializerTest
+    public static class NaosPropertyBagSerializerTest
     {
         [Fact]
         public static void Constructor___Configuration_type_not_null___Throws()
@@ -187,7 +187,7 @@ namespace Naos.Serialization.Test
 
             // Act
             exception.Should().NotBeNull();
-            exception.Message.Should().Be("Could not find a parameterless constructor or a constructor whose parameter names matched the properties provided; type: Naos.Serialization.Test.PropertyBagSerializerTest+ConstructorWithoutProperties, properties: Property,ToString,GetType.");
+            exception.Message.Should().Be("Could not find a parameterless constructor or a constructor whose parameter names matched the properties provided; type: Naos.Serialization.Test.NaosPropertyBagSerializerTest+ConstructorWithoutProperties, properties: Property,ToString,GetType.");
         }
 
         [Fact]

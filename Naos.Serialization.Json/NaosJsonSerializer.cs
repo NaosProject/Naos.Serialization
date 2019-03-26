@@ -67,6 +67,9 @@ namespace Naos.Serialization.Json
         /// <inheritdoc />
         public Type ConfigurationType { get; private set; }
 
+        /// <inheritdoc />
+        public SerializationKind Kind => SerializationKind.Json;
+
         /// <summary>
         /// Converts JSON string into a byte array.
         /// </summary>

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LambdaSerializer.cs" company="Naos Project">
+// <copyright file="NaosLambdaBackedSerializer.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Serializer that is backed by <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,TResult}" />.
     /// </summary>
-    public class LambdaSerializer : ISerializeAndDeserialize
+    public class NaosLambdaBackedSerializer : ISerializeAndDeserialize
     {
         private readonly Func<object, string> serializeString;
         private readonly Func<string, Type, object> deserializeString;
@@ -20,13 +20,13 @@ namespace Naos.Serialization.Domain
         private readonly Func<byte[], Type, object> deserializeBytes;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LambdaSerializer"/> class.
+        /// Initializes a new instance of the <see cref="NaosLambdaBackedSerializer"/> class.
         /// </summary>
         /// <param name="serializeString">Serialize object to string.</param>
         /// <param name="deserializeString">Deserialize object from string.</param>
         /// <param name="serializeBytes">Serialize object to bytes.</param>
         /// <param name="deserializeBytes">Deserialize object from bytes.</param>
-        public LambdaSerializer(
+        public NaosLambdaBackedSerializer(
             Func<object, string> serializeString,
             Func<string, Type, object> deserializeString,
             Func<object, byte[]> serializeBytes,
@@ -45,6 +45,9 @@ namespace Naos.Serialization.Domain
 
         /// <inheritdoc />
         public Type ConfigurationType => null;
+
+        /// <inheritdoc />
+        public SerializationKind Kind => SerializationKind.LambdaBacked;
 
         /// <inheritdoc />
         public byte[] SerializeToBytes(object objectToSerialize)

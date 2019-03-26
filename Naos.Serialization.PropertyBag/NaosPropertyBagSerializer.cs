@@ -81,6 +81,9 @@ namespace Naos.Serialization.PropertyBag
         /// <inheritdoc />
         public Type ConfigurationType { get; private set; }
 
+        /// <inheritdoc />
+        public SerializationKind Kind => SerializationKind.PropertyBag;
+
         /// <summary>
         /// Converts string into a byte array.
         /// </summary>

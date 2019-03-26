@@ -134,6 +134,7 @@ namespace Naos.Serialization.Json
                 NullValueHandling = NullValueHandling.Include,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
                 DateParseHandling = DateParseHandling.None,
+                FloatParseHandling = FloatParseHandling.Decimal,
             };
 
         private static JsonSerializerSettings DefaultSerializingSettings =>
@@ -143,6 +144,7 @@ namespace Naos.Serialization.Json
                 NullValueHandling = NullValueHandling.Include,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
                 DateParseHandling = DateParseHandling.None,
+                FloatParseHandling = FloatParseHandling.Decimal,
             };
 
         private static JsonSerializerSettings CompactDeserializingSettings =>
@@ -152,6 +154,7 @@ namespace Naos.Serialization.Json
                 NullValueHandling = NullValueHandling.Include,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
                 DateParseHandling = DateParseHandling.None,
+                FloatParseHandling = FloatParseHandling.Decimal,
             };
 
         private static JsonSerializerSettings CompactSerializingSettings =>
@@ -161,6 +164,7 @@ namespace Naos.Serialization.Json
                 NullValueHandling = NullValueHandling.Include,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
                 DateParseHandling = DateParseHandling.None,
+                FloatParseHandling = FloatParseHandling.Decimal,
             };
 
         private static JsonSerializerSettings MinimalDeserializingSettings =>
@@ -170,6 +174,7 @@ namespace Naos.Serialization.Json
                 NullValueHandling = NullValueHandling.Ignore,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
                 DateParseHandling = DateParseHandling.None,
+                FloatParseHandling = FloatParseHandling.Decimal,
             };
 
         private static JsonSerializerSettings MinimalSerializingSettings =>
@@ -179,6 +184,7 @@ namespace Naos.Serialization.Json
                 NullValueHandling = NullValueHandling.Ignore,
                 ContractResolver = CamelStrictConstructorContractResolver.Instance,
                 DateParseHandling = DateParseHandling.None,
+                FloatParseHandling = FloatParseHandling.Decimal,
             };
 
         /// <inheritdoc />

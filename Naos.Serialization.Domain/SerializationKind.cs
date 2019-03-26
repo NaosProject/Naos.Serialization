@@ -6,6 +6,8 @@
 
 namespace Naos.Serialization.Domain
 {
+    using System;
+
     /// <summary>
     /// Format of serialization.
     /// </summary>
@@ -30,5 +32,10 @@ namespace Naos.Serialization.Domain
         /// Property bag (Dictionary{string, string} format.
         /// </summary>
         PropertyBag,
+
+        /// <summary>
+        /// Wrapper to honor protocol using provided <see cref="Func{TResult}" />'s.
+        /// </summary>
+        LambdaBacked,
     }
 }

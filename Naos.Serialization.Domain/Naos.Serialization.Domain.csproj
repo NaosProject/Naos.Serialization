@@ -90,7 +90,7 @@
     <Compile Include="ISerializerFactory.cs" />
     <Compile Include="DynamicTypePlaceholder.cs" />
     <Compile Include="ISerializeToString.cs" />
-    <Compile Include="LambdaSerializer.cs" />
+    <Compile Include="NaosLambdaBackedSerializer.cs" />
     <Compile Include="NaosDictionaryStringStringSerializer.cs" />
     <Compile Include="NaosStringSerializerAttribute.cs" />
     <Compile Include="SerializationDescription.cs" />

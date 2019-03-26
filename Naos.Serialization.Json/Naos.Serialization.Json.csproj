@@ -81,6 +81,8 @@
     <Compile Include=".recipes\OBeautifulCode.Validation\ValidatedNotNullAttribute.cs" />
     <Compile Include="CamelStrictConstructorContractResolver.cs" />
     <Compile Include="Converters\DateTimeJsonConverter.cs" />
+    <Compile Include="Converters\AllTypesOfDictionaryJsonConverter.cs" />
+    <Compile Include="Converters\KeyValueArrayDictionaryJsonConverter.cs" />
     <Compile Include="Converters\InheritedTypeJsonConverterBase.cs" />
     <Compile Include="Converters\InheritedTypeReaderJsonConverter.cs" />
     <Compile Include="Converters\InheritedTypeWriterJsonConverter.cs" />

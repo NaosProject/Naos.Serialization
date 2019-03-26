@@ -15,8 +15,8 @@ namespace Naos.Serialization.Json
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-
     using OBeautifulCode.Reflection.Recipes;
+    using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
     /// Custom dictionary converter to do the right thing.
@@ -31,24 +31,30 @@ namespace Naos.Serialization.Json
     {
         private static readonly Type[] SupportedDictionaryTypes = new[] { typeof(Dictionary<,>), typeof(IDictionary<,>), typeof(ReadOnlyDictionary<,>), typeof(IReadOnlyDictionary<,>), typeof(ConcurrentDictionary<,>) };
 
+        public override bool CanWrite => false;
+
         /// <inheritdoc />
         public override void WriteJson(
             JsonWriter writer,
             object value,
             JsonSerializer serializer)
         {
-            var valueAsEnumerable = (IEnumerable)value;
+            throw new NotSupportedException();
+            //writer.WriteStartObject();
 
-            var elementsToWrite = new List<object>();
-            foreach (var element in valueAsEnumerable)
-            {
-                var jo = JObject.FromObject(element, serializer);
-                elementsToWrite.Add(jo);
-            }
+            //var valueAsEnumerable = (IEnumerable)value;
 
-            var output = new JArray(elementsToWrite.ToArray());
+            //var elementsToWrite = new List<object>();
+            //foreach (var element in valueAsEnumerable)
+            //{
+            //    var jo = JObject.FromObject(element, serializer);
+            //    if (jo.)
+            //}
 
-            output.WriteTo(writer);
+            //var output = new JArray(elementsToWrite.ToArray());
+
+            //output.WriteTo(writer);
+            //writer.WriteValue();
         }
 
         /// <inheritdoc />
@@ -58,52 +64,82 @@ namespace Naos.Serialization.Json
             object existingValue,
             JsonSerializer serializer)
         {
-            if (reader == null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
+            const JsonToken propertyNameToken = JsonToken.PropertyName;
+            const string jsonReaderUnderlyingTokenFieldName = "_tokenType";
 
-            if (serializer == null)
-            {
-                throw new ArgumentNullException(nameof(serializer));
-            }
-
-            if (reader.TokenType == JsonToken.Null)
-            {
-                return null;
-            }
-
-            // create a List<KeyValuePair<K,V>> where K and V are the generic type parameters of the dictionary we are deserializing into
-            // Get the .Add() method so that we can add elements to that list
             var genericArguments = objectType.GetGenericArguments();
-            var keyValuePairType = typeof(KeyValuePair<,>).MakeGenericType(genericArguments);
-            var listOfKeyValuePairType = typeof(List<>).MakeGenericType(keyValuePairType);
-            var listOfKeyValuePairs = listOfKeyValuePairType.Construct();
-            var listOfKeyValuePairAddMethod = listOfKeyValuePairType.GetMethod(nameof(List<object>.Add));
+            new { genericArguments.Length }.Must().BeEqualTo(2, "More ore less than 2 generic arguments means this cannot be a dictionary type that should supported.");
 
-            // the object was serialized as a JArray of KeyValuePair, so deserialize it as such
-            var deserializedJArray = JToken.ReadFrom(reader);
-
-            foreach (var element in deserializedJArray)
-            {
-                var keyValuePair = element.ToObject(keyValuePairType, serializer);
-
-                // ReSharper disable once PossibleNullReferenceException
-                listOfKeyValuePairAddMethod.Invoke(listOfKeyValuePairs, new[] { keyValuePair });
-            }
-
-            // add each KeyValuePair<T,K> into a new Dictionary<T,K>
+            var keyType = genericArguments.First();
+            var valueType = genericArguments.Last();
             var wrappedDictionaryType = typeof(Dictionary<,>).MakeGenericType(genericArguments);
+
             var wrappedDictionary = wrappedDictionaryType.Construct();
             var wrappedDictionaryAddMethod = wrappedDictionaryType.GetMethod(nameof(Dictionary<object, object>.Add));
 
-            var listOfKeyValuePairsAsEnumerable = (IEnumerable)listOfKeyValuePairs;
-            foreach (var element in listOfKeyValuePairsAsEnumerable)
+            if (reader.TokenType == JsonToken.StartArray)
             {
-                var key = element.GetPropertyValue<object>(nameof(KeyValuePair<object, object>.Key));
-                var value = element.GetPropertyValue<object>(nameof(KeyValuePair<object, object>.Value));
+                reader.Read();
+                if (reader.TokenType == JsonToken.EndArray)
+                {
+                    return new Dictionary<string, string>();
+                }
+                else
+                {
+                    throw new JsonSerializationException("Non-empty JSON array does not make a valid Dictionary!");
+                }
+            }
+            else if (reader.TokenType == JsonToken.Null)
+            {
+                return null;
+            }
+            else if (reader.TokenType == JsonToken.StartObject)
+            {
+                object WrappedDeserialize(JsonReader localReader, Type targetType)
+                {
+                    if (localReader.TokenType == JsonToken.Null)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        var undoPropertyNameTokenFieldHack = false;
+                        if (localReader.TokenType == propertyNameToken)
+                        {
+                            undoPropertyNameTokenFieldHack = true;
+                            localReader.SetFieldValue(jsonReaderUnderlyingTokenFieldName, JsonToken.String);
+                        }
 
-                wrappedDictionaryAddMethod.Invoke(wrappedDictionary, new[] { key, value });
+                        var localResult = serializer.Deserialize(localReader, targetType);
+                        if (undoPropertyNameTokenFieldHack)
+                        {
+                            localReader.SetFieldValue(jsonReaderUnderlyingTokenFieldName, propertyNameToken);
+                        }
+
+                        return localResult;
+                    }
+                }
+
+                reader.Read();
+                while (reader.TokenType != JsonToken.EndObject)
+                {
+                    if (reader.TokenType != propertyNameToken)
+                    {
+                        throw new JsonSerializationException("Unexpected token!");
+                    }
+
+                    var key = WrappedDeserialize(reader, keyType);
+                    reader.Read();
+
+                    var value = WrappedDeserialize(reader, valueType);
+                    reader.Read();
+
+                    wrappedDictionaryAddMethod.Invoke(wrappedDictionary, new[] { key, value });
+                }
+            }
+            else
+            {
+                throw new JsonSerializationException("Unexpected token!");
             }
 
             object result;

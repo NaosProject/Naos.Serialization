@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" ?>
+<package>
+  <metadata>
+    <id>Naos.Serialization.Recipes.RoundTripTest</id>
+    <description>Naos.Serialization.Recipes.RoundTripTest</description>
+    <dependencies>
+      <dependency id="Naos.Serialization.Domain" version="[$version$,)" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="RoundTripSerializationExtensions.cs" target="content\net45\.recipes\Naos.Serialization\RoundTripSerializationExtensions.cs" />
+  </files>
+</package>

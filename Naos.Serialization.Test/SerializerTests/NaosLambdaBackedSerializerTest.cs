@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LambdaSerializerTest.cs" company="Naos Project">
+// <copyright file="NaosLambdaBackedSerializerTest.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ namespace Naos.Serialization.Test
 
     using static System.FormattableString;
 
-    public static class LambdaSerializerTest
+    public static class NaosLambdaBackedSerializerTest
     {
         [Fact]
         public static void LambdaSerializer__Passes_through()
@@ -37,7 +37,7 @@ namespace Naos.Serialization.Test
 
             var test = new TestObjectForLambda { Property1 = property1, Property2 = property2, Property3 = property3, };
             var backingSerializer = new NaosJsonSerializer();
-            var serializer = new LambdaSerializer(
+            var serializer = new NaosLambdaBackedSerializer(
                 backingSerializer.SerializeToString,
                 backingSerializer.Deserialize,
                 backingSerializer.SerializeToBytes,

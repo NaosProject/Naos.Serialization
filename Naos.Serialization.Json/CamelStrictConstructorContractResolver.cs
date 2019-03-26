@@ -29,6 +29,11 @@ namespace Naos.Serialization.Json
         private static readonly CamelStrictConstructorContractResolver ContractResolverInstance
             = new CamelStrictConstructorContractResolver();
 
+        private CamelStrictConstructorContractResolver()
+        {
+            this.NamingStrategy.ProcessDictionaryKeys = false;
+        }
+
         /// <summary>
         /// Gets an instance of the contract resolver.
         /// </summary>

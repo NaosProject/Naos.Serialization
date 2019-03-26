@@ -245,6 +245,7 @@ namespace Naos.Serialization.Test
         public static void Serializer_throws_JsonSerializationException_when_json_deserialize_to_multiple_child_types_and_lists_only_strictly_matching_child_types_when_there_are_some_that_strictly_match()
         {
             var lightingJson = "{\"watts\":10, \"wattageEquivalent\":60}";
+            //smart LED has features and it doesn't check for members that are missing in the JSON in FilterCandidateUsingStrictMemberMatching
 
             var ex = Assert.Throws<JsonSerializationException>(() => new NaosJsonSerializer(typeof(GenericJsonConfiguration<Lighting>)).Deserialize<Lighting>(lightingJson));
 
@@ -625,6 +626,11 @@ namespace Naos.Serialization.Test
                         { "billy", "Bob" },
                         { "Harry", "wright" },
                     }),
+                ColorsByNames = new Dictionary<string, Color>
+                {
+                    { "billy", Color.Green },
+                    { "Jean", Color.White },
+                },
                 NamesByColor = new Dictionary<Color, string>
                 {
                     { Color.Green, "Billy" },
@@ -639,6 +645,7 @@ namespace Naos.Serialization.Test
             actual.Should().NotBeNull();
             expected.Names.Should().BeEquivalentTo(actual.Names);
             expected.ReadOnlyNames.Should().BeEquivalentTo(actual.ReadOnlyNames);
+            expected.ColorsByNames.Should().BeEquivalentTo(actual.ColorsByNames);
             expected.NamesByColor.Should().BeEquivalentTo(actual.NamesByColor);
         }
 
@@ -972,6 +979,8 @@ namespace Naos.Serialization.Test
             public Dictionary<string, string> Names { get; set; }
 
             public IReadOnlyDictionary<string, string> ReadOnlyNames { get; set; }
+
+            public Dictionary<string, Color> ColorsByNames { get; set; }
 
             public Dictionary<Color, string> NamesByColor { get; set; }
         }

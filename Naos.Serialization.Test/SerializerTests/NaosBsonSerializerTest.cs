@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BsonSerializerTest.cs" company="Naos Project">
+// <copyright file="NaosBsonSerializerTest.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ namespace Naos.Serialization.Test
 
     using static System.FormattableString;
 
-    public static class BsonSerializerTest
+    public static class NaosBsonSerializerTest
     {
         [Fact]
         public static void NaosBsonSerializer___Invalid_configuration_type___Throws()

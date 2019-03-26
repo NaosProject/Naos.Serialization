@@ -45,6 +45,9 @@ namespace Naos.Serialization.Bson
         public Type ConfigurationType { get; private set; }
 
         /// <inheritdoc />
+        public SerializationKind Kind => SerializationKind.Bson;
+
+        /// <inheritdoc />
         public byte[] SerializeToBytes(object objectToSerialize)
         {
             return NaosBsonSerializerHelper.SerializeToBytes(objectToSerialize);

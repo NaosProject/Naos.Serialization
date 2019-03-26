@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DateTimeStringSerializerTest.cs" company="Naos Project">
+// <copyright file="NaosDateTimeStringSerializerTest.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Domain;
     using Xunit;
 
-    public static class DateTimeStringSerializerTest
+    public static class NaosDateTimeStringSerializerTest
     {
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_utc___Works()
