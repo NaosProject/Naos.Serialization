@@ -82,14 +82,15 @@
     <Compile Include="CamelStrictConstructorContractResolver.cs" />
     <Compile Include="Converters\DateTimeJsonConverter.cs" />
     <Compile Include="Converters\AllTypesOfDictionaryJsonConverter.cs" />
+    <Compile Include="Converters\DictionaryJsonConverterBase.cs" />
     <Compile Include="Converters\KeyValueArrayDictionaryJsonConverter.cs" />
     <Compile Include="Converters\InheritedTypeJsonConverterBase.cs" />
     <Compile Include="Converters\InheritedTypeReaderJsonConverter.cs" />
     <Compile Include="Converters\InheritedTypeWriterJsonConverter.cs" />
     <Compile Include="Converters\SecureStringJsonConverter.cs" />
     <Compile Include="Converters\DictionaryJsonConverter.cs" />
+    <Compile Include="RegisteredJsonConverter.cs" />
     <Compile Include="JsonConfigurationException.cs" />
-    <Compile Include="JsonConfigurationManager.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="JsonConfigurationBase.cs" />
     <Compile Include="JsonSerializerFactory.cs" />

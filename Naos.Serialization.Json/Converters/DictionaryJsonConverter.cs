@@ -27,10 +27,27 @@ namespace Naos.Serialization.Json
     /// - <see cref="ReadOnlyDictionary{TKey, TValue}" />
     /// - <see cref="ConcurrentDictionary{TKey, TValue}" />.
     /// </summary>
-    internal class DictionaryJsonConverter : JsonConverter
+    internal class DictionaryJsonConverter : DictionaryJsonConverterBase
     {
-        private static readonly Type[] SupportedDictionaryTypes = new[] { typeof(Dictionary<,>), typeof(IDictionary<,>), typeof(ReadOnlyDictionary<,>), typeof(IReadOnlyDictionary<,>), typeof(ConcurrentDictionary<,>) };
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DictionaryJsonConverter"/> class.
+        /// </summary>
+        /// <param name="typesThatSerializeToString">Types that convert to a string when serialized.</param>
+        public DictionaryJsonConverter(IReadOnlyCollection<Type> typesThatSerializeToString)
+            : base(typesThatSerializeToString)
+        {
+        }
 
+        /// <inheritdoc />
+        protected override bool ShouldConsiderKeyType(Type keyType)
+        {
+            var result = keyType == typeof(string)
+                         || keyType.IsValueType
+                         || this.typesThatSerializeToString.Contains(keyType);
+            return result;
+        }
+
+        /// <inheritdoc />
         public override bool CanWrite => false;
 
         /// <inheritdoc />
@@ -40,21 +57,6 @@ namespace Naos.Serialization.Json
             JsonSerializer serializer)
         {
             throw new NotSupportedException();
-            //writer.WriteStartObject();
-
-            //var valueAsEnumerable = (IEnumerable)value;
-
-            //var elementsToWrite = new List<object>();
-            //foreach (var element in valueAsEnumerable)
-            //{
-            //    var jo = JObject.FromObject(element, serializer);
-            //    if (jo.)
-            //}
-
-            //var output = new JArray(elementsToWrite.ToArray());
-
-            //output.WriteTo(writer);
-            //writer.WriteValue();
         }
 
         /// <inheritdoc />
@@ -142,52 +144,7 @@ namespace Naos.Serialization.Json
                 throw new JsonSerializationException("Unexpected token!");
             }
 
-            object result;
-            var unboundedGenericReturnType = objectType.GetGenericTypeDefinition();
-            if ((unboundedGenericReturnType == typeof(IDictionary<,>)) || (unboundedGenericReturnType == typeof(Dictionary<,>)))
-            {
-                // nothing to do, the dictionary is already of the expected return type
-                result = wrappedDictionary;
-            }
-            else if ((unboundedGenericReturnType == typeof(ReadOnlyDictionary<,>)) || (unboundedGenericReturnType == typeof(IReadOnlyDictionary<,>)))
-            {
-                result = typeof(ReadOnlyDictionary<,>).MakeGenericType(genericArguments).Construct(wrappedDictionary);
-            }
-            else if (unboundedGenericReturnType == typeof(ConcurrentDictionary<,>))
-            {
-                result = typeof(ConcurrentDictionary<,>).MakeGenericType(genericArguments).Construct(wrappedDictionary);
-            }
-            else
-            {
-                throw new InvalidOperationException("The following type was not expected: " + objectType);
-            }
-
-            return result;
-        }
-
-        /// <inheritdoc />
-        public override bool CanConvert(
-            Type objectType)
-        {
-            bool result;
-
-            if (objectType == null)
-            {
-                result = false;
-            }
-            else
-            {
-                if (objectType.IsGenericType)
-                {
-                    var unboundGenericObjectType = objectType.GetGenericTypeDefinition();
-
-                    result = SupportedDictionaryTypes.Contains(unboundGenericObjectType);
-                }
-                else
-                {
-                    result = false;
-                }
-            }
+            var result = ConvertResultAsNecessary(objectType, wrappedDictionary, genericArguments);
 
             return result;
         }

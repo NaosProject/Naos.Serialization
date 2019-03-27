@@ -28,11 +28,8 @@ namespace Naos.Serialization.Test
         [Fact]
         public static void JsonConfigurationBase___With_contract_override___Works()
         {
-            // Arrange
-            var configurationType = typeof(DefaultTestConfiguration);
-
-            // Act
-            var actual = JsonConfigurationManager.Configure(configurationType);
+            // Arrange & Act
+            var actual = SerializationConfigurationManager.ConfigureWithReturn<DefaultTestConfiguration>();
 
             // Assert
             actual.Should().NotBeNull();
@@ -43,11 +40,8 @@ namespace Naos.Serialization.Test
         [Fact]
         public static void JsonConfigurationBase___With_null_implementation___Works()
         {
-            // Arrange
-            var configurationType = typeof(NullJsonConfiguration);
-
-            // Act
-            var actual = JsonConfigurationManager.Configure(configurationType);
+            // Arrange & Act
+            var actual = SerializationConfigurationManager.ConfigureWithReturn<NullJsonConfiguration>();
 
             // Assert
             actual.Should().NotBeNull();

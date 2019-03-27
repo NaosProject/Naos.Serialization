@@ -7,6 +7,7 @@
 namespace Naos.Serialization.Json
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using Naos.Serialization.Domain;
@@ -31,6 +32,21 @@ namespace Naos.Serialization.Json
             };
 
         /// <summary>
+        /// Inherited types to handle (static and used by all configurations to accomodate the fact that you have dependent configs that are only run once).
+        /// </summary>
+        private static readonly ConcurrentBag<Type> InheritedTypesToHandle = new ConcurrentBag<Type>();
+
+        /// <summary>
+        /// Registered converters to use when serializing (static and used by all configurations to accomodate the fact that you have dependent configs that are only run once).
+        /// </summary>
+        private static readonly ConcurrentBag<RegisteredJsonConverter> RegisteredSerializingConverters = new ConcurrentBag<RegisteredJsonConverter>();
+
+        /// <summary>
+        /// Registered converters to use when deserializing (static and used by all configurations to accomodate the fact that you have dependent configs that are only run once).
+        /// </summary>
+        private static readonly ConcurrentBag<RegisteredJsonConverter> RegisteredDeserializingConverters = new ConcurrentBag<RegisteredJsonConverter>();
+
+        /// <summary>
         /// Gets the optional override to the contract resolver of the settings gotten from the provided kind for reading.
         /// </summary>
         protected virtual IReadOnlyDictionary<SerializationDirection, IContractResolver> OverrideContractResolver => null;
@@ -38,38 +54,60 @@ namespace Naos.Serialization.Json
         /// <summary>
         /// Gets the optional override to the contract resolver of the settings gotten from the provided kind for reading.
         /// </summary>
-        protected virtual IReadOnlyDictionary<SerializationDirection, IReadOnlyCollection<JsonConverter>> ConvertersToPushOnStack => null;
+        protected virtual IReadOnlyDictionary<SerializationDirection, IReadOnlyCollection<RegisteredJsonConverter>> ConvertersToPushOnStack => null;
 
         private static readonly IReadOnlyDictionary<SerializationDirection,
-                Func<IReadOnlyCollection<Type>, JsonFormattingKind, IList<JsonConverter>>>
+                Func<JsonFormattingKind, IList<JsonConverter>>>
             GetDefaultConverters =
                 new Dictionary<SerializationDirection,
-                    Func<IReadOnlyCollection<Type>, JsonFormattingKind, IList<JsonConverter>>>
+                    Func<JsonFormattingKind, IList<JsonConverter>>>
                 {
                     {
                         SerializationDirection.Serialize,
-                        (inheritedTypeConverterTypes, serializationKind) =>
+                        formattingKind =>
+                        {
+                            var inheritedTypesToHandle = InheritedTypesToHandle.ToList();
+                            var typesThatConvertToString = RegisteredSerializingConverters
+                                .Where(_ => _.OutputKind == RegisteredJsonConverterOutputKind.String)
+                                .SelectMany(_ => _.HandledTypes).Distinct().ToList();
 
-                            (serializationKind == JsonFormattingKind.Minimal
-                                ? new JsonConverter[0]
-                                : new[] { new InheritedTypeWriterJsonConverter(inheritedTypeConverterTypes), }).Concat(
-                                new JsonConverter[]
-                                {
-                                    new StringEnumConverter { CamelCaseText = true },
-                                    new SecureStringJsonConverter(),
-                                    new DictionaryJsonConverter(),
-                                    new DateTimeJsonConverter(),
-                                }).ToList()
+                            return new JsonConverter[0].Concat(
+                                    new JsonConverter[]
+                                    {
+                                        new DateTimeJsonConverter(),
+                                        new StringEnumConverter { CamelCaseText = true },
+                                        new SecureStringJsonConverter(),
+                                        new InheritedTypeReaderJsonConverter(InheritedTypesToHandle.ToList()),
+                                    }).Concat(formattingKind == JsonFormattingKind.Minimal
+                                    ? new JsonConverter[0]
+                                    : new[] { new InheritedTypeWriterJsonConverter(inheritedTypesToHandle) })
+                                .Concat(
+                                    new JsonConverter[]
+                                    {
+                                        new DictionaryJsonConverter(typesThatConvertToString),
+                                        new KeyValueArrayDictionaryJsonConverter(typesThatConvertToString),
+                                    }).ToList();
+                        }
                     },
                     {
                         SerializationDirection.Deserialize,
-                        (inheritedTypeConverterTypes, serializationKind) => new JsonConverter[]
+                        serializationKind =>
                         {
-                            new InheritedTypeReaderJsonConverter(inheritedTypeConverterTypes),
-                            new StringEnumConverter { CamelCaseText = true },
-                            new SecureStringJsonConverter(),
-                            new DictionaryJsonConverter(),
-                            new DateTimeJsonConverter(),
+                            var inheritedTypesToHandle = InheritedTypesToHandle.ToList();
+                            var typesThatConvertToString = RegisteredSerializingConverters
+                                .Where(_ => _.OutputKind == RegisteredJsonConverterOutputKind.String)
+                                .SelectMany(_ => _.HandledTypes).Distinct().ToList();
+
+                            return new JsonConverter[0].Concat(
+                                    new JsonConverter[]
+                                    {
+                                        new DateTimeJsonConverter(),
+                                        new StringEnumConverter { CamelCaseText = true },
+                                        new SecureStringJsonConverter(),
+                                        new InheritedTypeReaderJsonConverter(inheritedTypesToHandle),
+                                        new DictionaryJsonConverter(typesThatConvertToString),
+                                        new KeyValueArrayDictionaryJsonConverter(typesThatConvertToString),
+                                    }).ToList();
                         }
                     },
                 };
@@ -124,8 +162,6 @@ namespace Naos.Serialization.Json
                         }
                     },
                 };
-
-        private IReadOnlyCollection<Type> inheritedTypeConverterTypes;
 
         private static JsonSerializerSettings DefaultDeserializingSettings =>
             new JsonSerializerSettings
@@ -192,7 +228,32 @@ namespace Naos.Serialization.Json
         {
             new { types }.Must().NotBeNull();
 
-            this.inheritedTypeConverterTypes = types.Where(t => !InheritedTypeConverterBlackList.Contains(t) && (t.IsAbstract || t.IsInterface || types.Any(a => a.IsAssignableTo(t)))).Distinct().ToList();
+            var inheritedTypeConverterTypes = types.Where(t =>
+                !InheritedTypeConverterBlackList.Contains(t) &&
+                (t.IsAbstract || t.IsInterface || types.Any(a => a.IsAssignableTo(t)))).Distinct().ToList();
+
+            inheritedTypeConverterTypes.ForEach(_ => InheritedTypesToHandle.Add(_));
+        }
+
+        /// <inheritdoc />
+        protected override void InternalConfigure()
+        {
+            var nullRegisteredConverterMap =
+                new Dictionary<SerializationDirection, IReadOnlyCollection<RegisteredJsonConverter>>
+                {
+                    { SerializationDirection.Serialize, new RegisteredJsonConverter[0] },
+                    { SerializationDirection.Deserialize, new RegisteredJsonConverter[0] },
+                };
+
+            ((this.ConvertersToPushOnStack ??
+              nullRegisteredConverterMap)
+             [SerializationDirection.Serialize] ?? new RegisteredJsonConverter[0]).ToList()
+                .ForEach(_ => RegisteredSerializingConverters.Add(_));
+
+            ((this.ConvertersToPushOnStack ??
+              nullRegisteredConverterMap)
+             [SerializationDirection.Deserialize] ?? new RegisteredJsonConverter[0]).ToList()
+                .ForEach(_ => RegisteredDeserializingConverters.Add(_));
         }
 
         /// <summary>
@@ -203,14 +264,17 @@ namespace Naos.Serialization.Json
         /// <returns>Prepared settings to use with Newtonsoft.</returns>
         public JsonSerializerSettings BuildJsonSerializerSettings(SerializationDirection serializationDirection, JsonFormattingKind formattingKind = JsonFormattingKind.Default)
         {
+            (serializationDirection == SerializationDirection.Serialize || serializationDirection == SerializationDirection.Deserialize)
+                .Named(Invariant($"{nameof(serializationDirection)}-must-be-{nameof(SerializationDirection.Serialize)}-or{nameof(SerializationDirection.Serialize)}"))
+                .Must().BeTrue();
+
             var result = SerializationKindToSettingsSelectorByDirection[formattingKind](SerializationDirection.Serialize);
 
-            var specifiedConverters =
-                this.ConvertersToPushOnStack != null && this.ConvertersToPushOnStack.ContainsKey(serializationDirection)
-                    ? this.ConvertersToPushOnStack[serializationDirection] ?? new JsonConverter[0]
-                    : new JsonConverter[0];
+            var specifiedConverters = serializationDirection == SerializationDirection.Serialize
+                ? RegisteredSerializingConverters.Select(_ => _.ConverterBuilderFunction()).ToList()
+                : RegisteredDeserializingConverters.Select(_ => _.ConverterBuilderFunction()).ToList();
 
-            var defaultConverters = GetDefaultConverters[serializationDirection](this.inheritedTypeConverterTypes, formattingKind);
+            var defaultConverters = GetDefaultConverters[serializationDirection](formattingKind);
 
             var converters = new JsonConverter[0]
                 .Concat(specifiedConverters)
@@ -240,7 +304,7 @@ namespace Naos.Serialization.Json
             // this is a hack to not mess with casing since the case must match for dynamic deserialization...
             var result = SerializationKindToSettingsSelectorByDirection[formattingKind](serializationDirection);
             result.ContractResolver = new DefaultContractResolver();
-            result.Converters = GetDefaultConverters[serializationDirection](this.inheritedTypeConverterTypes, formattingKind);
+            result.Converters = GetDefaultConverters[serializationDirection](formattingKind);
             return result;
         }
     }

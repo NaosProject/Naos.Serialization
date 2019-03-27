@@ -27,9 +27,25 @@ namespace Naos.Serialization.Json
     /// - <see cref="ReadOnlyDictionary{TKey, TValue}" />
     /// - <see cref="ConcurrentDictionary{TKey, TValue}" />.
     /// </summary>
-    internal class KeyValueArrayDictionaryJsonConverter : JsonConverter
+    internal class KeyValueArrayDictionaryJsonConverter : DictionaryJsonConverterBase
     {
-        private static readonly Type[] SupportedDictionaryTypes = new[] { typeof(Dictionary<,>), typeof(IDictionary<,>), typeof(ReadOnlyDictionary<,>), typeof(IReadOnlyDictionary<,>), typeof(ConcurrentDictionary<,>) };
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyValueArrayDictionaryJsonConverter"/> class.
+        /// </summary>
+        /// <param name="typesThatSerializeToString">Types that convert to a string when serialized.</param>
+        public KeyValueArrayDictionaryJsonConverter(IReadOnlyCollection<Type> typesThatSerializeToString)
+            : base(typesThatSerializeToString)
+        {
+        }
+
+        /// <inheritdoc />
+        protected override bool ShouldConsiderKeyType(Type keyType)
+        {
+            var result = keyType != typeof(string)
+                         && !keyType.IsValueType
+                         && !this.typesThatSerializeToString.Contains(keyType);
+            return result;
+        }
 
         /// <inheritdoc />
         public override void WriteJson(
@@ -106,52 +122,7 @@ namespace Naos.Serialization.Json
                 wrappedDictionaryAddMethod.Invoke(wrappedDictionary, new[] { key, value });
             }
 
-            object result;
-            var unboundedGenericReturnType = objectType.GetGenericTypeDefinition();
-            if ((unboundedGenericReturnType == typeof(IDictionary<,>)) || (unboundedGenericReturnType == typeof(Dictionary<,>)))
-            {
-                // nothing to do, the dictionary is already of the expected return type
-                result = wrappedDictionary;
-            }
-            else if ((unboundedGenericReturnType == typeof(ReadOnlyDictionary<,>)) || (unboundedGenericReturnType == typeof(IReadOnlyDictionary<,>)))
-            {
-                result = typeof(ReadOnlyDictionary<,>).MakeGenericType(genericArguments).Construct(wrappedDictionary);
-            }
-            else if (unboundedGenericReturnType == typeof(ConcurrentDictionary<,>))
-            {
-                result = typeof(ConcurrentDictionary<,>).MakeGenericType(genericArguments).Construct(wrappedDictionary);
-            }
-            else
-            {
-                throw new InvalidOperationException("The following type was not expected: " + objectType);
-            }
-
-            return result;
-        }
-
-        /// <inheritdoc />
-        public override bool CanConvert(
-            Type objectType)
-        {
-            bool result;
-
-            if (objectType == null)
-            {
-                result = false;
-            }
-            else
-            {
-                if (objectType.IsGenericType)
-                {
-                    var unboundGenericObjectType = objectType.GetGenericTypeDefinition();
-
-                    result = SupportedDictionaryTypes.Contains(unboundGenericObjectType);
-                }
-                else
-                {
-                    result = false;
-                }
-            }
+            var result = ConvertResultAsNecessary(objectType, wrappedDictionary, genericArguments);
 
             return result;
         }

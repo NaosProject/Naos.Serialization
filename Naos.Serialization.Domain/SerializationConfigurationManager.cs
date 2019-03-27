@@ -38,6 +38,19 @@ namespace Naos.Serialization.Domain
         /// <summary>
         /// Registers the class maps for the specified <see cref="SerializationConfigurationBase"/> type.
         /// </summary>
+        /// <typeparam name="T">Type of derivative of <see cref="SerializationConfigurationBase"/> to configured and return as.</typeparam>
+        /// <returns>Configured instance.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
+        public static T ConfigureWithReturn<T>()
+            where T : SerializationConfigurationBase
+        {
+            var result = ConfigureWithReturn<T>(typeof(T));
+            return result;
+        }
+
+        /// <summary>
+        /// Registers the class maps for the specified <see cref="SerializationConfigurationBase"/> type.
+        /// </summary>
         /// <param name="type">Type of derivative of <see cref="SerializationConfigurationBase"/> to use.</param>
         /// <typeparam name="TReturn">Type of derivative of <see cref="SerializationConfigurationBase"/> to return as.</typeparam>
         /// <returns>Configured instance.</returns>

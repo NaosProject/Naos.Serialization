@@ -11,7 +11,7 @@ namespace Naos.Serialization.Test
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
-
+    using System.Linq;
     using Naos.Serialization.Bson;
     using Naos.Serialization.Json;
     using OBeautifulCode.Math.Recipes;
@@ -129,6 +129,7 @@ namespace Naos.Serialization.Test
 
     public class TestDictionaryFields
     {
+        //add datetime key, guid
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public Dictionary<string, string> DictionaryStringString { get; set; }
 
@@ -151,6 +152,20 @@ namespace Naos.Serialization.Test
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
         public IDictionary<AnotherEnumeration, string> IDictionaryEnumString { get; set; }
+
+        public override int GetHashCode()
+        {
+            return new HashCodeHelper()
+                .HashElements((this.DictionaryStringString ?? new Dictionary<string, string>()).Select(_ => _.Key.ToString() + (_.Value?.ToString() ?? string.Empty)))
+                .HashElements((this.IDictionaryStringString ?? new Dictionary<string, string>()).Select(_ => _.Key.ToString() + (_.Value?.ToString() ?? string.Empty)))
+                .HashElements((this.ReadOnlyDictionaryStringString ?? new ReadOnlyDictionary<string, string>(new Dictionary<string, string>())).Select(_ => _.Key.ToString() + (_.Value?.ToString() ?? string.Empty)))
+                .HashElements((this.IReadOnlyDictionaryStringString ?? new Dictionary<string, string>()).Select(_ => _.Key.ToString() + (_.Value?.ToString() ?? string.Empty)))
+                .HashElements((this.ConcurrentDictionaryStringString ?? new ConcurrentDictionary<string, string>()).Select(_ => _.Key.ToString() + (_.Value?.ToString() ?? string.Empty)))
+                .HashElements((this.ReadOnlyDictionaryStringInt ?? new ReadOnlyDictionary<string, int>(new Dictionary<string, int>())).Select(_ => _.Key.ToString() + (_.Value.ToString() ?? string.Empty)))
+                .HashElements((this.ReadOnlyDictionaryIntString ?? new ReadOnlyDictionary<int, string>(new Dictionary<int, string>())).Select(_ => _.Key.ToString() + (_.Value?.ToString() ?? string.Empty)))
+                .HashElements((this.IDictionaryEnumString ?? new Dictionary<AnotherEnumeration, string>()).Select(_ => _.Key.ToString() + (_.Value?.ToString() ?? string.Empty)))
+                .Value;
+        }
     }
 
     public class TestDictionaryMixedKeyValues

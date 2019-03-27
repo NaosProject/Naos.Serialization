@@ -7,7 +7,9 @@
 namespace Naos.Serialization.Bson
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
@@ -46,23 +48,9 @@ namespace Naos.Serialization.Bson
         private static readonly MethodInfo RegisterClassMapGenericMethod = typeof(BsonClassMap).GetMethods().Single(_ => (_.Name == RegisterClassMapMethodName) && (!_.GetParameters().Any()) && _.IsGenericMethod);
 
         /// <summary>
-        /// Track types statically because <see cref="BsonClassMap" /> will handle statically.
+        /// All registered types (static and used by all configurations to accomodate the fact that you have dependent configs that are only run once).
         /// </summary>
-        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is immutable.")]
-        protected static readonly Tracker<Type> TypeTracker = new Tracker<Type>((first, second) =>
-        {
-            if (ReferenceEquals(first, second))
-            {
-                return true;
-            }
-
-            if (ReferenceEquals(first, null) || ReferenceEquals(second, null))
-            {
-                return false;
-            }
-
-            return first == second;
-        });
+        private static readonly ConcurrentBag<Tracker<Type>.TrackedObjectContainer> RegisteredTypes = new ConcurrentBag<Tracker<Type>.TrackedObjectContainer>();
 
         /// <summary>
         /// Gets a map of <see cref="Type"/> to the <see cref="IBsonSerializer"/> to register.
@@ -73,13 +61,13 @@ namespace Naos.Serialization.Bson
         /// Gets all the types from this and any other <see cref="SerializationConfigurationBase"/> derivative that have been registered.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want this accessible via the object.")]
-        public IReadOnlyCollection<Type> AllRegisteredTypes => TypeTracker.GetAllTrackedObjects().Select(_ => _.TrackedObject).ToList();
+        public IReadOnlyCollection<Type> AllRegisteredTypes => RegisteredTypes.Select(_ => _.TrackedObject).ToList();
 
         /// <summary>
         /// Gets all the types in their wrapped form with telemetry from this and any other <see cref="SerializationConfigurationBase"/> derivative that have been registered.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want this accessible via the object.")]
-        public IReadOnlyCollection<Tracker<Type>.TrackedObjectContainer> AllTrackedTypeContainers => TypeTracker.GetAllTrackedObjects();
+        public IReadOnlyCollection<Tracker<Type>.TrackedObjectContainer> AllTrackedTypeContainers => RegisteredTypes.ToList();
 
         /// <inheritdoc />
         protected override void InternalConfigure()
@@ -112,13 +100,24 @@ namespace Naos.Serialization.Bson
             try
             {
                 // this should be tracked since it's side band to the normal way types are identified and therefore needs to maintain consistent list of registered types.
-                void TrackedOperation(Type typeToOperateOn)
+                var trackedType = RegisteredTypes.SingleOrDefault(_ => _.TrackedObject == type);
+                if (trackedType == null)
                 {
-                    var genericRegisterClassMapMethod = RegisterClassMapGenericMethod.MakeGenericMethod(typeToOperateOn);
+                    var stopwatch = Stopwatch.StartNew();
+                    var genericRegisterClassMapMethod = RegisterClassMapGenericMethod.MakeGenericMethod(type);
                     genericRegisterClassMapMethod.Invoke(null, null);
+                    stopwatch.Stop();
+                    RegisteredTypes.Add(new Tracker<Type>.TrackedObjectContainer(type, this.GetType(), DateTime.UtcNow, stopwatch.Elapsed));
                 }
+                else
+                {
+                    if (this.TypeTrackerCollisionStrategy == TrackerCollisionStrategy.Throw)
+                    {
+                        throw new TrackedObjectCollisionException(Invariant($"Object of type {type} with {nameof(trackedType.ToString)} value of '{trackedType.ToString()}' is already tracked and {nameof(TrackerCollisionStrategy)} is {this.TypeTrackerCollisionStrategy} - it was registered by {trackedType.CallingType} on {trackedType.TrackedTimeInUtc}"));
+                    }
 
-                TypeTracker.RunTrackedOperation(type, TrackedOperation, this.TypeTrackerCollisionStrategy, this.GetType());
+                    trackedType.UpdateSkipped(this.GetType(), DateTime.UtcNow);
+                }
             }
             catch (Exception ex)
             {
@@ -150,17 +149,27 @@ namespace Naos.Serialization.Bson
 
             try
             {
-                // this should be tracked since it's side band to the normal way types are identified and therefore needs to maintain consistent list of registered types.
-                void TrackedOperation(Type typeToOperateOn)
+                if (type.IsClass)
                 {
-                    if (typeToOperateOn.IsClass)
+                    var trackedType = RegisteredTypes.SingleOrDefault(_ => _.TrackedObject == type);
+                    if (trackedType == null)
                     {
+                        var stopwatch = Stopwatch.StartNew();
                         var bsonClassMap = this.AutomaticallyBuildBsonClassMap(type, constrainToProperties);
                         BsonClassMap.RegisterClassMap(bsonClassMap);
+                        stopwatch.Stop();
+                        RegisteredTypes.Add(new Tracker<Type>.TrackedObjectContainer(type, this.GetType(), DateTime.UtcNow, stopwatch.Elapsed));
+                    }
+                    else
+                    {
+                        if (this.TypeTrackerCollisionStrategy == TrackerCollisionStrategy.Throw)
+                        {
+                            throw new TrackedObjectCollisionException(Invariant($"Object of type {type} with {nameof(trackedType.ToString)} value of '{trackedType.ToString()}' is already tracked and {nameof(TrackerCollisionStrategy)} is {this.TypeTrackerCollisionStrategy} - it was registered by {trackedType.CallingType} on {trackedType.TrackedTimeInUtc}"));
+                        }
+
+                        trackedType.UpdateSkipped(this.GetType(), DateTime.UtcNow);
                     }
                 }
-
-                TypeTracker.RunTrackedOperation(type, TrackedOperation, this.TypeTrackerCollisionStrategy, this.GetType());
             }
             catch (Exception ex)
             {
