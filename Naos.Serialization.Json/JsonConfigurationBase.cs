@@ -251,9 +251,7 @@ namespace Naos.Serialization.Json
                     { SerializationDirection.Deserialize, new RegisteredJsonConverter[0] },
                 };
 
-            ((this.ConvertersToPushOnStack ??
-              nullRegisteredConverterMap)
-             [SerializationDirection.Serialize] ?? new RegisteredJsonConverter[0]).ToList()
+            ((this.ConvertersToPushOnStack ?? nullRegisteredConverterMap)[SerializationDirection.Serialize] ?? new RegisteredJsonConverter[0]).ToList()
                 .ForEach(
                     _ => RegisteredSerializingConverters.RunTrackedOperation(
                         _,
@@ -261,9 +259,7 @@ namespace Naos.Serialization.Json
                         this.TypeTrackerCollisionStrategy,
                         this.GetType()));
 
-            ((this.ConvertersToPushOnStack ??
-              nullRegisteredConverterMap)
-             [SerializationDirection.Deserialize] ?? new RegisteredJsonConverter[0]).ToList()
+            ((this.ConvertersToPushOnStack ?? nullRegisteredConverterMap)[SerializationDirection.Deserialize] ?? new RegisteredJsonConverter[0]).ToList()
                 .ForEach(
                     _ => RegisteredDeserializingConverters.RunTrackedOperation(
                         _,
@@ -315,6 +311,7 @@ namespace Naos.Serialization.Json
         /// <param name="serializationDirection">Direction of serialization.</param>
         /// <param name="formattingKind">Kind of formatting to use.</param>
         /// <returns>Prepared settings to use with Newtonsoft.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Keeping like other to offer option in the future of access to this.")]
         public JsonSerializerSettings BuildAnonymousJsonSerializerSettings(SerializationDirection serializationDirection, JsonFormattingKind formattingKind = JsonFormattingKind.Default)
         {
             // this is a hack to not mess with casing since the case must match for dynamic deserialization...

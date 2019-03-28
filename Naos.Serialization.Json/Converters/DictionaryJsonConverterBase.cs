@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="KeyValueArrayDictionaryJsonConverter.cs" company="Naos Project">
+// <copyright file="DictionaryJsonConverterBase.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -79,8 +79,8 @@ namespace Naos.Serialization.Json
         /// </summary>
         /// <param name="returnType">Type to convert to.</param>
         /// <param name="wrappedDictionary">Wrapped dictionary to convert.</param>
-        /// <param name="genericArguments">Generic arguments</param>
-        /// <returns></returns>
+        /// <param name="genericArguments">Generic arguments.</param>
+        /// <returns>Converted dictionary to proper return object if necessary.</returns>
         protected static object ConvertResultAsNecessary(Type returnType, object wrappedDictionary, Type[] genericArguments)
         {
             object result;

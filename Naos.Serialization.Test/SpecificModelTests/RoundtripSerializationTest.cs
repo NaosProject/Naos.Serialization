@@ -670,6 +670,7 @@ namespace Naos.Serialization.Test
             expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "atop", Justification = "Spelling/name is correct.")]
         [Fact]
         public static void When_registering_a_top_level_interface___An_implementation_of_an_interface_that_implements_top_interface___Works()
         {

@@ -50,6 +50,7 @@ namespace Naos.Serialization.Bson
         /// <summary>
         /// All registered types (static and used by all configurations to accomodate the fact that you have dependent configs that are only run once).
         /// </summary>
+        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is immutable.")]
         protected static readonly Tracker<Type> RegisteredTypesTracker = new Tracker<Type>((a, b) => a == b);
 
         /// <summary>

@@ -22,6 +22,9 @@ namespace Naos.Serialization.Domain
     /// <typeparam name="T">Type of object being tracked.</typeparam>
     public class Tracker<T>
     {
+        /// <summary>
+        /// Null object version of the tracked operation.
+        /// </summary>
         public readonly Action<T> NullTrackedOperation = _ =>
         {
             /* no-op */

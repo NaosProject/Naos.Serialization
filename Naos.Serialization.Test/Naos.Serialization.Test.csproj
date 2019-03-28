@@ -113,7 +113,7 @@
     <Compile Include=".recipes\OBeautifulCode.Validation\ValidatedNotNullAttribute.cs" />
     <Compile Include="ConfigurationTests\BsonConfigurationAutoRegisterType.cs" />
     <Compile Include="SerializerTests\NaosLambdaBackedSerializerTest.cs" />
-    <Compile Include="RoundTripSerializationExtensions.cs" />
+    <Compile Include="RoundtripSerializationExtensions.cs" />
     <Compile Include="SpecificModels\ITopInterface.cs" />
     <Compile Include="SpecificModels\Animal.cs" />
     <Compile Include="SpecificModelTests\JsonConfigurationTest.cs" />

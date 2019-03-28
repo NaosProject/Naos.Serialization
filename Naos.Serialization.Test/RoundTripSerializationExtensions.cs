@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="RoundTripSerializationExtensions.cs" company="Naos Project">
+// <copyright file="RoundtripSerializationExtensions.cs" company="Naos Project">
 //    Copyright (c) Naos Project 2019. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -16,13 +16,13 @@ namespace Naos.Serialization.Test
     using OBeautifulCode.TypeRepresentation;
     using static System.FormattableString;
 
-    public static class RoundTripSerializationExtensions
+    public static class RoundtripSerializationExtensions
     {
-        public delegate void RoundTripSerializationCallback<in T>(DescribedSerialization yieldedDescribedSerialization, T deserializedObject);
+        public delegate void RoundtripSerializationCallback<in T>(DescribedSerialization yieldedDescribedSerialization, T deserializedObject);
 
         public static void RoundTripSerializeWithCallback<T>(
             this T expected,
-            RoundTripSerializationCallback<T> validationCallback,
+            RoundtripSerializationCallback<T> validationCallback,
             Type jsonConfigType = null,
             Type bsonConfigType = null,
             bool testBson = true,

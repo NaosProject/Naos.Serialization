@@ -8,6 +8,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="RoundTripSerializationExtensions.cs" target="content\net45\.recipes\Naos.Serialization\RoundTripSerializationExtensions.cs" />
+    <file src="RoundtripSerializationExtensions.cs" target="content\net45\.recipes\Naos.Serialization\RoundtripSerializationExtensions.cs" />
   </files>
 </package>

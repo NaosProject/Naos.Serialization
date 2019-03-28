@@ -26,6 +26,7 @@ namespace Naos.Serialization.Json
     /// - <see cref="ReadOnlyDictionary{TKey, TValue}" />
     /// - <see cref="ConcurrentDictionary{TKey, TValue}" />.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Called via reflection.")]
     internal class AllTypesOfDictionaryJsonConverter : JsonConverter
     {
         private static readonly Type[] SupportedDictionaryTypes = new[] { typeof(IDictionary<,>), typeof(ReadOnlyDictionary<,>), typeof(IReadOnlyDictionary<,>), typeof(ConcurrentDictionary<,>) };
@@ -34,6 +35,7 @@ namespace Naos.Serialization.Json
         public override bool CanWrite => false;
 
         /// <inheritdoc />
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "DictionaryJsonConverter", Justification = "Spelling/name is correct.")]
         public override void WriteJson(
             JsonWriter writer,
             object value,
