@@ -34,17 +34,17 @@ namespace Naos.Serialization.Json
         /// <summary>
         /// Inherited types to handle (static and used by all configurations to accomodate the fact that you have dependent configs that are only run once).
         /// </summary>
-        private static readonly ConcurrentBag<Type> InheritedTypesToHandle = new ConcurrentBag<Type>();
+        private static readonly Tracker<Type> InheritedTypesToHandle = new Tracker<Type>((a, b) => a == b);
 
         /// <summary>
         /// Registered converters to use when serializing (static and used by all configurations to accomodate the fact that you have dependent configs that are only run once).
         /// </summary>
-        private static readonly ConcurrentBag<RegisteredJsonConverter> RegisteredSerializingConverters = new ConcurrentBag<RegisteredJsonConverter>();
+        private static readonly Tracker<RegisteredJsonConverter> RegisteredSerializingConverters = new Tracker<RegisteredJsonConverter>((a, b) => a == b);
 
         /// <summary>
         /// Registered converters to use when deserializing (static and used by all configurations to accomodate the fact that you have dependent configs that are only run once).
         /// </summary>
-        private static readonly ConcurrentBag<RegisteredJsonConverter> RegisteredDeserializingConverters = new ConcurrentBag<RegisteredJsonConverter>();
+        private static readonly Tracker<RegisteredJsonConverter> RegisteredDeserializingConverters = new Tracker<RegisteredJsonConverter>((a, b) => a == b);
 
         /// <summary>
         /// Gets the optional override to the contract resolver of the settings gotten from the provided kind for reading.
@@ -66,8 +66,9 @@ namespace Naos.Serialization.Json
                         SerializationDirection.Serialize,
                         formattingKind =>
                         {
-                            var inheritedTypesToHandle = InheritedTypesToHandle.ToList();
+                            var inheritedTypesToHandle = InheritedTypesToHandle.GetAllTrackedObjects();
                             var typesThatConvertToString = RegisteredSerializingConverters
+                                .GetAllTrackedObjects()
                                 .Where(_ => _.OutputKind == RegisteredJsonConverterOutputKind.String)
                                 .SelectMany(_ => _.HandledTypes).Distinct().ToList();
 
@@ -77,7 +78,6 @@ namespace Naos.Serialization.Json
                                         new DateTimeJsonConverter(),
                                         new StringEnumConverter { CamelCaseText = true },
                                         new SecureStringJsonConverter(),
-                                        new InheritedTypeReaderJsonConverter(InheritedTypesToHandle.ToList()),
                                     }).Concat(formattingKind == JsonFormattingKind.Minimal
                                     ? new JsonConverter[0]
                                     : new[] { new InheritedTypeWriterJsonConverter(inheritedTypesToHandle) })
@@ -93,8 +93,9 @@ namespace Naos.Serialization.Json
                         SerializationDirection.Deserialize,
                         serializationKind =>
                         {
-                            var inheritedTypesToHandle = InheritedTypesToHandle.ToList();
+                            var inheritedTypesToHandle = InheritedTypesToHandle.GetAllTrackedObjects();
                             var typesThatConvertToString = RegisteredSerializingConverters
+                                .GetAllTrackedObjects()
                                 .Where(_ => _.OutputKind == RegisteredJsonConverterOutputKind.String)
                                 .SelectMany(_ => _.HandledTypes).Distinct().ToList();
 
@@ -232,7 +233,12 @@ namespace Naos.Serialization.Json
                 !InheritedTypeConverterBlackList.Contains(t) &&
                 (t.IsAbstract || t.IsInterface || types.Any(a => a.IsAssignableTo(t)))).Distinct().ToList();
 
-            inheritedTypeConverterTypes.ForEach(_ => InheritedTypesToHandle.Add(_));
+            inheritedTypeConverterTypes.ForEach(
+                _ => InheritedTypesToHandle.RunTrackedOperation(
+                    _,
+                    InheritedTypesToHandle.NullTrackedOperation,
+                    this.TypeTrackerCollisionStrategy,
+                    this.GetType()));
         }
 
         /// <inheritdoc />
@@ -248,12 +254,22 @@ namespace Naos.Serialization.Json
             ((this.ConvertersToPushOnStack ??
               nullRegisteredConverterMap)
              [SerializationDirection.Serialize] ?? new RegisteredJsonConverter[0]).ToList()
-                .ForEach(_ => RegisteredSerializingConverters.Add(_));
+                .ForEach(
+                    _ => RegisteredSerializingConverters.RunTrackedOperation(
+                        _,
+                        RegisteredSerializingConverters.NullTrackedOperation,
+                        this.TypeTrackerCollisionStrategy,
+                        this.GetType()));
 
             ((this.ConvertersToPushOnStack ??
               nullRegisteredConverterMap)
              [SerializationDirection.Deserialize] ?? new RegisteredJsonConverter[0]).ToList()
-                .ForEach(_ => RegisteredDeserializingConverters.Add(_));
+                .ForEach(
+                    _ => RegisteredDeserializingConverters.RunTrackedOperation(
+                        _,
+                        RegisteredDeserializingConverters.NullTrackedOperation,
+                        this.TypeTrackerCollisionStrategy,
+                        this.GetType()));
         }
 
         /// <summary>
@@ -271,8 +287,8 @@ namespace Naos.Serialization.Json
             var result = SerializationKindToSettingsSelectorByDirection[formattingKind](SerializationDirection.Serialize);
 
             var specifiedConverters = serializationDirection == SerializationDirection.Serialize
-                ? RegisteredSerializingConverters.Select(_ => _.ConverterBuilderFunction()).ToList()
-                : RegisteredDeserializingConverters.Select(_ => _.ConverterBuilderFunction()).ToList();
+                ? RegisteredSerializingConverters.GetAllTrackedObjects().Select(_ => _.ConverterBuilderFunction()).ToList()
+                : RegisteredDeserializingConverters.GetAllTrackedObjects().Select(_ => _.ConverterBuilderFunction()).ToList();
 
             var defaultConverters = GetDefaultConverters[serializationDirection](formattingKind);
 

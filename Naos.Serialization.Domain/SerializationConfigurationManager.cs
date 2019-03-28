@@ -59,7 +59,7 @@ namespace Naos.Serialization.Domain
             where TReturn : SerializationConfigurationBase
         {
             new { type }.Must().NotBeNull();
-            type.IsSubclassOf(typeof(TReturn)).Named(Invariant($"typeMustBeSubclassOf{nameof(TReturn)}")).Must().BeTrue();
+            type.IsAssignableTo(typeof(TReturn)).Named(Invariant($"typeMustBeSubclassOf{nameof(TReturn)}")).Must().BeTrue();
             type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue();
 
             var instance = FetchOrCreateConfigurationInstance(type, () => (SerializationConfigurationBase)type.Construct());

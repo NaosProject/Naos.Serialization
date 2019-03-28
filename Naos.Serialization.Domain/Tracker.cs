@@ -22,6 +22,11 @@ namespace Naos.Serialization.Domain
     /// <typeparam name="T">Type of object being tracked.</typeparam>
     public class Tracker<T>
     {
+        public readonly Action<T> NullTrackedOperation = _ =>
+        {
+            /* no-op */
+        };
+
         private readonly object syncTracking = new object();
         private readonly IList<TrackedObjectContainer> trackedObjects = new List<TrackedObjectContainer>();
         private readonly TrackedObjectEqualityFunction equalityFunction;
@@ -40,8 +45,6 @@ namespace Naos.Serialization.Domain
         /// <param name="equalityFunction">Custom equality function to use.</param>
         public Tracker(TrackedObjectEqualityFunction equalityFunction)
         {
-            new { equalityFunction }.Must().NotBeNull();
-
             this.equalityFunction = equalityFunction;
         }
 
@@ -88,16 +91,30 @@ namespace Naos.Serialization.Domain
         }
 
         /// <summary>
-        /// Gets all the currently tracked objects.
+        /// Gets all the currently tracked containers.
         /// </summary>
-        /// <returns>Currently tracked objects.</returns>
+        /// <returns>Currently tracked containers.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Don't want an active operation like this in a property.")]
-        public IReadOnlyCollection<TrackedObjectContainer> GetAllTrackedObjects()
+        public IReadOnlyCollection<TrackedObjectContainer> GetAllTrackedObjectContainers()
         {
             lock (this.syncTracking)
             {
                 // shallow clone the list
                 return this.trackedObjects.Select(_ => _).ToList();
+            }
+        }
+
+        /// <summary>
+        /// Gets all the currently tracked objects.
+        /// </summary>
+        /// <returns>Currently tracked objects.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Don't want an active operation like this in a property.")]
+        public IReadOnlyCollection<T> GetAllTrackedObjects()
+        {
+            lock (this.syncTracking)
+            {
+                // shallow clone the list
+                return this.trackedObjects.Select(_ => _.TrackedObject).ToList();
             }
         }
 
