@@ -93,7 +93,7 @@ namespace Naos.Serialization.Domain
                 case SerializationFormat.Binary:
                     var rawBytes = serializer.SerializeToBytes(objectToPackageIntoDescribedSerialization);
                     var compressedBytes = localCompressor.CompressBytes(rawBytes);
-                    payload = DescribedSerialization.BinaryPayloadEncoding.GetString(compressedBytes);
+                    payload = Convert.ToBase64String(compressedBytes);
                     break;
                 case SerializationFormat.String:
                     payload = serializer.SerializeToString(objectToPackageIntoDescribedSerialization);
@@ -123,7 +123,7 @@ namespace Naos.Serialization.Domain
         /// <param name="compressorFactory">Implementation of <see cref="ICompressorFactory" /> that can resolve the compressor.</param>
         /// <param name="typeMatchStrategy">Optional type match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="TypeMatchStrategy.NamespaceAndName" />.</param>
         /// <param name="multipleMatchStrategy">Optional multiple match strategy for resolving the type of object as well as the configuration type if any; DEFAULT is <see cref="MultipleMatchStrategy.ThrowOnMultiple" />.</param>
-        /// <returns>Orginally serialized object.</returns>
+        /// <returns>Originally serialized object.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "1", Justification = "Checked with Must and tested.")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "2", Justification = "Checked with Must and tested.")]
         public static object DeserializePayloadUsingSpecificFactory(
@@ -175,7 +175,7 @@ namespace Naos.Serialization.Domain
             switch (describedSerialization.SerializationDescription.SerializationFormat)
             {
                 case SerializationFormat.Binary:
-                    var rawBytes = DescribedSerialization.BinaryPayloadEncoding.GetBytes(describedSerialization.SerializedPayload);
+                    var rawBytes = Convert.FromBase64String(describedSerialization.SerializedPayload);
                     var decompressedBytes = localDecompressor.DecompressBytes(rawBytes);
                     ret = deserializer.Deserialize(decompressedBytes, targetType);
                     break;

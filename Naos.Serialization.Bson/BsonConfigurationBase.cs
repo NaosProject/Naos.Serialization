@@ -203,6 +203,7 @@ namespace Naos.Serialization.Bson
                 constrainToProperties.Any(_ => !allMemberNames.Contains(_)).Named("constrainedPropertyDoesNotExistOnType").Must().BeFalse();
             }
 
+            //var x =members.DoesItHaveAnIdIfNotThenWhat();
             foreach (var member in members)
             {
                 var memberType = member.GetUnderlyingType();
@@ -210,7 +211,7 @@ namespace Naos.Serialization.Bson
 
                 try
                 {
-                    var memberMap = MapMember(bsonClassMap, member);
+                    var memberMap = MapMember(bsonClassMap, member);//gets an id in here...
 
                     var serializer = GetAppropriateSerializer(memberType, defaultToObjectSerializer: false);
                     if (serializer != null)

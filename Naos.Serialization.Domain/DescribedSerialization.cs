@@ -19,12 +19,6 @@ namespace Naos.Serialization.Domain
     public class DescribedSerialization : IEquatable<DescribedSerialization>
     {
         /// <summary>
-        /// Encoding to use when converting binary data into a string to be used in the payload.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is read only.")]
-        public static readonly Encoding BinaryPayloadEncoding = Encoding.UTF8;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="DescribedSerialization"/> class.
         /// </summary>
         /// <param name="payloadTypeDescription">A description of the type of object serialized.</param>
@@ -51,7 +45,7 @@ namespace Naos.Serialization.Domain
         public TypeDescription PayloadTypeDescription { get; private set; }
 
         /// <summary>
-        /// Gets the object serialized to a string.
+        /// Gets the object serialized to a string (bytes will be Base64 encoded here).
         /// </summary>
         public string SerializedPayload { get; private set; }
 
