@@ -485,45 +485,6 @@ namespace Naos.Serialization.Test
             expected.RoundtripSerializeWithEquatableAssertion(false);
         }
 
-        //public class Thingy
-        //{
-        //    public Thingy(IReadOnlyDictionary<DescribedSerialization, string> stringKeyed)
-        //    {
-        //        this.StringKeyed = stringKeyed;
-        //    }
-
-        //    public IReadOnlyDictionary<DescribedSerialization, string> StringKeyed { get; private set; }
-        //}
-        
-
-
-        //[Fact]
-        //public static void DebugThingy()
-        //{
-        //    // Arrange
-
-        //    var json =
-        //        "{\r\n  \"stringKeyed\": {\r\n    {\r\n      \"payloadTypeDescription\": {\r\n        \"namespace\": \"Namespace40b1f77e-d68e-425b-b066-27d2653815ae\",\r\n        \"name\": \"Name40d1f383-afe4-4ca6-b443-52d53243f142\",\r\n        \"assemblyQualifiedName\": \"AssemblyQualifiedNamefd5eb041-1851-47f6-aab6-485f56b666e9\",\r\n        \"$concreteType\": \"OBeautifulCode.TypeRepresentation.TypeDescription, OBeautifulCode.TypeRepresentation\"\r\n      },\r\n      \"serializedPayload\": \"serializedPayload61a1a187-8263-4db6-81c0-defcf67965e8\",\r\n      \"serializationDescription\": {\r\n        \"serializationKind\": \"json\",\r\n        \"serializationFormat\": \"binary\",\r\n        \"compressionKind\": \"none\",\r\n        \"configurationTypeDescription\": {\r\n          \"namespace\": \"Namespace637ff04d-aa22-4dde-a69b-470ef99d361d\",\r\n          \"name\": \"Nameca9c31d8-9a1b-40b1-8e01-f976f1ad34a9\",\r\n          \"assemblyQualifiedName\": \"AssemblyQualifiedName0b704ba8-b93d-40ab-9f9c-9f72ea1b2df5\",\r\n          \"$concreteType\": \"OBeautifulCode.TypeRepresentation.TypeDescription, OBeautifulCode.TypeRepresentation\"\r\n        },\r\n        \"$concreteType\": \"Naos.Serialization.Domain.SerializationDescription, Naos.Serialization.Domain\"\r\n      },\r\n      \"$concreteType\": \"Naos.Serialization.Domain.DescribedSerialization, Naos.Serialization.Domain\"\r\n    } : \"keyc8e3a46b-8d8b-4297-89ed-d03d07d61ff6\"\r\n  }\r\n}";
-
-        //    var obj = new NaosJsonSerializer().Deserialize<Thingy>(json);
-
-        //    var bsonConfigType = typeof(GenericBsonConfiguration<Thingy>);
-        //    var jsonConfigType = typeof(GenericJsonConfiguration<Thingy>);
-        //    var expected = A.Dummy<Thingy>();
-
-        //    void ThrowIfObjectsDiffer(DescribedSerialization serialized, T deserialized)
-        //    {
-        //        var actual = actualAsObject as Thingy;
-        //        actual.Should().NotBeNull();
-        //        actual.Should().Be(expected);
-        //    }
-
-        //    // Act & Assert
-        //    ActAndAssertForRoundtripSerialization(expected, ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType, false);
-        //}
-
-
-
         [SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Spelling/name is correct.")]
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_ClassWithFlagsEnums___Works()

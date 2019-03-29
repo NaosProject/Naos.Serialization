@@ -14,12 +14,14 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
     using OBeautifulCode.Type;
+    using OBeautifulCode.Validation.Recipes;
     using static System.FormattableString;
+
+    public delegate void RoundtripSerializationCallback<in T>(DescribedSerialization yieldedDescribedSerialization, T deserializedObject);
 
     public static class RoundtripSerializationExtensions
     {
-        public delegate void RoundtripSerializationCallback<in T>(DescribedSerialization yieldedDescribedSerialization, T deserializedObject);
-
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Justification = "Want parameters this way.")]
         public static void RoundtripSerializeWithEquatableAssertion<T>(
             this T expected,
             bool shouldUseConfiguration = true)
@@ -32,6 +34,7 @@ namespace Naos.Serialization.Test
                 shouldUseConfiguration ? typeof(GenericBsonConfiguration<T>) : null);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Justification = "Want parameters this way.")]
         public static void RoundtripSerializeWithCallback<T>(
             this T expected,
             RoundtripSerializationCallback<T> validationCallback,
@@ -40,6 +43,8 @@ namespace Naos.Serialization.Test
             bool testBson = true,
             bool testJson = true)
         {
+            new { validationCallback }.Must().NotBeNull();
+
             var serializers = new List<ISerializeAndDeserialize>();
 
             if (testJson)

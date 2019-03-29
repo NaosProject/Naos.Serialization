@@ -25,6 +25,8 @@ namespace Naos.Serialization.Domain
         /// <summary>
         /// Null object version of the tracked operation.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "Want this externally available.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "It is immutable.")]
         public readonly Action<T> NullTrackedOperation = _ =>
         {
             /* no-op */
