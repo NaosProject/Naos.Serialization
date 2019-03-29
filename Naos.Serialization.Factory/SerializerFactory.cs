@@ -13,7 +13,7 @@ namespace Naos.Serialization.Factory
     using Naos.Serialization.Json;
     using Naos.Serialization.PropertyBag;
 
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
     using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;

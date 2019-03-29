@@ -585,7 +585,7 @@ namespace Naos.Serialization.Test
                 .Value;
     }
 
-    public class VanillaClass
+    public class VanillaClass : IEquatable<VanillaClass>
     {
         public string Something { get; set; }
 

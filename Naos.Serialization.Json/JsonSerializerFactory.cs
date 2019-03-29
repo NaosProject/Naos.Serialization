@@ -10,7 +10,7 @@ namespace Naos.Serialization.Json
 
     using Naos.Serialization.Domain;
 
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
     using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;

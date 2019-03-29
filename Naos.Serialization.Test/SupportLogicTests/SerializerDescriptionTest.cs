@@ -17,7 +17,7 @@ namespace Naos.Serialization.Test
     using Naos.Compression.Domain;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
 
     using Xunit;
 

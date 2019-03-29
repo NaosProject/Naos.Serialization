@@ -18,14 +18,14 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Bson;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
     using Xunit;
 
     using static System.FormattableString;
 
     public static class RoundtripSerializationTest
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
+        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_ClassWithGetterOnlysBase___Works()
         {
@@ -45,28 +45,18 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Unconfigured", Justification = "Spelling/name is correct.")]
+        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Unconfigured", Justification = "Spelling/name is correct.")]
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_Unconfigured_Bson___Works()
         {
             // Arrange
-
-            Type bsonConfigType = null;
-            Type jsonConfigType = null;
-
-            var expected = new VanillaClass { Something = A.Dummy<string>() };
-
-            void ThrowIfObjectsDiffer(DescribedSerialization serialized, VanillaClass deserialized)
-            {
-                deserialized.Should().NotBeNull();
-                deserialized.Something.Should().Be(expected.Something);
-            }
+            var expected = A.Dummy<VanillaClass>();
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithEquatableAssertion(false);
         }
 
         [Fact]
@@ -86,7 +76,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -117,7 +107,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -138,7 +128,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -157,7 +147,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -188,7 +178,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -238,7 +228,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -264,7 +254,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -279,18 +269,18 @@ namespace Naos.Serialization.Test
             void ThrowIfObjectsDiffer(DescribedSerialization serialized, TestDictionaryFields deserialized)
             {
                 deserialized.Should().NotBeNull();
-                //deserialized.DictionaryStringString.Should().Equal(expected.DictionaryStringString);
-                //deserialized.IDictionaryStringString.Should().Equal(expected.IDictionaryStringString);
-                //deserialized.ReadOnlyDictionaryStringString.Should().Equal(expected.ReadOnlyDictionaryStringString);
-                //deserialized.IReadOnlyDictionaryStringString.Should().Equal(expected.IReadOnlyDictionaryStringString);
-                //deserialized.ConcurrentDictionaryStringString.Should().Equal(expected.ConcurrentDictionaryStringString);
-                //deserialized.ReadOnlyDictionaryStringInt.Should().Equal(expected.ReadOnlyDictionaryStringInt);
-                //deserialized.ReadOnlyDictionaryIntString.Should().Equal(expected.ReadOnlyDictionaryIntString);
-                //deserialized.IDictionaryEnumString.Should().Equal(expected.IDictionaryEnumString);
+                deserialized.DictionaryStringString.Should().Equal(expected.DictionaryStringString);
+                deserialized.IDictionaryStringString.Should().Equal(expected.IDictionaryStringString);
+                deserialized.ReadOnlyDictionaryStringString.Should().Equal(expected.ReadOnlyDictionaryStringString);
+                deserialized.IReadOnlyDictionaryStringString.Should().Equal(expected.IReadOnlyDictionaryStringString);
+                deserialized.ConcurrentDictionaryStringString.Should().Equal(expected.ConcurrentDictionaryStringString);
+                deserialized.ReadOnlyDictionaryStringInt.Should().Equal(expected.ReadOnlyDictionaryStringInt);
+                deserialized.ReadOnlyDictionaryIntString.Should().Equal(expected.ReadOnlyDictionaryIntString);
+                deserialized.IDictionaryEnumString.Should().Equal(expected.IDictionaryEnumString);
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -344,7 +334,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -398,7 +388,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -423,7 +413,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -448,7 +438,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -482,25 +472,17 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_SerializationDescription___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(NullBsonConfiguration);
-            var jsonConfigType = typeof(NullJsonConfiguration);
             var expected = A.Dummy<SerializationDescription>();
 
-            void ThrowIfObjectsDiffer(DescribedSerialization serialized, SerializationDescription deserialized)
-            {
-                deserialized.Should().NotBeNull();
-                deserialized.Should().Be(expected);
-            }
-
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithEquatableAssertion(false);
         }
 
         //public class Thingy
@@ -542,7 +524,7 @@ namespace Naos.Serialization.Test
 
 
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Spelling/name is correct.")]
+        [SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Spelling/name is correct.")]
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_ClassWithFlagsEnums___Works()
         {
@@ -559,7 +541,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -580,7 +562,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -600,7 +582,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -630,7 +612,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -667,7 +649,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "atop", Justification = "Spelling/name is correct.")]
@@ -688,7 +670,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
         [Fact]
@@ -741,8 +723,8 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected1.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer1, jsonConfigType, bsonConfigType);
-            expected2.RoundTripSerializeWithCallback(ThrowIfObjectsDiffer2, jsonConfigType, bsonConfigType);
+            expected1.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer1, jsonConfigType, bsonConfigType);
+            expected2.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer2, jsonConfigType, bsonConfigType);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Naos.Serialization.Domain
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using OBeautifulCode.Reflection.Recipes;
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
     using OBeautifulCode.Validation.Recipes;
     using static System.FormattableString;
 

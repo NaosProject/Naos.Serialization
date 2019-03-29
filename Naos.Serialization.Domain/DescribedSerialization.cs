@@ -7,10 +7,9 @@
 namespace Naos.Serialization.Domain
 {
     using System;
-    using System.Text;
 
     using OBeautifulCode.Math.Recipes;
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
     using OBeautifulCode.Validation.Recipes;
 
     /// <summary>

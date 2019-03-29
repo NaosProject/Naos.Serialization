@@ -16,7 +16,7 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Domain;
     using Naos.Serialization.Factory.Extensions;
 
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
 
     using Xunit;
 

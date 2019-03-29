@@ -13,7 +13,7 @@ namespace Naos.Serialization.Domain
     using Naos.Compression.Domain;
 
     using OBeautifulCode.Math.Recipes;
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
     using OBeautifulCode.Validation.Recipes;
 
     /// <summary>

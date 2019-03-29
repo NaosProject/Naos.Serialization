@@ -9,18 +9,30 @@ namespace Naos.Serialization.Test
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
+    using FluentAssertions;
     using Naos.Serialization.Bson;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
     using static System.FormattableString;
 
     public static class RoundtripSerializationExtensions
     {
         public delegate void RoundtripSerializationCallback<in T>(DescribedSerialization yieldedDescribedSerialization, T deserializedObject);
 
-        public static void RoundTripSerializeWithCallback<T>(
+        public static void RoundtripSerializeWithEquatableAssertion<T>(
+            this T expected,
+            bool shouldUseConfiguration = true)
+            where T : IEquatable<T>
+        {
+            RoundtripSerializeWithCallback(
+                expected,
+                (yieldedDescribedSerialization, deserializedObject) => deserializedObject.Should().Be(expected),
+                shouldUseConfiguration ? typeof(GenericJsonConfiguration<T>) : null,
+                shouldUseConfiguration ? typeof(GenericBsonConfiguration<T>) : null);
+        }
+
+        public static void RoundtripSerializeWithCallback<T>(
             this T expected,
             RoundtripSerializationCallback<T> validationCallback,
             Type jsonConfigType = null,

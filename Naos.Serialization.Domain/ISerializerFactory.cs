@@ -6,7 +6,7 @@
 
 namespace Naos.Serialization.Domain
 {
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
 
     /// <summary>
     /// Abstract factory interface for building serializers.

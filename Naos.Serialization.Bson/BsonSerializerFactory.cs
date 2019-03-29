@@ -8,7 +8,7 @@ namespace Naos.Serialization.Bson
 {
     using System;
     using Naos.Serialization.Domain;
-    using OBeautifulCode.TypeRepresentation;
+    using OBeautifulCode.Type;
     using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
