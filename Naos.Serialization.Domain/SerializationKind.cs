@@ -34,6 +34,11 @@ namespace Naos.Serialization.Domain
         PropertyBag,
 
         /// <summary>
+        /// Proprietary serialization, both sides must understand how it was serialized to work.
+        /// </summary>
+        Proprietary,
+
+        /// <summary>
         /// Wrapper to honor protocol using provided <see cref="Func{TResult}" />'s.
         /// </summary>
         LambdaBacked,

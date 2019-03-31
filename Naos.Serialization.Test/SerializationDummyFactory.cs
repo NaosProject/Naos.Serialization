@@ -34,7 +34,7 @@ namespace Naos.Serialization.Recipes
         /// </summary>
         public SerializationDummyFactory()
         {
-            AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationKind.Invalid);
+            AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationKind.Invalid, SerializationKind.Proprietary);
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationFormat.Invalid);
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(CompressionKind.Invalid);
 
