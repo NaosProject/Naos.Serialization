@@ -49,9 +49,20 @@ namespace Naos.Serialization.Domain
                 {
                     if (!this.configured)
                     {
+                        // Save locals to work with.
+                        var localInterfaceTypesToRegisterImplementationOf = this.InterfaceTypesToRegisterImplementationOf ?? new List<Type>();
+                        var localTypeToAutoRegisterWithDiscovery = this.TypesToAutoRegisterWithDiscovery ?? new List<Type>();
+                        var localTypesToAutoRegister = this.TypesToAutoRegister ?? new List<Type>();
+                        var localClassTypesToRegisterAlongWithInheritors = this.ClassTypesToRegisterAlongWithInheritors ?? new List<Type>();
+
                         // Basic assertions.
-                        (this.ClassTypesToRegisterAlongWithInheritors ?? new List<Type>()).Select(_ => _.IsClass).Named(Invariant($"{nameof(this.ClassTypesToRegisterAlongWithInheritors)}.Select(_ => _.{nameof(Type.IsClass)})")).Must().Each().BeTrue();
-                        (this.InterfaceTypesToRegisterImplementationOf ?? new List<Type>()).Select(_ => _.IsInterface).Named(Invariant($"{nameof(this.InterfaceTypesToRegisterImplementationOf)}.Select(_ => _.{nameof(Type.IsInterface)})")).Must().Each().BeTrue();
+                        localInterfaceTypesToRegisterImplementationOf.Must().NotContainAnyNullElements();
+                        localTypeToAutoRegisterWithDiscovery.Must().NotContainAnyNullElements();
+                        localTypesToAutoRegister.Must().NotContainAnyNullElements();
+                        localClassTypesToRegisterAlongWithInheritors.Must().NotContainAnyNullElements();
+
+                        localClassTypesToRegisterAlongWithInheritors.Select(_ => _.IsClass).Named(Invariant($"{nameof(this.ClassTypesToRegisterAlongWithInheritors)}.Select(_ => _.{nameof(Type.IsClass)})")).Must().Each().BeTrue();
+                        localInterfaceTypesToRegisterImplementationOf.Select(_ => _.IsInterface).Named(Invariant($"{nameof(this.InterfaceTypesToRegisterImplementationOf)}.Select(_ => _.{nameof(Type.IsInterface)})")).Must().Each().BeTrue();
 
                         // Run optional initial config.
                         this.InitialConfiguration();
@@ -64,14 +75,14 @@ namespace Naos.Serialization.Domain
 
                         this.RegisterTypes(this.ClassTypesToRegister);
 
-                        var discoveredTypes = DiscoverAllContainedAssignableTypes(this.TypesToAutoRegisterWithDiscovery);
+                        var discoveredTypes = DiscoverAllContainedAssignableTypes(localTypeToAutoRegisterWithDiscovery);
 
                         var typesToAutoRegister = new Type[0]
                             .Concat(InternallyRequiredTypes)
-                            .Concat(this.TypesToAutoRegisterWithDiscovery ?? new List<Type>())
-                            .Concat(this.TypesToAutoRegister ?? new List<Type>())
-                            .Concat(this.InterfaceTypesToRegisterImplementationOf ?? new List<Type>())
-                            .Concat(this.ClassTypesToRegisterAlongWithInheritors ?? new List<Type>())
+                            .Concat(localTypeToAutoRegisterWithDiscovery)
+                            .Concat(localTypesToAutoRegister)
+                            .Concat(localInterfaceTypesToRegisterImplementationOf)
+                            .Concat(localClassTypesToRegisterAlongWithInheritors)
                             .Concat(discoveredTypes)
                             .Distinct()
                             .ToList();
@@ -98,7 +109,8 @@ namespace Naos.Serialization.Domain
             void AddIfNotSeenAndNotSystem(Type localType)
             {
                 if (
-                   (!typesToInspect.Contains(localType))
+                   (localType != null)
+                && (!typesToInspect.Contains(localType))
                 && (!typeHashSet.Contains(localType))
                 && (!localType.Namespace?.StartsWith(nameof(System), StringComparison.Ordinal) ?? true))
                 {
@@ -106,12 +118,11 @@ namespace Naos.Serialization.Domain
                 }
             }
 
-            Type type;
-
             bool FilterToUsableTypes(MemberInfo memberInfo) => !memberInfo.CustomAttributes.Select(s => s.AttributeType).Contains(typeof(CompilerGeneratedAttribute));
 
-            while (typesToInspect.Any() && (type = typesToInspect.First()) != null)
+            while (typesToInspect.Any())
             {
+                var type = typesToInspect.First();
                 typesToInspect.Remove(type);
 
                 if (type.IsGenericType)
