@@ -53,11 +53,11 @@ namespace Naos.Serialization.Test
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Called via reflection.")]
     internal class DefaultTestConfiguration : JsonConfigurationBase
     {
-        protected override IReadOnlyDictionary<SerializationDirection, IContractResolver> OverrideContractResolver =>
-            new Dictionary<SerializationDirection, IContractResolver>
+        protected override IReadOnlyDictionary<SerializationDirection, RegisteredContractResolver> OverrideContractResolver =>
+            new Dictionary<SerializationDirection, RegisteredContractResolver>
             {
-                { SerializationDirection.Serialize, new DefaultContractResolver() },
-                { SerializationDirection.Deserialize, new DefaultContractResolver() },
+                { SerializationDirection.Serialize, new RegisteredContractResolver(() => new DefaultContractResolver()) },
+                { SerializationDirection.Deserialize, new RegisteredContractResolver(() => new DefaultContractResolver()) },
             };
     }
 }

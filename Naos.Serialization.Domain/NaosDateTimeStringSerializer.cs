@@ -32,8 +32,8 @@ namespace Naos.Serialization.Domain
             new ReadOnlyDictionary<DateTimeKind, string>(
                 new Dictionary<DateTimeKind, string>
                     {
-                        { DateTimeKind.Utc, "yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'" },
-                        { DateTimeKind.Unspecified, "yyyy-MM-dd'T'HH:mm:ss.fffffff''" },
+                        { DateTimeKind.Utc, "yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'" }, // Need some regexes here, need to also support UTC with "yyyy-MM-dd'T'HH:mm:ss'Z'"
+                        { DateTimeKind.Unspecified, "yyyy-MM-dd'T'HH:mm:ss.fffffff''" }, // maybe also fall back on generic DateTime.TryParse if all else fails...
                         { DateTimeKind.Local, "yyyy-MM-dd'T'HH:mm:ss.fffffffK" },
                     });
 

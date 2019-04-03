@@ -49,7 +49,7 @@ namespace Naos.Serialization.Json
         /// <summary>
         /// Gets the optional override to the contract resolver of the settings gotten from the provided kind for reading.
         /// </summary>
-        protected virtual IReadOnlyDictionary<SerializationDirection, IContractResolver> OverrideContractResolver => null;
+        protected virtual IReadOnlyDictionary<SerializationDirection, RegisteredContractResolver> OverrideContractResolver => null;
 
         /// <summary>
         /// Gets the optional override to the contract resolver of the settings gotten from the provided kind for reading.
@@ -299,7 +299,7 @@ namespace Naos.Serialization.Json
             {
                 var overrideResolver = this.OverrideContractResolver[serializationDirection];
                 new { overrideResolver }.Must().NotBeNull();
-                result.ContractResolver = overrideResolver;
+                result.ContractResolver = overrideResolver.ContractResolverBuilderFunction();
             }
 
             return result;

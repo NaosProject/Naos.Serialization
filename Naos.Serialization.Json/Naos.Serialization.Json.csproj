@@ -89,6 +89,7 @@
     <Compile Include="Converters\InheritedTypeWriterJsonConverter.cs" />
     <Compile Include="Converters\SecureStringJsonConverter.cs" />
     <Compile Include="Converters\DictionaryJsonConverter.cs" />
+    <Compile Include="RegisteredContractResolver.cs" />
     <Compile Include="RegisteredJsonConverter.cs" />
     <Compile Include="JsonConfigurationException.cs" />
     <Compile Include="GlobalSuppressions.cs" />

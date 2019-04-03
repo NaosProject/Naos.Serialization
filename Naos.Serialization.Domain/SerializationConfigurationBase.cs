@@ -23,7 +23,7 @@ namespace Naos.Serialization.Domain
     public abstract class SerializationConfigurationBase
     {
         /// <summary>
-        /// Binding flags used in <see cref="DiscoverAllContainedTypes"/> to reflect on a type.
+        /// Binding flags used in <see cref="DiscoverAllContainedAssignableTypes"/> to reflect on a type.
         /// </summary>
         [SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Name is correct.")]
         public const BindingFlags DiscoveryBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
@@ -64,7 +64,7 @@ namespace Naos.Serialization.Domain
 
                         this.RegisterTypes(this.ClassTypesToRegister);
 
-                        var discoveredTypes = DiscoverAllContainedTypes(this.TypesToAutoRegisterWithDiscovery);
+                        var discoveredTypes = DiscoverAllContainedAssignableTypes(this.TypesToAutoRegisterWithDiscovery);
 
                         var typesToAutoRegister = new Type[0]
                             .Concat(InternallyRequiredTypes)
@@ -90,19 +90,34 @@ namespace Naos.Serialization.Domain
             }
         }
 
-        private static IReadOnlyCollection<Type> DiscoverAllContainedTypes(IReadOnlyCollection<Type> types)
+        private static IReadOnlyCollection<Type> DiscoverAllContainedAssignableTypes(IReadOnlyCollection<Type> types)
         {
             var typeHashSet = new HashSet<Type>();
-            var typeQueue = new Queue<Type>(types);
+            var typesToInspect = new HashSet<Type>(types);
+
+            void AddIfNotSeenAndNotSystem(Type localType)
+            {
+                if (
+                   (!typesToInspect.Contains(localType))
+                && (!typeHashSet.Contains(localType))
+                && (!localType.Namespace?.StartsWith(nameof(System), StringComparison.Ordinal) ?? true))
+                {
+                    typesToInspect.Add(localType);
+                }
+            }
+
             Type type;
 
             bool FilterToUsableTypes(MemberInfo memberInfo) => !memberInfo.CustomAttributes.Select(s => s.AttributeType).Contains(typeof(CompilerGeneratedAttribute));
 
-            while (typeQueue.Any() && (type = typeQueue.Dequeue()) != null)
+            while (typesToInspect.Any() && (type = typesToInspect.First()) != null)
             {
+                typesToInspect.Remove(type);
+
                 if (type.IsGenericType)
                 {
-                    type.GetGenericArguments().ToList().ForEach(_ => typeQueue.Enqueue(_));
+                    // how do dictionaries get registered? we don't return the generic dictionary type...
+                    type.GetGenericArguments().ToList().ForEach(AddIfNotSeenAndNotSystem);
                 }
                 else
                 {
@@ -128,8 +143,7 @@ namespace Naos.Serialization.Domain
                             }
                         }).Where(_ => !_.IsGenericParameter).ToList();
 
-                    newTypes.Distinct().Where(_ => !typeHashSet.Contains(_)).ToList()
-                        .ForEach(_ => typeQueue.Enqueue(_));
+                    newTypes.Distinct().ToList().ForEach(AddIfNotSeenAndNotSystem);
                 }
             }
 

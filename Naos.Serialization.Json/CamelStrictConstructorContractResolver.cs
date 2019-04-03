@@ -31,6 +31,7 @@ namespace Naos.Serialization.Json
 
         private CamelStrictConstructorContractResolver()
         {
+            // this will cause dictionary keys to be lowercased if set to true (or you can set to true and set a dictionary key resolver.
             this.NamingStrategy.ProcessDictionaryKeys = false;
         }
 

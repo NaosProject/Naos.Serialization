@@ -9,6 +9,7 @@ namespace Naos.Serialization.Json
     using System;
     using System.Collections.Generic;
     using Newtonsoft.Json;
+    using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
     /// Json converter to use.
@@ -23,6 +24,9 @@ namespace Naos.Serialization.Json
         /// <param name="handledTypes"><see cref="Type" />'s handled by this converter.</param>
         public RegisteredJsonConverter(Func<JsonConverter> converterBuilderFunction, RegisteredJsonConverterOutputKind outputKind, IReadOnlyCollection<Type> handledTypes)
         {
+            new { converterBuilderFunction }.Must().NotBeNull();
+            new { handledTypes }.Must().NotBeNull();
+
             this.ConverterBuilderFunction = converterBuilderFunction;
             this.OutputKind = outputKind;
             this.HandledTypes = handledTypes;
