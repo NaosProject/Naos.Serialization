@@ -124,6 +124,7 @@
     <Compile Include="SerializationDummyFactory.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SerializerTests\NaosDateTimeStringSerializerTest.cs" />
+    <Compile Include="SpecificModelTests\MultiThreadedSerializationTest.cs" />
     <Compile Include="SupportLogicTests\FactoryTest.cs" />
     <Compile Include="SupportLogicTests\ExtensionsTest.cs" />
     <Compile Include="SerializerTests\NaosBsonSerializerTest.cs" />

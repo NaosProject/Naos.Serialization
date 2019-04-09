@@ -55,9 +55,9 @@ namespace Naos.Serialization.Test
             // If Default is being used then there should be new lines
             var dog = new Dog(5, "spud", FurColor.Brindle);
 
-            var json = new NaosJsonSerializer().SerializeToString(dog);
+            var json = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>)).SerializeToString(dog);
 
-            json.Should().Be("{\r\n  \"name\": \"spud\",\r\n  \"furColor\": \"brindle\",\r\n  \"dogTag\": \"my name is spud\",\r\n  \"nickname\": null,\r\n  \"age\": 5\r\n}");
+            json.Should().Be("{\r\n  \"name\": \"spud\",\r\n  \"furColor\": \"brindle\",\r\n  \"dogTag\": \"my name is spud\",\r\n  \"nickname\": null,\r\n  \"age\": 5,\r\n  \"$concreteType\": \"Naos.Serialization.Test.Dog, Naos.Serialization.Test\"\r\n}");
         }
 
         [Fact]

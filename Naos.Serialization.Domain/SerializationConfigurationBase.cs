@@ -104,19 +104,8 @@ namespace Naos.Serialization.Domain
         private static IReadOnlyCollection<Type> DiscoverAllContainedAssignableTypes(IReadOnlyCollection<Type> types)
         {
             var typeHashSet = new HashSet<Type>();
+            var typeSeen = new HashSet<Type>();
             var typesToInspect = new HashSet<Type>(types);
-
-            void AddIfNotSeenAndNotSystem(Type localType)
-            {
-                if (
-                   (localType != null)
-                && (!typesToInspect.Contains(localType))
-                && (!typeHashSet.Contains(localType))
-                && (!localType.Namespace?.StartsWith(nameof(System), StringComparison.Ordinal) ?? true))
-                {
-                    typesToInspect.Add(localType);
-                }
-            }
 
             bool FilterToUsableTypes(MemberInfo memberInfo) => !memberInfo.CustomAttributes.Select(s => s.AttributeType).Contains(typeof(CompilerGeneratedAttribute));
 
@@ -125,37 +114,43 @@ namespace Naos.Serialization.Domain
                 var type = typesToInspect.First();
                 typesToInspect.Remove(type);
 
+                if (typeSeen.Contains(type))
+                {
+                    continue;
+                }
+
+                typeSeen.Add(type);
+
                 if (type.IsGenericType)
                 {
-                    // how do dictionaries get registered? we don't return the generic dictionary type...
-                    type.GetGenericArguments().ToList().ForEach(AddIfNotSeenAndNotSystem);
+                    type.GetGenericArguments().ToList().ForEach(_ => typesToInspect.Add(_));
                 }
-                else
+
+                if (type.Namespace?.StartsWith(nameof(System), StringComparison.Ordinal) ?? true)
                 {
-                    if (!typeHashSet.Contains(type))
-                    {
-                        typeHashSet.Add(type);
-                    }
-
-                    var newTypes = type.GetMembers(DiscoveryBindingFlags).Where(FilterToUsableTypes).SelectMany(
-                        _ =>
-                        {
-                            if (_ is PropertyInfo propertyInfo)
-                            {
-                                return new[] { propertyInfo.PropertyType };
-                            }
-                            else if (_ is FieldInfo fieldInfo)
-                            {
-                                return new[] { fieldInfo.FieldType };
-                            }
-                            else
-                            {
-                                return new Type[0];
-                            }
-                        }).Where(_ => !_.IsGenericParameter).ToList();
-
-                    newTypes.Distinct().ToList().ForEach(AddIfNotSeenAndNotSystem);
+                    continue;
                 }
+
+                typeHashSet.Add(type);
+
+                var newTypes = type.GetMembers(DiscoveryBindingFlags).Where(FilterToUsableTypes).SelectMany(
+                    _ =>
+                    {
+                        if (_ is PropertyInfo propertyInfo)
+                        {
+                            return new[] { propertyInfo.PropertyType };
+                        }
+                        else if (_ is FieldInfo fieldInfo)
+                        {
+                            return new[] { fieldInfo.FieldType };
+                        }
+                        else
+                        {
+                            return new Type[0];
+                        }
+                    }).Where(_ => !_.IsGenericParameter).ToList();
+
+                newTypes.Distinct().ToList().ForEach(_ => typesToInspect.Add(_));
             }
 
             var result = typeHashSet.Where(_ => _.IsAssignableType()).ToList();

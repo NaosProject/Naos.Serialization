@@ -231,7 +231,7 @@ namespace Naos.Serialization.Json
 
             var inheritedTypeConverterTypes = types.Where(t =>
                 !InheritedTypeConverterBlackList.Contains(t) &&
-                (t.IsAbstract || t.IsInterface || types.Any(a => a.IsAssignableTo(t)))).Distinct().ToList();
+                (t.IsAbstract || t.IsInterface || types.Any(a => a != t && (t.IsAssignableTo(a) || a.IsAssignableTo(t))))).Distinct().ToList();
 
             inheritedTypeConverterTypes.ForEach(
                 _ => InheritedTypesToHandle.RunTrackedOperation(

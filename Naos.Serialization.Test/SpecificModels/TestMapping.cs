@@ -745,15 +745,4 @@ namespace Naos.Serialization.Test
         Year,
 #pragma warning restore SA1602 // Enumeration items should be documented
     }
-
-    internal class FieldConfiguration : JsonConfigurationBase
-    {
-        protected override IReadOnlyCollection<Type> TypesToAutoRegister => new[]
-        {
-            typeof(Field),
-            typeof(DecimalField),
-            typeof(NumberField),
-            typeof(YearField),
-        };
-    }
 }

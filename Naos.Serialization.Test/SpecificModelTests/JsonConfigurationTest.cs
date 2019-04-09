@@ -17,6 +17,7 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
     using Newtonsoft.Json;
+    using OBeautifulCode.Reflection.Recipes;
     using Xunit;
 
     public static class JsonConfigurationTest
@@ -110,18 +111,9 @@ namespace Naos.Serialization.Test
                 },
             };
 
-            var result = new NaosJsonSerializer().SerializeToString(value);
+            var result = new NaosJsonSerializer(typeof(GenericJsonConfiguration<InheritedTypeBase>)).SerializeToString(value);
 
-            var serializedValue = "[" + Environment.NewLine +
-                                  "  {" + Environment.NewLine +
-                                  "    \"child1\": \"Child1\"," + Environment.NewLine +
-                                  "    \"base\": \"Base\"" + Environment.NewLine +
-                                  "  }," + Environment.NewLine +
-                                  "  {" + Environment.NewLine +
-                                  "    \"child2\": \"my child 2\"," + Environment.NewLine +
-                                  "    \"base\": \"my base\"" + Environment.NewLine +
-                                  "  }" + Environment.NewLine +
-                                  "]";
+            var serializedValue = "[\r\n  {\r\n    \"child1\": \"Child1\",\r\n    \"base\": \"Base\",\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+InheritedType1, Naos.Serialization.Test\"\r\n  },\r\n  {\r\n    \"child2\": \"my child 2\",\r\n    \"base\": \"my base\",\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+InheritedType2, Naos.Serialization.Test\"\r\n  }\r\n]";
 
             result.Should().Be(serializedValue);
         }
@@ -156,7 +148,7 @@ namespace Naos.Serialization.Test
         {
             var serializedValue = "[" + Environment.NewLine +
                                   "  {" + Environment.NewLine +
-                                  "    \"string\": \"My string\"," + Environment.NewLine +
+                                  "    \"diet\": {\r\n    \"maxCalories\": 50000,\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+LowCalorie, Naos.Serialization.Test\"\r\n  }," + Environment.NewLine +
                                   "    \"int32\": 5" + Environment.NewLine +
                                   "  }," + Environment.NewLine +
                                   "  {" + Environment.NewLine +
@@ -168,11 +160,13 @@ namespace Naos.Serialization.Test
             var result = new NaosJsonSerializer(typeof(GenericJsonConfiguration<IBaseInterface>)).Deserialize<IBaseInterface[]>(serializedValue);
 
             result.Length.Should().Be(2);
-            result[0].String.Should().Be("My string");
+
+            result[0].Diet.Should().BeOfType<LowCalorie>();
+            ((LowCalorie)result[0].Diet).MaxCalories.Should().Be(50000);
             (result[0] as InheritedType3).Should().NotBeNull();
             (result[0] as InheritedType3).Int32.Should().Be(5);
             (result[0] as InheritedType3).Float.Should().Be(default(float));
-            result[1].String.Should().BeNull();
+            result[1].Diet.Should().BeNull();
             (result[1] as InheritedType3).Should().NotBeNull();
             (result[1] as InheritedType3).Int32.Should().Be(55);
             Math.Round((result[1] as InheritedType3).Float, 2).Should().Be(Math.Round(3.56, 2));
@@ -291,7 +285,7 @@ namespace Naos.Serialization.Test
             inheritedType3.Should().NotBeNull();
             inheritedType3.Int32.Should().Be(50);
             inheritedType3.Float.Should().Be(.2f);
-            inheritedType3.String.Should().BeNull();
+            inheritedType3.Diet.Should().BeNull();
         }
 
         [Fact]
@@ -452,7 +446,7 @@ namespace Naos.Serialization.Test
         public static void Serializer_serializes_object_where_constructor_parameter_is_different_type_than_corresponding_property_but_is_assignable_from_that_property_type()
         {
             var family = new Family(new List<string> { "joe", "jane", "jackie" });
-            var expectedFamilyJson = "{\r\n  \"firstNames\": [\r\n    \"joe\",\r\n    \"jane\",\r\n    \"jackie\"\r\n  ],\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Family, Naos.Serialization.Test\"\r\n}";
+            var expectedFamilyJson = "{\r\n  \"firstNames\": [\r\n    \"joe\",\r\n    \"jane\",\r\n    \"jackie\"\r\n  ]\r\n}";
 
             var actualFamilyJson = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Family>)).SerializeToString(family);
 
@@ -534,11 +528,11 @@ namespace Naos.Serialization.Test
         {
             var whale = new Whale("willy", new LowCalorie(50000));
             
-            var expectedWhaleJson = "{\r\n  \"name\": \"willy\",\r\n  \"diet\": {\r\n    \"maxCalories\": 50000\r\n  },\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Whale, Naos.Serialization.Test\"\r\n}";
+            var expectedWhaleJson = "{\r\n  \"name\": \"willy\",\r\n  \"diet\": {\r\n    \"maxCalories\": 50000,\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+LowCalorie, Naos.Serialization.Test\"\r\n  },\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Whale, Naos.Serialization.Test\"\r\n}";
             
-            var actualWhaleJson = new NaosJsonSerializer(typeof(GenericJsonConfiguration<SeaCreature>)).SerializeToString(whale);
+            var actualWhaleJson = new NaosJsonSerializer(typeof(GenericJsonConfiguration<SeaCreature, Diet>)).SerializeToString(whale);
 
-            expectedWhaleJson.Should().Be(actualWhaleJson);
+            actualWhaleJson.Should().Be(expectedWhaleJson);
         }
 
         [Fact]
@@ -565,7 +559,7 @@ namespace Naos.Serialization.Test
 
             var actualSharkJson = new NaosJsonSerializer(typeof(GenericJsonConfiguration<SeaCreature>)).SerializeToString(shark);
 
-            expectedSharkJson.Should().Be(actualSharkJson);
+            actualSharkJson.Should().Be(expectedSharkJson);
         }
 
         [Fact]
@@ -592,7 +586,7 @@ namespace Naos.Serialization.Test
 
             var actualSeafoodDietJson = new NaosJsonSerializer(typeof(GenericJsonConfiguration<SeaCreature>)).SerializeToString(seafoodDiet);
 
-            expectedSeafoodDietJson.Should().Be(actualSeafoodDietJson);
+            actualSeafoodDietJson.Should().Be(expectedSeafoodDietJson);
         }
 
         [Fact]
@@ -663,7 +657,7 @@ namespace Naos.Serialization.Test
                 Title = expectedTitle,
             };
 
-            var serializer = new NaosJsonSerializer(typeof(FieldConfiguration));
+            var serializer = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Field>));
 
             var jsonWithConcreteType = serializer.SerializeToString(year);
 
@@ -674,6 +668,7 @@ namespace Naos.Serialization.Test
             var actual = JsonConvert.DeserializeObject<YearField>(jsonWithConcreteType, settings);
 
             // Assert
+            typeof(YearField).IsAssignableTo(typeof(Field)).Should().BeTrue();
             jsonWithConcreteType.Should().Contain("$concreteType");
             actual.Id.Should().Be(expectedId);
             actual.NumberOfDecimalPlaces.Should().Be(expectedDecimalPlaces);
@@ -724,7 +719,7 @@ namespace Naos.Serialization.Test
 
         private interface IBaseInterface
         {
-            string String { get; set; }
+            Diet Diet { get; set; }
         }
 
         [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Class is used via reflection and code analysis cannot detect that.")]
@@ -734,7 +729,7 @@ namespace Naos.Serialization.Test
 
             public int Int32 { get; set; }
 
-            public string String { get; set; }
+            public Diet Diet { get; set; }
         }
 
         private class Diet
