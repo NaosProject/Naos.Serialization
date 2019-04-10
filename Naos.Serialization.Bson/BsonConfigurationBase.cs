@@ -141,7 +141,7 @@ namespace Naos.Serialization.Bson
                 {
                     void TrackedOperation(Type localType)
                     {
-                        var bsonClassMap = this.AutomaticallyBuildBsonClassMap(type, constrainToProperties);
+                        var bsonClassMap = this.AutomaticallyBuildBsonClassMap(localType, constrainToProperties);
                         BsonClassMap.RegisterClassMap(bsonClassMap);
                     }
 

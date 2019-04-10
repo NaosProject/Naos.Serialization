@@ -50,6 +50,7 @@ namespace Naos.Serialization.Domain
                     if (!this.configured)
                     {
                         // Save locals to work with.
+                        var localClassTypesToRegister = this.ClassTypesToRegister;
                         var localInterfaceTypesToRegisterImplementationOf = this.InterfaceTypesToRegisterImplementationOf ?? new List<Type>();
                         var localTypeToAutoRegisterWithDiscovery = this.TypesToAutoRegisterWithDiscovery ?? new List<Type>();
                         var localTypesToAutoRegister = this.TypesToAutoRegister ?? new List<Type>();
@@ -73,12 +74,11 @@ namespace Naos.Serialization.Domain
                             SerializationConfigurationManager.Configure(dependentConfigurationType);
                         }
 
-                        this.RegisterTypes(this.ClassTypesToRegister);
-
                         var discoveredTypes = DiscoverAllContainedAssignableTypes(localTypeToAutoRegisterWithDiscovery);
 
                         var typesToAutoRegister = new Type[0]
                             .Concat(InternallyRequiredTypes)
+                            .Concat(localClassTypesToRegister)
                             .Concat(localTypeToAutoRegisterWithDiscovery)
                             .Concat(localTypesToAutoRegister)
                             .Concat(localInterfaceTypesToRegisterImplementationOf)
@@ -174,6 +174,7 @@ namespace Naos.Serialization.Domain
                             .IsGenericTypeDefinition) && // can't do an IsAssignableTo check on generic type definitions
                         types.Any(typeToAutoRegister => typeToConsider.IsAssignableTo(typeToAutoRegister)))
                 .Concat(types.Where(_ => _.IsInterface)) // add interfaces back as they were explicitly provided.
+                .Distinct()
                 .ToList();
 
             return classTypesToRegister;

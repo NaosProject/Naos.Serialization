@@ -337,7 +337,7 @@ namespace Naos.Serialization.Json
         {
             // Filter to candidates whose public properties and fields are all 1st level JSON properties,
             // using case-insensitive matching. We call this "strict matching."
-            var result = deserializedCandidates.Where(_ => _.Members.All(jsonProperties.Contains)).ToList();
+            var result = deserializedCandidates.Where(_ => _.Members.All(m => jsonProperties.Contains(m, StringComparer.CurrentCultureIgnoreCase))).ToList();
 
             return result;
         }

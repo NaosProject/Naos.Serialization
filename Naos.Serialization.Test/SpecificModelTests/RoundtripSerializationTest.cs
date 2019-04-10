@@ -48,17 +48,6 @@ namespace Naos.Serialization.Test
             expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
         }
 
-        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Unconfigured", Justification = "Spelling/name is correct.")]
-        [Fact]
-        public static void RoundtripSerializeDeserialize___Using_Unconfigured_Bson___Works()
-        {
-            // Arrange
-            var expected = A.Dummy<VanillaClass>();
-
-            // Act & Assert
-            expected.RoundtripSerializeWithEquatableAssertion(false);
-        }
-
         [Fact]
         public static void RoundtripSerializeDeserialize___Using_ClassWithPrivateSetter___Works()
         {
