@@ -181,7 +181,7 @@ namespace Naos.Serialization.Test
             var config = new TestConfigWithSettableFields
             {
                 SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Skip,
-                SettableClassTypesToRegister = new[] { expected }
+                SettableClassTypesToRegister = new[] { expected },
             };
 
             // Act
