@@ -67,7 +67,10 @@ namespace Naos.Serialization.Json
                         SerializationDirection.Serialize,
                         formattingKind =>
                         {
-                            var inheritedTypesToHandle = InheritedTypesToHandle.GetAllTrackedObjects();
+                            var inheritedTypesToHandle = InheritedTypesToHandle.GetAllTrackedObjects().Except(
+                                RegisteredSerializingConverters.GetAllTrackedObjects()
+                                    .SelectMany(_ => _.HandledTypes)).ToList();
+
                             var typesThatConvertToString = RegisteredSerializingConverters
                                 .GetAllTrackedObjects()
                                 .Where(_ => _.OutputKind == RegisteredJsonConverterOutputKind.String)
