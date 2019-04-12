@@ -38,6 +38,15 @@ namespace Naos.Serialization.Domain
             typeof(DescribedSerialization),
         };
 
+        private static readonly IReadOnlyCollection<Type> DiscoverAssignableTypesBlackList =
+            new[]
+            {
+                typeof(string),
+                typeof(object),
+                typeof(ValueType),
+                typeof(Enum),
+            };
+
         /// <summary>
         /// Run configuration logic.
         /// </summary>
@@ -168,9 +177,9 @@ namespace Naos.Serialization.Domain
 
             var allTypesToConsiderForRegistration = GetAllTypesToConsiderForRegistration();
             var classTypesToRegister = allTypesToConsiderForRegistration.Where(typeToConsider =>
-                        typeToConsider != typeof(object) &&
                         typeToConsider.IsClass &&
                         (!typeToConsider.IsAnonymous()) &&
+                        (!DiscoverAssignableTypesBlackList.Contains(typeToConsider)) &&
                         (!typeToConsider
                             .IsGenericTypeDefinition) && // can't do an IsAssignableTo check on generic type definitions
                         types.Any(typeToAutoRegister => typeToConsider.IsAssignableTo(typeToAutoRegister) || typeToAutoRegister.IsAssignableTo(typeToConsider)))
