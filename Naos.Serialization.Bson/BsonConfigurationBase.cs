@@ -84,7 +84,13 @@ namespace Naos.Serialization.Bson
         /// <param name="customSerializer">Serializer implementation to use.</param>
         protected void RegisterCustomSerializer(Type typeToUseSerializerFor, IBsonSerializer customSerializer)
         {
-            BsonSerializer.RegisterSerializer(typeToUseSerializerFor, customSerializer);
+            void TrackedOperation(Type localType)
+            {
+                BsonSerializer.RegisterSerializer(localType, customSerializer);
+            }
+
+            // We should throw here because this is expected to be more important than an auto map.
+            RegisteredTypesTracker.RunTrackedOperation(typeToUseSerializerFor, TrackedOperation, TrackerCollisionStrategy.Throw, this.GetType());
         }
 
         /// <summary>

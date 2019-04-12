@@ -15,6 +15,7 @@ namespace Naos.Serialization.Json
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
     using Newtonsoft.Json.Serialization;
+    using OBeautifulCode.Collection.Recipes;
     using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.Validation.Recipes;
     using static System.FormattableString;
@@ -93,7 +94,10 @@ namespace Naos.Serialization.Json
                         SerializationDirection.Deserialize,
                         serializationKind =>
                         {
-                            var inheritedTypesToHandle = InheritedTypesToHandle.GetAllTrackedObjects();
+                            var inheritedTypesToHandle = InheritedTypesToHandle.GetAllTrackedObjects()
+                                .Except(RegisteredDeserializingConverters.GetAllTrackedObjects()
+                                    .SelectMany(_ => _.HandledTypes)).ToList();
+
                             var typesThatConvertToString = RegisteredSerializingConverters
                                 .GetAllTrackedObjects()
                                 .Where(_ => _.OutputKind == RegisteredJsonConverterOutputKind.String)
