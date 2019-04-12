@@ -168,11 +168,12 @@ namespace Naos.Serialization.Domain
 
             var allTypesToConsiderForRegistration = GetAllTypesToConsiderForRegistration();
             var classTypesToRegister = allTypesToConsiderForRegistration.Where(typeToConsider =>
+                        typeToConsider != typeof(object) &&
                         typeToConsider.IsClass &&
                         (!typeToConsider.IsAnonymous()) &&
                         (!typeToConsider
                             .IsGenericTypeDefinition) && // can't do an IsAssignableTo check on generic type definitions
-                        types.Any(typeToAutoRegister => typeToConsider.IsAssignableTo(typeToAutoRegister)))
+                        types.Any(typeToAutoRegister => typeToConsider.IsAssignableTo(typeToAutoRegister) || typeToAutoRegister.IsAssignableTo(typeToConsider)))
                 .Concat(types.Where(_ => _.IsInterface)) // add interfaces back as they were explicitly provided.
                 .Distinct()
                 .ToList();
