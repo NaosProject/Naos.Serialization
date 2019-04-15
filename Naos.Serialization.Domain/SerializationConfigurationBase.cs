@@ -12,6 +12,7 @@ namespace Naos.Serialization.Domain
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
+    using OBeautifulCode.Collection.Recipes;
     using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.Type;
     using OBeautifulCode.Validation.Recipes;
@@ -52,7 +53,7 @@ namespace Naos.Serialization.Domain
                 typeof(Array),
             };
 
-        private readonly List<Type> allRegisteredTypes = new List<Type>();
+        private readonly HashSet<Type> allRegisteredTypes = new HashSet<Type>();
 
         /// <summary>
         /// Gets all types that were registered.
@@ -92,7 +93,8 @@ namespace Naos.Serialization.Domain
                         // Run all dependent configurations.
                         foreach (var dependentConfigurationType in this.DependentConfigurationTypes ?? new List<Type>())
                         {
-                            SerializationConfigurationManager.Configure(dependentConfigurationType);
+                            var dependentConfig = SerializationConfigurationManager.ConfigureWithReturn<SerializationConfigurationBase>(dependentConfigurationType);
+                            this.allRegisteredTypes.AddRange(dependentConfig.AllRegisteredTypes);
                         }
 
                         var discoveredTypes = DiscoverAllContainedAssignableTypes(localTypeToAutoRegisterWithDiscovery);
