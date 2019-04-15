@@ -45,6 +45,7 @@ namespace Naos.Serialization.Domain
                 typeof(object),
                 typeof(ValueType),
                 typeof(Enum),
+                typeof(Array),
             };
 
         /// <summary>
@@ -88,15 +89,15 @@ namespace Naos.Serialization.Domain
                         var typesToAutoRegister = new Type[0]
                             .Concat(InternallyRequiredTypes)
                             .Concat(localClassTypesToRegister)
-                            .Concat(localTypeToAutoRegisterWithDiscovery)
                             .Concat(localTypesToAutoRegister)
                             .Concat(localInterfaceTypesToRegisterImplementationOf)
                             .Concat(localClassTypesToRegisterAlongWithInheritors)
+                            .Concat(localTypeToAutoRegisterWithDiscovery)
                             .Concat(discoveredTypes)
                             .Distinct()
                             .ToList();
 
-                        var typesToAutoRegisterWithAssignables = DiscoverAllAssignableTypes(typesToAutoRegister);
+                        var typesToAutoRegisterWithAssignables = DiscoverAllAssignableTypes(typesToAutoRegister).Concat(discoveredTypes).Distinct().ToList();
 
                         this.RegisterTypes(typesToAutoRegisterWithAssignables);
 
@@ -142,7 +143,9 @@ namespace Naos.Serialization.Domain
 
                 typeHashSet.Add(type);
 
-                var newTypes = type.GetMembers(DiscoveryBindingFlags).Where(FilterToUsableTypes).SelectMany(
+                var assignableTypesToAdd = DiscoverAllAssignableTypes(new[] { type });
+
+                var memberTypesToAdd = type.GetMembers(DiscoveryBindingFlags).Where(FilterToUsableTypes).SelectMany(
                     _ =>
                     {
                         if (_ is PropertyInfo propertyInfo)
@@ -158,6 +161,8 @@ namespace Naos.Serialization.Domain
                             return new Type[0];
                         }
                     }).Where(_ => !_.IsGenericParameter).ToList();
+
+                var newTypes = assignableTypesToAdd.Concat(memberTypesToAdd).ToList();
 
                 newTypes.Distinct().ToList().ForEach(_ => typesToInspect.Add(_));
             }

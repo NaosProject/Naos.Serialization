@@ -582,7 +582,7 @@ namespace Naos.Serialization.Test
         {
             var seafoodDiet = new SeafoodDiet(new Salmon(SeaCreatureSize.Medium, "red"), 345);
             
-            var expectedSeafoodDietJson = "{\r\n  \"seaCreature\": {\r\n    \"color\": \"red\",\r\n    \"size\": \"medium\",\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Salmon, Naos.Serialization.Test\"\r\n  },\r\n  \"amount\": 345\r\n}";
+            var expectedSeafoodDietJson = "{\r\n  \"seaCreature\": {\r\n    \"color\": \"red\",\r\n    \"size\": \"medium\",\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+Salmon, Naos.Serialization.Test\"\r\n  },\r\n  \"amount\": 345,\r\n  \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+SeafoodDiet, Naos.Serialization.Test\"\r\n}";
 
             var actualSeafoodDietJson = new NaosJsonSerializer(typeof(GenericJsonConfiguration<SeaCreature>)).SerializeToString(seafoodDiet);
 
