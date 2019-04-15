@@ -52,6 +52,13 @@ namespace Naos.Serialization.Domain
                 typeof(Array),
             };
 
+        private readonly List<Type> allRegisteredTypes = new List<Type>();
+
+        /// <summary>
+        /// Gets all types that were registered.
+        /// </summary>
+        public IReadOnlyCollection<Type> AllRegisteredTypes => this.allRegisteredTypes;
+
         /// <summary>
         /// Run configuration logic.
         /// </summary>
@@ -101,9 +108,10 @@ namespace Naos.Serialization.Domain
                             .Distinct()
                             .ToList();
 
-                        var typesToAutoRegisterWithAssignables = DiscoverAllAssignableTypes(typesToAutoRegister).Concat(discoveredTypes).Distinct().ToList();
+                        var allTypesToRegister = DiscoverAllAssignableTypes(typesToAutoRegister).Concat(discoveredTypes).Distinct().ToList();
 
-                        this.RegisterTypes(typesToAutoRegisterWithAssignables);
+                        this.RegisterTypes(allTypesToRegister);
+                        this.allRegisteredTypes.AddRange(allTypesToRegister);
 
                         this.InternalConfigure();
 
@@ -355,49 +363,35 @@ namespace Naos.Serialization.Domain
     }
 
     /// <summary>
-    /// Implementation of <see cref="SerializationConfigurationBase" /> that will depend on config using type <typeparamref name="T" />.
+    /// Generic implementation of <see cref="SerializationConfigurationBase" /> that will perform discovery using type <typeparamref name="T" />.
     /// </summary>
-    /// <typeparam name="T">Type to auto register with discovery.</typeparam>
-    public sealed class AccumulatingTypeConfiguration<T> : SerializationConfigurationBase
+    /// <typeparam name="T">Type to use for discovery.</typeparam>
+    public sealed class NullDiscoverySerializationConfiguration<T> : SerializationConfigurationBase
     {
-        private readonly List<Type> accumulatedTypes = new List<Type>();
-
         /// <inheritdoc />
         protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new[] { typeof(T) };
 
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
-            this.accumulatedTypes.AddRange(types);
+            /* no-op */
         }
-
-        /// <summary>
-        /// Gets the types that were provided to <see cref="RegisterTypes" />.
-        /// </summary>
-        public IReadOnlyCollection<Type> AccumulatedTypes => this.accumulatedTypes;
     }
 
     /// <summary>
-    /// Generic implementation of <see cref="SerializationConfigurationBase" /> that will depend on config using type <typeparamref name="T1" />, <typeparamref name="T2" />.
+    /// Generic implementation of <see cref="SerializationConfigurationBase" /> that will perform discovery using type <typeparamref name="T1" />, <typeparamref name="T2" />.
     /// </summary>
-    /// <typeparam name="T1">Type one to auto register with discovery.</typeparam>
-    /// <typeparam name="T2">Type two to auto register with discovery.</typeparam>
-    public sealed class AccumulatingTypeConfiguration<T1, T2> : SerializationConfigurationBase
+    /// <typeparam name="T1">Type one to use for discovery.</typeparam>
+    /// <typeparam name="T2">Type two to use for discovery.</typeparam>
+    public sealed class NullDiscoverySerializationConfiguration<T1, T2> : SerializationConfigurationBase
     {
-        private readonly List<Type> accumulatedTypes = new List<Type>();
-
         /// <inheritdoc />
         protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new[] { typeof(T1), typeof(T2) };
 
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
-            this.accumulatedTypes.AddRange(types);
+            /* no-op */
         }
-
-        /// <summary>
-        /// Gets the types that were provided to <see cref="RegisterTypes" />.
-        /// </summary>
-        public IReadOnlyCollection<Type> AccumulatedTypes => this.accumulatedTypes;
     }
 }

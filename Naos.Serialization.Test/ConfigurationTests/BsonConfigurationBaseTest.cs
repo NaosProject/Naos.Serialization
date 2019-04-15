@@ -188,7 +188,7 @@ namespace Naos.Serialization.Test
             config.Configure();
 
             // Assert
-            config.AllRegisteredTypes.Should().Contain(expected);
+            config.BsonClassMapRegisteredTypes.Should().Contain(expected);
         }
 
         [Fact]
@@ -214,7 +214,7 @@ namespace Naos.Serialization.Test
             config.Configure();
 
             // Assert
-            config.AllRegisteredTypes.Intersect(expectedTypes).Should().BeEquivalentTo(expectedTypes);
+            config.BsonClassMapRegisteredTypes.Intersect(expectedTypes).Should().BeEquivalentTo(expectedTypes);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "configs", Justification = "Name/spelling is correct.")]

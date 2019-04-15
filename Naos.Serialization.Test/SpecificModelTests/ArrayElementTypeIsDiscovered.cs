@@ -17,16 +17,16 @@ namespace Naos.Serialization.Test
         public static void ElementTypeOfArrayIsOnlyTypeDiscovered()
         {
             // Arrange
-            var config = typeof(AccumulatingTypeConfiguration<TypeWithObjectArray>);
+            var config = typeof(NullDiscoverySerializationConfiguration<TypeWithObjectArray>);
 
             // Act
-            var configured = SerializationConfigurationManager.ConfigureWithReturn<AccumulatingTypeConfiguration<TypeWithObjectArray>>(config);
+            var configured = SerializationConfigurationManager.ConfigureWithReturn<NullDiscoverySerializationConfiguration<TypeWithObjectArray>>(config);
 
             // Assert
-            configured.AccumulatedTypes.Should().HaveCount(2 + SerializationConfigurationBase.InternallyRequiredTypes.Count);
-            configured.AccumulatedTypes.Should().Contain(typeof(TypeWithObjectArray));
-            configured.AccumulatedTypes.Should().Contain(typeof(TypeWithObjectArrayElementType));
-            configured.AccumulatedTypes.Should().NotContain(typeof(TypeWithObjectArrayElementType[]));
+            configured.AllRegisteredTypes.Should().HaveCount(2 + SerializationConfigurationBase.InternallyRequiredTypes.Count);
+            configured.AllRegisteredTypes.Should().Contain(typeof(TypeWithObjectArray));
+            configured.AllRegisteredTypes.Should().Contain(typeof(TypeWithObjectArrayElementType));
+            configured.AllRegisteredTypes.Should().NotContain(typeof(TypeWithObjectArrayElementType[]));
         }
     }
 

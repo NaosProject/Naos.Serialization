@@ -49,7 +49,7 @@ namespace Naos.Serialization.Bson
         /// All registered types (static and used by all configurations to accomodate the fact that you have dependent configs that are only run once).
         /// </summary>
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is immutable.")]
-        protected static readonly Tracker<Type> RegisteredTypesTracker = new Tracker<Type>((a, b) => a == b);
+        protected static readonly Tracker<Type> BsonClassMapRegisteredTypesTracker = new Tracker<Type>((a, b) => a == b);
 
         /// <summary>
         /// Gets a map of <see cref="Type"/> to the <see cref="IBsonSerializer"/> to register.
@@ -60,13 +60,13 @@ namespace Naos.Serialization.Bson
         /// Gets all the types from this and any other <see cref="SerializationConfigurationBase"/> derivative that have been registered.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want this accessible via the object.")]
-        public IReadOnlyCollection<Type> AllRegisteredTypes => RegisteredTypesTracker.GetAllTrackedObjects();
+        public IReadOnlyCollection<Type> BsonClassMapRegisteredTypes => BsonClassMapRegisteredTypesTracker.GetAllTrackedObjects();
 
         /// <summary>
         /// Gets all the types in their wrapped form with telemetry from this and any other <see cref="SerializationConfigurationBase"/> derivative that have been registered.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want this accessible via the object.")]
-        public IReadOnlyCollection<Tracker<Type>.TrackedObjectContainer> AllTrackedTypeContainers => RegisteredTypesTracker.GetAllTrackedObjectContainers();
+        public IReadOnlyCollection<Tracker<Type>.TrackedObjectContainer> AllTrackedTypeContainers => BsonClassMapRegisteredTypesTracker.GetAllTrackedObjectContainers();
 
         /// <inheritdoc />
         protected override void InternalConfigure()
@@ -90,7 +90,7 @@ namespace Naos.Serialization.Bson
             }
 
             // We should throw here because this is expected to be more important than an auto map.
-            RegisteredTypesTracker.RunTrackedOperation(typeToUseSerializerFor, TrackedOperation, TrackerCollisionStrategy.Throw, this.GetType());
+            BsonClassMapRegisteredTypesTracker.RunTrackedOperation(typeToUseSerializerFor, TrackedOperation, TrackerCollisionStrategy.Throw, this.GetType());
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Naos.Serialization.Bson
                     genericRegisterClassMapMethod.Invoke(null, null);
                 }
 
-                RegisteredTypesTracker.RunTrackedOperation(type, TrackedOperation, this.TypeTrackerCollisionStrategy, this.GetType());
+                BsonClassMapRegisteredTypesTracker.RunTrackedOperation(type, TrackedOperation, this.TypeTrackerCollisionStrategy, this.GetType());
             }
             catch (Exception ex)
             {
@@ -151,7 +151,7 @@ namespace Naos.Serialization.Bson
                         BsonClassMap.RegisterClassMap(bsonClassMap);
                     }
 
-                    RegisteredTypesTracker.RunTrackedOperation(type, TrackedOperation, this.TypeTrackerCollisionStrategy, this.GetType());
+                    BsonClassMapRegisteredTypesTracker.RunTrackedOperation(type, TrackedOperation, this.TypeTrackerCollisionStrategy, this.GetType());
                 }
             }
             catch (Exception ex)
