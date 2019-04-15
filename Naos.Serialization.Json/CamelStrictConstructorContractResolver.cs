@@ -7,9 +7,11 @@
 namespace Naos.Serialization.Json
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
+    using System.Linq;
     using System.Reflection;
 
     using Newtonsoft.Json;
@@ -64,19 +66,39 @@ namespace Naos.Serialization.Json
 
             foreach (ParameterInfo parameterInfo in constructorParameters)
             {
-                JsonProperty matchingMemberProperty = (parameterInfo.Name != null) ? memberProperties.GetClosestMatchProperty(parameterInfo.Name) : null;
+                var matchingMemberProperty = (parameterInfo.Name != null) ? memberProperties.GetClosestMatchProperty(parameterInfo.Name) : null;
 
                 // Constructor type must be assignable from property type.
                 // Note that this is the only difference between this method and the method it overrides in DefaultContractResolver.
                 // In DefaultContractResolver, the types must match exactly.
-                if (matchingMemberProperty != null && !parameterInfo.ParameterType.IsAssignableFrom(matchingMemberProperty.PropertyType))
+                if (matchingMemberProperty != null)
                 {
-                    matchingMemberProperty = null;
+                    var memberType = matchingMemberProperty.PropertyType;
+                    var memberTypeIsGeneric = memberType.IsGenericType;
+                    var memberGenericArguments = memberType.GetGenericArguments();
+                    var parameterTypeIsArray = parameterInfo.ParameterType.IsArray;
+                    var parameterElementType = parameterInfo.ParameterType.GetElementType();
+                    if (parameterTypeIsArray
+                        && memberTypeIsGeneric
+                        && memberGenericArguments.Length == 1
+                        && memberType.IsAssignableTo(typeof(IEnumerable<>).MakeGenericType(parameterElementType)))
+                    {
+                        // NO-OP - this allows for the constructor parameter to be a "params" array while still using a collection property as the source.
+                    }
+                    else if (memberType.IsAssignableTo(parameterInfo.ParameterType))
+                    {
+                        // NO-OP - vanilla assignable type to constructor check.
+                    }
+                    else
+                    {
+                        // no way to do this so null out and the let the next step error with a clean message.
+                        matchingMemberProperty = null;
+                    }
                 }
 
                 if (matchingMemberProperty != null || parameterInfo.Name != null)
                 {
-                    JsonProperty property = this.CreatePropertyFromConstructorParameterWithConstructorInfo(matchingMemberProperty, parameterInfo, constructor);
+                    var property = this.CreatePropertyFromConstructorParameterWithConstructorInfo(matchingMemberProperty, parameterInfo, constructor);
 
                     if (property != null)
                     {

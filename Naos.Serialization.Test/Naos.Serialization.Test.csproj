@@ -116,6 +116,7 @@
     <Compile Include="RoundtripSerializationExtensions.cs" />
     <Compile Include="SpecificModels\ITopInterface.cs" />
     <Compile Include="SpecificModels\Animal.cs" />
+    <Compile Include="SpecificModelTests\ParamsConstructorCollectionProperty.cs" />
     <Compile Include="SpecificModelTests\MultipleConstructorScenarioTest.cs" />
     <Compile Include="SpecificModelTests\JsonConfigurationTest.cs" />
     <Compile Include="SpecificModels\Lighting.cs" />

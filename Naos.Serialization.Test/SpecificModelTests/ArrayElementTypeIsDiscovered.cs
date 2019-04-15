@@ -13,7 +13,6 @@ namespace Naos.Serialization.Test
 
     public static class ArrayElementTypeIsDiscovered
     {
-        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Onlys", Justification = "Spelling/name is correct.")]
         [Fact]
         public static void ElementTypeOfArrayIsOnlyTypeDiscovered()
         {
