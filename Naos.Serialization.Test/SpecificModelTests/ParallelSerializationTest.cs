@@ -31,7 +31,7 @@ namespace Naos.Serialization.Test
             var tasks = Enumerable.Range(1, 10000).Select(_ => A.Dummy<TestDictionaryMixedKeyValues>())
                 .Select(_ => new Task(() =>
                 {
-                    var serializer = new NaosJsonSerializer(typeof(GenericJsonConfiguration<TestDictionaryMixedKeyValues>));
+                    var serializer = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<TestDictionaryMixedKeyValues>));
                     serializer.SerializeToString(_);
                 })).ToArray();
             Parallel.ForEach(tasks, _ => _.Start());
@@ -44,7 +44,7 @@ namespace Naos.Serialization.Test
             var tasks = Enumerable.Range(1, 10000).Select(_ => A.Dummy<TestBase>())
                 .Select(_ => new Task(() =>
                 {
-                    var serializer = new NaosJsonSerializer(typeof(GenericJsonConfiguration<TestBase>));
+                    var serializer = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<TestBase>));
                     serializer.SerializeToString(_);
                 })).ToArray();
             Parallel.ForEach(tasks, _ => _.Start());
@@ -54,7 +54,7 @@ namespace Naos.Serialization.Test
         [Fact(Skip = "Long running")]
         public static void TestBase()
         {
-            var serializer = new NaosJsonSerializer(typeof(GenericJsonConfiguration<TestBase>));
+            var serializer = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<TestBase>));
             var tasks = Enumerable.Range(1, 100).Select(_ => A.Dummy<TestBase>())
                 .Select(_ => new Task(() => serializer.SerializeToString(_))).ToArray();
             Parallel.ForEach(tasks, _ => _.Start());

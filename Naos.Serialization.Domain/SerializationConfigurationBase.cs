@@ -28,15 +28,19 @@ namespace Naos.Serialization.Domain
         [SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Name is correct.")]
         public const BindingFlags DiscoveryBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
-        private readonly object syncConfigure = new object();
-        private bool configured;
-
-        private static readonly IReadOnlyCollection<Type> InternallyRequiredTypes = new[]
+        /// <summary>
+        /// Types that will be added by default to the <see cref="RegisterTypes" />.
+        /// </summary>
+        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is immutable and want a field.")]
+        public static readonly IReadOnlyCollection<Type> InternallyRequiredTypes = new[]
         {
             typeof(TypeDescription),
             typeof(SerializationDescription),
             typeof(DescribedSerialization),
         };
+
+        private readonly object syncConfigure = new object();
+        private bool configured;
 
         private static readonly IReadOnlyCollection<Type> DiscoverAssignableTypesBlackList =
             new[]
@@ -134,6 +138,12 @@ namespace Naos.Serialization.Domain
                 if (type.IsGenericType)
                 {
                     type.GetGenericArguments().ToList().ForEach(_ => typesToInspect.Add(_));
+                }
+
+                if (type.IsArray)
+                {
+                    typesToInspect.Add(type.GetElementType());
+                    continue;
                 }
 
                 if (type.Namespace?.StartsWith(nameof(System), StringComparison.Ordinal) ?? true)
@@ -342,5 +352,52 @@ namespace Naos.Serialization.Domain
         {
             /* no-op */
         }
+    }
+
+    /// <summary>
+    /// Implementation of <see cref="SerializationConfigurationBase" /> that will depend on config using type <typeparamref name="T" />.
+    /// </summary>
+    /// <typeparam name="T">Type to auto register with discovery.</typeparam>
+    public sealed class AccumulatingTypeConfiguration<T> : SerializationConfigurationBase
+    {
+        private readonly List<Type> accumulatedTypes = new List<Type>();
+
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new[] { typeof(T) };
+
+        /// <inheritdoc />
+        protected override void RegisterTypes(IReadOnlyCollection<Type> types)
+        {
+            this.accumulatedTypes.AddRange(types);
+        }
+
+        /// <summary>
+        /// Gets the types that were provided to <see cref="RegisterTypes" />.
+        /// </summary>
+        public IReadOnlyCollection<Type> AccumulatedTypes => this.accumulatedTypes;
+    }
+
+    /// <summary>
+    /// Generic implementation of <see cref="SerializationConfigurationBase" /> that will depend on config using type <typeparamref name="T1" />, <typeparamref name="T2" />.
+    /// </summary>
+    /// <typeparam name="T1">Type one to auto register with discovery.</typeparam>
+    /// <typeparam name="T2">Type two to auto register with discovery.</typeparam>
+    public sealed class AccumulatingTypeConfiguration<T1, T2> : SerializationConfigurationBase
+    {
+        private readonly List<Type> accumulatedTypes = new List<Type>();
+
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new[] { typeof(T1), typeof(T2) };
+
+        /// <inheritdoc />
+        protected override void RegisterTypes(IReadOnlyCollection<Type> types)
+        {
+            this.accumulatedTypes.AddRange(types);
+        }
+
+        /// <summary>
+        /// Gets the types that were provided to <see cref="RegisterTypes" />.
+        /// </summary>
+        public IReadOnlyCollection<Type> AccumulatedTypes => this.accumulatedTypes;
     }
 }

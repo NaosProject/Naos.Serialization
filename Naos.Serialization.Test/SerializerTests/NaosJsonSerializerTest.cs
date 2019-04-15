@@ -55,7 +55,7 @@ namespace Naos.Serialization.Test
             // If Default is being used then there should be new lines
             var dog = new Dog(5, "spud", FurColor.Brindle);
 
-            var json = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>)).SerializeToString(dog);
+            var json = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Animal>)).SerializeToString(dog);
 
             json.Should().Be("{\r\n  \"name\": \"spud\",\r\n  \"furColor\": \"brindle\",\r\n  \"dogTag\": \"my name is spud\",\r\n  \"nickname\": null,\r\n  \"age\": 5,\r\n  \"$concreteType\": \"Naos.Serialization.Test.Dog, Naos.Serialization.Test\"\r\n}");
         }
@@ -66,7 +66,7 @@ namespace Naos.Serialization.Test
             // If Default is being used then strict constructor matching will result in a Dog and not a Mouse
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>)).Deserialize<Animal>(dogJson) as Dog;
+            var dog = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Animal>)).Deserialize<Animal>(dogJson) as Dog;
 
             dog.Should().NotBeNull();
             dog.Name.Should().Be("Barney");
@@ -81,7 +81,7 @@ namespace Naos.Serialization.Test
             // If Default is being used then strict constructor matching will result in a Dog and not a Mouse
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>)).Deserialize(dogJson, typeof(Animal)) as Dog;
+            var dog = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Animal>)).Deserialize(dogJson, typeof(Animal)) as Dog;
 
             dog.Should().NotBeNull();
             dog.Name.Should().Be("Barney");
@@ -135,7 +135,7 @@ namespace Naos.Serialization.Test
             // If Compact is being used then there should be no new lines
             var dog = new Dog(5, "spud", FurColor.Brindle);
 
-            var json = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>), JsonFormattingKind.Compact).SerializeToString(dog);
+            var json = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Animal>), JsonFormattingKind.Compact).SerializeToString(dog);
 
             var expected = "{\"name\":\"spud\",\"furColor\":\"brindle\",\"dogTag\":\"my name is spud\",\"nickname\":null,\"age\":5,\"$concreteType\":\"Naos.Serialization.Test.Dog, Naos.Serialization.Test\"}";
             json.Should().Be(expected);
@@ -147,7 +147,7 @@ namespace Naos.Serialization.Test
             // If Compact is being used then strict constructor matching will result in a Dog and not a Mouse
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>), JsonFormattingKind.Compact).Deserialize<Animal>(dogJson) as Dog;
+            var dog = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Animal>), JsonFormattingKind.Compact).Deserialize<Animal>(dogJson) as Dog;
 
             dog.Should().NotBeNull();
             dog.Name.Should().Be("Barney");
@@ -162,7 +162,7 @@ namespace Naos.Serialization.Test
             // If Compact is being used then strict constructor matching will result in a Dog and not a Mouse
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>), JsonFormattingKind.Compact).Deserialize(dogJson, typeof(Animal)) as Dog;
+            var dog = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Animal>), JsonFormattingKind.Compact).Deserialize(dogJson, typeof(Animal)) as Dog;
 
             dog.Should().NotBeNull();
             dog.Name.Should().Be("Barney");
@@ -176,7 +176,7 @@ namespace Naos.Serialization.Test
         {
             var dogJson = "{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}";
 
-            var dog = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>), JsonFormattingKind.Compact).Deserialize<dynamic>(dogJson) as JObject;
+            var dog = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Animal>), JsonFormattingKind.Compact).Deserialize<dynamic>(dogJson) as JObject;
 
             dog.Properties().Count().Should().Be(3);
             dog["name"].ToString().Should().Be("Barney");
@@ -214,7 +214,7 @@ namespace Naos.Serialization.Test
             // If Minimal is being used then the null Nickname property won't be serialized
             var dog = new Dog(5, "spud", FurColor.Brindle);
 
-            var json = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Animal>), JsonFormattingKind.Minimal).SerializeToString(dog);
+            var json = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Animal>), JsonFormattingKind.Minimal).SerializeToString(dog);
 
             json.Should().Be("{\"name\":\"spud\",\"furColor\":\"brindle\",\"dogTag\":\"my name is spud\",\"age\":5}");
         }
@@ -226,7 +226,7 @@ namespace Naos.Serialization.Test
             // otherwise, out-of-the-box json.net will create an anonymous object
             var lightingJson = "{}";
 
-            var lighting = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Lighting>), JsonFormattingKind.Minimal).Deserialize<Lighting>(lightingJson) as NoLighting;
+            var lighting = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Lighting>), JsonFormattingKind.Minimal).Deserialize<Lighting>(lightingJson) as NoLighting;
 
             lighting.Should().NotBeNull();
         }
@@ -238,7 +238,7 @@ namespace Naos.Serialization.Test
             // otherwise, out-of-the-box json.net will create an anonymous object
             var lightingJson = "{}";
 
-            var lighting = new NaosJsonSerializer(typeof(GenericJsonConfiguration<Lighting>), JsonFormattingKind.Minimal).Deserialize(lightingJson, typeof(Lighting)) as NoLighting;
+            var lighting = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Lighting>), JsonFormattingKind.Minimal).Deserialize(lightingJson, typeof(Lighting)) as NoLighting;
 
             lighting.Should().NotBeNull();
         }

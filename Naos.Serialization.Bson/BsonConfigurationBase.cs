@@ -321,7 +321,7 @@ namespace Naos.Serialization.Bson
     /// Generic implementation of <see cref="BsonConfigurationBase" /> that will auto register with discovery using type <typeparamref name="T" />.
     /// </summary>
     /// <typeparam name="T">Type to auto register with discovery.</typeparam>
-    public sealed class GenericBsonConfiguration<T> : BsonConfigurationBase
+    public sealed class GenericDiscoveryBsonConfiguration<T> : BsonConfigurationBase
     {
         /// <inheritdoc />
         protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new[] { typeof(T) };
@@ -332,7 +332,7 @@ namespace Naos.Serialization.Bson
     /// </summary>
     /// <typeparam name="T1">Type one to auto register with discovery.</typeparam>
     /// <typeparam name="T2">Type two to auto register with discovery.</typeparam>
-    public sealed class GenericBsonConfiguration<T1, T2> : BsonConfigurationBase
+    public sealed class GenericDiscoveryBsonConfiguration<T1, T2> : BsonConfigurationBase
     {
         /// <inheritdoc />
         protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new[] { typeof(T1), typeof(T2) };

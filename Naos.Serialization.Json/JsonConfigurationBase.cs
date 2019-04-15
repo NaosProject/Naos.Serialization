@@ -333,7 +333,7 @@ namespace Naos.Serialization.Json
     /// Generic implementation of <see cref="JsonConfigurationBase" /> that will auto register with discovery using type <typeparamref name="T" />.
     /// </summary>
     /// <typeparam name="T">Type to auto register with discovery.</typeparam>
-    public sealed class GenericJsonConfiguration<T> : JsonConfigurationBase
+    public sealed class GenericDiscoveryJsonConfiguration<T> : JsonConfigurationBase
     {
         /// <inheritdoc />
         protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new[] { typeof(T) };
@@ -344,7 +344,7 @@ namespace Naos.Serialization.Json
     /// </summary>
     /// <typeparam name="T1">Type one to auto register with discovery.</typeparam>
     /// <typeparam name="T2">Type two to auto register with discovery.</typeparam>
-    public sealed class GenericJsonConfiguration<T1, T2> : JsonConfigurationBase
+    public sealed class GenericDiscoveryJsonConfiguration<T1, T2> : JsonConfigurationBase
     {
         /// <inheritdoc />
         protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new[] { typeof(T1), typeof(T2) };

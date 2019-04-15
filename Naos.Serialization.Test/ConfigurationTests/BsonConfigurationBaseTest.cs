@@ -157,7 +157,7 @@ namespace Naos.Serialization.Test
         public static void Configure___Same_type_twice_with_Throw_TypeTrackerCollisionStrategy___Throws()
         {
             // Arrange
-            new GenericBsonConfiguration<WebRequest>().Configure();
+            new GenericDiscoveryBsonConfiguration<WebRequest>().Configure();
             var config = new TestConfigWithSettableFields { SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Throw, SettableClassTypesToRegister = new[] { typeof(WebRequest) } };
             Action action = () => config.Configure();
 
@@ -170,7 +170,7 @@ namespace Naos.Serialization.Test
             exception.Message.Should().Be("Failed to run RegisterClassMap on System.MarshalByRefObject");
             exception.InnerException.Should().NotBeNull();
             exception.InnerException.Should().BeOfType<TrackedObjectCollisionException>();
-            exception.InnerException.Message.Should().StartWith("Object of type System.Type with ToString value of 'System.MarshalByRefObject' is already tracked and TrackerCollisionStrategy is Throw - it was registered by Naos.Serialization.Bson.GenericBsonConfiguration`1[System.Net.WebRequest] on ");
+            exception.InnerException.Message.Should().StartWith("Object of type System.Type with ToString value of 'System.MarshalByRefObject' is already tracked and TrackerCollisionStrategy is Throw - it was registered by Naos.Serialization.Bson.GenericDiscoveryBsonConfiguration`1[System.Net.WebRequest] on ");
         }
 
         [Fact]

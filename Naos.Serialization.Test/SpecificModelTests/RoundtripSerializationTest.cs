@@ -30,8 +30,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_ClassWithGetterOnlysBase___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<ClassWithGetterOnlys>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<ClassWithGetterOnlys>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<ClassWithGetterOnlys>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<ClassWithGetterOnlys>);
 
             var expected = new ClassWithGetterOnlys();
 
@@ -52,8 +52,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_ClassWithPrivateSetter___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<ClassWithPrivateSetter>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<ClassWithPrivateSetter>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<ClassWithPrivateSetter>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<ClassWithPrivateSetter>);
 
             var privateValue = A.Dummy<string>();
             var expected = new ClassWithPrivateSetter(privateValue);
@@ -72,8 +72,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestWrappedFields___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestWrappedFields>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestWrappedFields>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestWrappedFields>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestWrappedFields>);
 
             var expected = new TestWrappedFields
             {
@@ -103,8 +103,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestWithInheritor___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithInheritorExtraProperty>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithInheritorExtraProperty>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestWithInheritorExtraProperty>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestWithInheritorExtraProperty>);
 
             var expected = new TestWithInheritorExtraProperty { Id = Guid.NewGuid().ToString(), Name = Guid.NewGuid().ToString(), AnotherName = Guid.NewGuid().ToString(), };
 
@@ -124,8 +124,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestWithId___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithId>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithId>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestWithId>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestWithId>);
 
             var expected = new TestWithId { Id = Guid.NewGuid().ToString(), };
 
@@ -143,8 +143,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestMapping_with_all_defaults___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestMapping>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestMapping>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestMapping>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestMapping>);
 
             var expected = new TestMapping();
 
@@ -174,8 +174,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestMapping___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestMapping>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestMapping>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestMapping>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestMapping>);
 
             var expected = new TestMapping
             {
@@ -224,8 +224,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestDictionaryMapping_with_all_nulls___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestDictionaryFields>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestDictionaryFields>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestDictionaryFields>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestDictionaryFields>);
 
             var expected = new TestDictionaryFields();
 
@@ -250,8 +250,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestDictionaryMapping___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestDictionaryFields>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestDictionaryFields>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestDictionaryFields>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestDictionaryFields>);
 
             var expected = A.Dummy<TestDictionaryFields>();
 
@@ -276,8 +276,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestDictionaryMixedKeyValues_with_all_nulls___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestDictionaryMixedKeyValues>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestDictionaryMixedKeyValues>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestDictionaryMixedKeyValues>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestDictionaryMixedKeyValues>);
 
             var expected = new TestDictionaryMixedKeyValues();
 
@@ -330,8 +330,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestDictionaryMixedKeyValues___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestDictionaryMixedKeyValues>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestDictionaryMixedKeyValues>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestDictionaryMixedKeyValues>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestDictionaryMixedKeyValues>);
 
             var expected = A.Dummy<TestDictionaryMixedKeyValues>();
 
@@ -384,8 +384,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestCollectionFields_with_all_nulls___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestCollectionFields>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestCollectionFields>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestCollectionFields>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestCollectionFields>);
 
             var expected = new TestCollectionFields();
 
@@ -409,8 +409,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestCollectionFields___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestCollectionFields>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestCollectionFields>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestCollectionFields>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestCollectionFields>);
 
             var expected = A.Dummy<TestCollectionFields>();
 
@@ -434,8 +434,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_collection_of_Interface_type___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<IDeduceWhoLetTheDogsOut>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<IDeduceWhoLetTheDogsOut>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<IDeduceWhoLetTheDogsOut>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<IDeduceWhoLetTheDogsOut>);
 
             IDeduceWhoLetTheDogsOut investigator1 = new NamedInvestigator("bob", 2);
             IDeduceWhoLetTheDogsOut investigator2 = new AnonymousInvestigator(4000);
@@ -479,8 +479,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_ClassWithFlagsEnums___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<ClassWithFlagsEnums>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<ClassWithFlagsEnums>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<ClassWithFlagsEnums>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<ClassWithFlagsEnums>);
 
             var expected = new ClassWithFlagsEnums { Flags = FlagsEnumeration.SecondValue | FlagsEnumeration.ThirdValue };
 
@@ -498,8 +498,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestWithDictionaryKeyedOnEnum___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithDictionaryKeyedOnEnum>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithDictionaryKeyedOnEnum>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestWithDictionaryKeyedOnEnum>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestWithDictionaryKeyedOnEnum>);
 
             var expected = A.Dummy<TestWithDictionaryKeyedOnEnum>();
 
@@ -519,8 +519,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestWithEmptyReadOnlyCollectionOfBaseClass___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
 
             var expected = new TestWithReadOnlyCollectionOfBaseClass { TestCollection = new List<TestBase>() };
 
@@ -539,8 +539,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestWithReadOnlyCollectionOfBaseClass___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestWithReadOnlyCollectionOfBaseClass>);
 
             var expected = new TestWithReadOnlyCollectionOfBaseClass
                                {
@@ -569,8 +569,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums>);
 
             var expected = new TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums
             {
@@ -607,8 +607,8 @@ namespace Naos.Serialization.Test
         public static void When_registering_a_top_level_interface___An_implementation_of_an_interface_that_implements_top_interface___Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<ITopInterface>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<ITopInterface>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<ITopInterface>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<ITopInterface>);
 
             var expected = A.Dummy<BottomClass>();
 
@@ -628,8 +628,8 @@ namespace Naos.Serialization.Test
         public static void RoundtripSerializeDeserialize___Using_Field_NumberField_YearField__Works()
         {
             // Arrange
-            var bsonConfigType = typeof(GenericBsonConfiguration<Field>);
-            var jsonConfigType = typeof(GenericJsonConfiguration<Field>);
+            var bsonConfigType = typeof(GenericDiscoveryBsonConfiguration<Field>);
+            var jsonConfigType = typeof(GenericDiscoveryJsonConfiguration<Field>);
 
             var expectedId1 = "my-field-1";
             var expectedId2 = "my-field-2";

@@ -30,8 +30,8 @@ namespace Naos.Serialization.Test
             RoundtripSerializeWithCallback(
                 expected,
                 (yieldedDescribedSerialization, deserializedObject) => deserializedObject.Should().Be(expected),
-                shouldUseConfiguration ? typeof(GenericJsonConfiguration<T>) : null,
-                shouldUseConfiguration ? typeof(GenericBsonConfiguration<T>) : null);
+                shouldUseConfiguration ? typeof(GenericDiscoveryJsonConfiguration<T>) : null,
+                shouldUseConfiguration ? typeof(GenericDiscoveryBsonConfiguration<T>) : null);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Justification = "Want parameters this way.")]
