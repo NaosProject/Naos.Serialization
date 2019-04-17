@@ -101,7 +101,6 @@
     <Compile Include="UnregisteredTypeEncounteredStrategy.cs" />
     <Compile Include="SerializationKind.cs" />
     <Compile Include="SerializationFormat.cs" />
-    <Compile Include="Tracker.cs" />
     <Compile Include="NaosSerializationException.cs" />
     <Compile Include="NaosDateTimeStringSerializer.cs" />
     <Compile Include="GlobalSuppressions.cs" />

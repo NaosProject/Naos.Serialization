@@ -31,6 +31,7 @@ namespace Naos.Serialization.Domain
         public static void Configure<T>()
             where T : SerializationConfigurationBase, new()
         {
+            // TODO: is there a race condition here? should we lock while calling configure...
             var instance = FetchOrCreateConfigurationInstance<T>();
             instance.Configure();
         }

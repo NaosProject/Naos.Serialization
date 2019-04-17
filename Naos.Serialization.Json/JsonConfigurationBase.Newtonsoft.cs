@@ -41,9 +41,10 @@ namespace Naos.Serialization.Json
 
             var result = SerializationKindToSettingsSelectorByDirection[formattingKind](SerializationDirection.Serialize);
 
-            var specifiedConverters = serializationDirection == SerializationDirection.Serialize
-                ? this.RegisteredSerializingConverters.Select(_ => _.ConverterBuilderFunction()).ToList()
-                : this.RegisteredDeserializingConverters.Select(_ => _.ConverterBuilderFunction()).ToList();
+            var specifiedConverters = this.RegisteredConverters.Select(_ =>
+                serializationDirection == SerializationDirection.Serialize
+                    ? _.SerializingConverterBuilderFunction()
+                    : _.DeserializingConverterBuilderFunction()).ToList();
 
             var defaultConverters = this.GetDefaultConverters(serializationDirection, formattingKind);
 
@@ -52,6 +53,7 @@ namespace Naos.Serialization.Json
                 .Concat(defaultConverters)
                 .ToList();
 
+            // TODO: We may need this sorted differently; as in does it need to reverse?
             result.Converters = converters;
 
             if (this.OverrideContractResolver != null && this.OverrideContractResolver.ContainsKey(serializationDirection))
@@ -97,31 +99,20 @@ namespace Naos.Serialization.Json
 
         private IList<JsonConverter> GetDefaultDeserializingConverters()
         {
-            var inheritedTypesToHandle = this.InheritedTypesToHandle
-                .Except(this.RegisteredDeserializingConverters.SelectMany(_ => _.HandledTypes)).ToList();
-
-            var typesThatConvertToString = this.RegisteredSerializingConverters
-                .Where(_ => _.OutputKind == RegisteredJsonConverterOutputKind.String)
-                .SelectMany(_ => _.HandledTypes).Distinct().ToList();
-
             return new JsonConverter[0].Concat(
                 new JsonConverter[]
                 {
                     new DateTimeJsonConverter(),
                     new StringEnumConverter { CamelCaseText = true },
                     new SecureStringJsonConverter(),
-                    new InheritedTypeReaderJsonConverter(inheritedTypesToHandle),
-                    new DictionaryJsonConverter(typesThatConvertToString),
-                    new KeyValueArrayDictionaryJsonConverter(typesThatConvertToString),
+                    new InheritedTypeReaderJsonConverter(this.InheritedTypesToHandle),
+                    new DictionaryJsonConverter(this.TypesWithStringConverters),
+                    new KeyValueArrayDictionaryJsonConverter(this.TypesWithStringConverters),
                 }).ToList();
         }
 
         private IList<JsonConverter> GetDefaultSerializingConverters(JsonFormattingKind formattingKind)
         {
-            var typesThatConvertToString = this.RegisteredSerializingConverters
-                .Where(_ => _.OutputKind == RegisteredJsonConverterOutputKind.String)
-                .SelectMany(_ => _.HandledTypes).Distinct().ToList();
-
             return new JsonConverter[0].Concat(
                     new JsonConverter[]
                     {
@@ -134,8 +125,8 @@ namespace Naos.Serialization.Json
                 .Concat(
                     new JsonConverter[]
                     {
-                        new DictionaryJsonConverter(typesThatConvertToString),
-                        new KeyValueArrayDictionaryJsonConverter(typesThatConvertToString),
+                        new DictionaryJsonConverter(this.TypesWithStringConverters),
+                        new KeyValueArrayDictionaryJsonConverter(this.TypesWithStringConverters),
                     }).ToList();
         }
 

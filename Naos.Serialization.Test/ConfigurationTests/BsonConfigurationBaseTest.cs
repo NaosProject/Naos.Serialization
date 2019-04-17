@@ -135,63 +135,6 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
-        public static void Configure___With_Invalid_TypeTrackerCollisionStrategy___Throws()
-        {
-            // Arrange
-            var config = new TestConfigWithSettableFields { SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Invalid, SettableClassTypesToRegister = new[] { typeof(string) } };
-            Action action = () => config.Configure();
-
-            // Act
-            var exception = Record.Exception(action);
-
-            // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeOfType<BsonConfigurationException>();
-            exception.Message.Should().Be("Failed to run RegisterClassMap on Naos.Serialization.Domain.DescribedSerialization"); // can't get to internal types first...
-            exception.InnerException.Should().NotBeNull();
-            exception.InnerException.Should().BeOfType<ArgumentOutOfRangeException>();
-            exception.InnerException.Message.Should().Be("Parameter 'trackerCollisionStrategy' is equal to the comparison value using EqualityComparer<T>.Default, where T: TrackerCollisionStrategy.  Specified 'comparisonValue' is 'Invalid'.");
-        }
-
-        [Fact]
-        public static void Configure___Same_type_twice_with_Throw_TypeTrackerCollisionStrategy___Throws()
-        {
-            // Arrange
-            new GenericDiscoveryBsonConfiguration<WebRequest>().Configure();
-            var config = new TestConfigWithSettableFields { SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Throw, SettableClassTypesToRegister = new[] { typeof(WebRequest) } };
-            Action action = () => config.Configure();
-
-            // Act
-            var exception = Record.Exception(action);
-
-            // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeOfType<BsonConfigurationException>();
-            exception.Message.Should().Be("Failed to run RegisterClassMap on System.MarshalByRefObject");
-            exception.InnerException.Should().NotBeNull();
-            exception.InnerException.Should().BeOfType<TrackedObjectCollisionException>();
-            exception.InnerException.Message.Should().StartWith("Object of type System.Type with ToString value of 'System.MarshalByRefObject' is already tracked and TrackerCollisionStrategy is Throw - it was registered by Naos.Serialization.Bson.GenericDiscoveryBsonConfiguration`1[System.Net.WebRequest] on ");
-        }
-
-        [Fact]
-        public static void Configure___Same_type_twice_with_Skip_TypeTrackerCollisionStrategy___Only_registers_once()
-        {
-            // Arrange
-            var expected = typeof(FileInfo);
-            var config = new TestConfigWithSettableFields
-            {
-                SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Skip,
-                SettableClassTypesToRegister = new[] { expected },
-            };
-
-            // Act
-            config.Configure();
-
-            // Assert
-            config.RegisteredTypeToDetailsMap.Keys.Should().Contain(expected);
-        }
-
-        [Fact]
         public static void Configure___Override_collections___All_types_get_registered_as_expected()
         {
             var expectedTypes = new[]
@@ -207,7 +150,6 @@ namespace Naos.Serialization.Test
                                  SettableClassTypesToRegister = new[] { typeof(TestConfigureActionSingle) },
                                  SettableInterfaceTypesToRegisterImplementationOf = new[] { typeof(ITestConfigureActionFromInterface) },
                                  SettableTypesToAutoRegister = new[] { typeof(ITestConfigureActionFromAuto), typeof(TestConfigureActionBaseFromAuto) },
-                                 SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Skip,
                              };
 
             // Act

@@ -7,7 +7,6 @@
 namespace Naos.Serialization.Json
 {
     using System;
-    using System.Linq;
     using System.Text;
 
     using Naos.Serialization.Domain;

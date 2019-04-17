@@ -22,48 +22,63 @@ namespace Naos.Serialization.Json
     public abstract partial class JsonConfigurationBase
     {
         /// <inheritdoc />
-        protected override void InternalConfigure()
+        protected sealed override void InternalConfigure()
         {
-            var nullRegisteredConverterMap =
-                new Dictionary<SerializationDirection, IReadOnlyCollection<RegisteredJsonConverter>>
-                {
-                    { SerializationDirection.Serialize, new RegisteredJsonConverter[0] },
-                    { SerializationDirection.Deserialize, new RegisteredJsonConverter[0] },
-                };
+            // TODO: depdendentA <- dependentC
+            //       depdendentB <- dependentC
+            // Both A & B will publish the converters from C
 
-            var dependentConfigTypes = new HashSet<Type>(this.DependentConfigurationTypes);
+            // A <- B <- C.ConverterB
+            // C.ConverterB
+            // B.ConverterB
+
+            var dependentConfigTypes = new List<Type>(this.DependentConfigurationTypes.Reverse());
             while (dependentConfigTypes.Any())
             {
-                var type = dependentConfigTypes.First();
-                dependentConfigTypes.Remove(type);
+                var type = dependentConfigTypes.Last();
+                dependentConfigTypes.RemoveAt(dependentConfigTypes.Count);
 
-                JsonConfigurationBase config = (JsonConfigurationBase)this.DependentConfigurationTypeToInstanceMap[type];
+                var dependentConfig = (JsonConfigurationBase)this.DependentConfigurationTypeToInstanceMap[type];
+                dependentConfigTypes.AddRange(dependentConfig.DependentConfigurationTypes);
 
-                dependentConfigTypes.AddRange(config.DependentConfigurationTypes);
-
-                this.RegisteredSerializingConverters.AddRange(config.RegisteredSerializingConverters);
-                this.TypesWithConverters.AddRange(config.RegisteredSerializingConverters.SelectMany(_ => _.HandledTypes));
-
-                this.RegisteredDeserializingConverters.AddRange(config.RegisteredDeserializingConverters);
-                this.TypesWithConverters.AddRange(config.RegisteredDeserializingConverters.SelectMany(_ => _.HandledTypes));
+                this.ProcessConverter(dependentConfig.RegisteredConverters);
             }
 
+            var converters = (this.ConvertersToRegister ?? new RegisteredJsonConverter[0]).ToList();
+            var handledTypes = this.ProcessConverter(converters);
             var registrationDetails = new RegistrationDetails(this.GetType());
-            var serializingConverters = ((this.ConvertersToPushOnStack ?? nullRegisteredConverterMap)[SerializationDirection.Serialize] ?? new RegisteredJsonConverter[0]).ToList();
-            this.RegisteredSerializingConverters.AddRange(serializingConverters);
-            var serializingConverterTypes = serializingConverters.SelectMany(_ => _.HandledTypes).ToList();
-            this.TypesWithConverters.AddRange(serializingConverterTypes);
-            serializingConverterTypes.ForEach(_ => this.MutableRegisteredTypeToDetailsMap.Add(_, registrationDetails));
 
-            var deserializingConverters = ((this.ConvertersToPushOnStack ?? nullRegisteredConverterMap)[SerializationDirection.Deserialize] ?? new RegisteredJsonConverter[0]).ToList();
-            this.RegisteredDeserializingConverters.AddRange(deserializingConverters);
-            var deserializingConverterTypes = deserializingConverters.SelectMany(_ => _.HandledTypes).ToList();
-            this.TypesWithConverters.AddRange(deserializingConverterTypes);
-            deserializingConverterTypes.ForEach(_ => this.MutableRegisteredTypeToDetailsMap.Add(_, registrationDetails));
+            foreach (var handledType in handledTypes)
+            {
+                this.MutableRegisteredTypeToDetailsMap.Add(handledType, registrationDetails);
+            }
+        }
+
+        private IReadOnlyCollection<Type> ProcessConverter(IList<RegisteredJsonConverter> registeredConverters)
+        {
+            var handledTypes = registeredConverters.SelectMany(_ => _.HandledTypes).ToList();
+
+            if (this.RegisteredTypeToDetailsMap.Keys.Intersect(handledTypes).Any())
+            {
+                throw new DuplicateRegistrationException(
+                    Invariant(
+                        $"Trying to register one or more types via {nameof(this.ConvertersToRegister)} processing, but one is already registered."),
+                    handledTypes);
+            }
+
+            // TODO: how do we check the scenario above to ensure we do not double register converters
+            this.RegisteredConverters.AddRange(registeredConverters);
+            this.TypesWithConverters.AddRange(handledTypes);
+            this.TypesWithStringConverters.AddRange(
+                registeredConverters
+                    .Where(_ => _.OutputKind == RegisteredJsonConverterOutputKind.String)
+                    .SelectMany(_ => _.HandledTypes).Distinct());
+
+            return handledTypes;
         }
 
         /// <inheritdoc />
-        protected override void RegisterTypes(IReadOnlyCollection<Type> types)
+        protected sealed override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull();
 

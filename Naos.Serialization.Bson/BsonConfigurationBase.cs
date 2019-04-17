@@ -51,41 +51,31 @@ namespace Naos.Serialization.Bson
         protected virtual IReadOnlyCollection<RegisteredBsonSerializer> SerializersToRegister => new List<RegisteredBsonSerializer>();
 
         /// <inheritdoc />
-        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
+        protected sealed override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
         {
             return new[] { typeof(InternalBsonConfiguration) };
         }
 
         /// <inheritdoc />
-        protected override void InternalConfigure()
+        protected sealed override void InternalConfigure()
         {
             foreach (var serializerToRegister in this.SerializersToRegister ?? new List<RegisteredBsonSerializer>())
             {
                 var serializer = serializerToRegister.SerializerBuilderFunction();
                 foreach (var handledType in serializerToRegister.HandledTypes)
                 {
-                    this.RegisterCustomSerializer(handledType, serializer);
+                    if (this.RegisteredTypeToDetailsMap.ContainsKey(handledType))
+                    {
+                        throw new DuplicateRegistrationException(
+                            Invariant($"Trying to register {handledType} via {nameof(this.SerializersToRegister)} processing, but it is already registered."),
+                            new[] { handledType });
+                    }
+
+                    BsonSerializer.RegisterSerializer(handledType, serializer);
+                    var registrationDetails = new RegistrationDetails(this.GetType());
+                    this.MutableRegisteredTypeToDetailsMap.Add(handledType, registrationDetails);
                 }
             }
-        }
-
-        /// <summary>
-        /// Method to register new custom serializers.
-        /// </summary>
-        /// <param name="typeToUseSerializerFor">Type that should use provided serializer.</param>
-        /// <param name="customSerializer">Serializer implementation to use.</param>
-        protected void RegisterCustomSerializer(Type typeToUseSerializerFor, IBsonSerializer customSerializer)
-        {
-            if (this.RegisteredTypeToDetailsMap.ContainsKey(typeToUseSerializerFor))
-            {
-                throw new DuplicateRegistrationException(
-                    Invariant($"Trying to register {typeToUseSerializerFor} in {nameof(this.RegisterCustomSerializer)} but it is already registered."),
-                    new[] { typeToUseSerializerFor });
-            }
-
-            BsonSerializer.RegisterSerializer(typeToUseSerializerFor, customSerializer);
-            var registrationDetails = new RegistrationDetails(this.GetType());
-            this.MutableRegisteredTypeToDetailsMap.Add(typeToUseSerializerFor, registrationDetails);
         }
 
         /// <summary>
@@ -119,7 +109,7 @@ namespace Naos.Serialization.Bson
         }
 
         /// <inheritdoc />
-        protected override void RegisterTypes(IReadOnlyCollection<Type> types)
+        protected sealed override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull();
 
@@ -355,14 +345,5 @@ namespace Naos.Serialization.Bson
     /// </summary>
     public sealed class NullBsonConfiguration : BsonConfigurationBase
     {
-        /// <inheritdoc />
-        protected override void RegisterTypes(IReadOnlyCollection<Type> types)
-        {
-            var registrationDetails = new RegistrationDetails(this.GetType());
-            foreach (var type in types ?? new Type[0])
-            {
-                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
-            }
-        }
     }
 }

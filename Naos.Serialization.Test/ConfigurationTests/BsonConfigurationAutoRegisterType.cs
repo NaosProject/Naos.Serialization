@@ -79,9 +79,6 @@ namespace Naos.Serialization.Test
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "For testing.")]
         public IReadOnlyCollection<Type> SettableDependentConfigurationTypes = new Type[0];
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "For testing.")]
-        public TrackerCollisionStrategy SettableTypeTrackerCollisionStrategy = TrackerCollisionStrategy.Skip;
-
 #pragma warning restore SA1401 // Fields should be private
 
         protected override IReadOnlyCollection<Type> ClassTypesToRegister => this.SettableClassTypesToRegister;
@@ -93,8 +90,6 @@ namespace Naos.Serialization.Test
         protected override IReadOnlyCollection<Type> InterfaceTypesToRegisterImplementationOf => this.SettableInterfaceTypesToRegisterImplementationOf;
 
         public override IReadOnlyCollection<Type> DependentConfigurationTypes => this.SettableDependentConfigurationTypes;
-
-        protected override TrackerCollisionStrategy TypeTrackerCollisionStrategy => this.SettableTypeTrackerCollisionStrategy;
     }
 
     public class InvestigationConfiguration : BsonConfigurationBase

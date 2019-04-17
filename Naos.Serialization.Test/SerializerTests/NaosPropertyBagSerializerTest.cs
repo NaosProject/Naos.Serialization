@@ -195,7 +195,7 @@ namespace Naos.Serialization.Test
         {
             // Arrange
             var configurationType = typeof(PropertyBagConfig);
-            var serializer = new NaosPropertyBagSerializer(configurationType);
+            var serializer = new NaosPropertyBagSerializer(configurationType, UnregisteredTypeEncounteredStrategy.Attempt);
             var input = new StringProperty { StringItem = A.Dummy<string>() };
 
             // Act

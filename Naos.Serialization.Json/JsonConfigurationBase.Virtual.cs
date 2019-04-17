@@ -20,8 +20,8 @@ namespace Naos.Serialization.Json
         protected virtual IReadOnlyDictionary<SerializationDirection, RegisteredContractResolver> OverrideContractResolver => null;
 
         /// <summary>
-        /// Gets the optional override to the contract resolver of the settings gotten from the provided kind for reading.
+        /// Gets the optional converters to add.
         /// </summary>
-        protected virtual IReadOnlyDictionary<SerializationDirection, IReadOnlyCollection<RegisteredJsonConverter>> ConvertersToPushOnStack => null;
+        protected virtual IReadOnlyCollection<RegisteredJsonConverter> ConvertersToRegister => null;
     }
 }

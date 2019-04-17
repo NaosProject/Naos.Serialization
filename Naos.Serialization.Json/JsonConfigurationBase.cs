@@ -37,19 +37,19 @@ namespace Naos.Serialization.Json
         protected HashSet<Type> TypesWithConverters { get; } = new HashSet<Type>();
 
         /// <summary>
-        /// Gets the registered converter set to use when serializing.
+        /// Gets the registered converter set to use.
         /// </summary>
-        protected IList<RegisteredJsonConverter> RegisteredSerializingConverters { get; } = new List<RegisteredJsonConverter>();
-
-        /// <summary>
-        /// Gets the registered converter set to use when deserializing.
-        /// </summary>
-        protected IList<RegisteredJsonConverter> RegisteredDeserializingConverters { get; } = new List<RegisteredJsonConverter>();
+        protected IList<RegisteredJsonConverter> RegisteredConverters { get; } = new List<RegisteredJsonConverter>();
 
         /// <summary>
         /// Gets the inherited types to handle.
         /// </summary>
         protected HashSet<Type> InheritedTypesToHandle { get; } = new HashSet<Type>();
+
+        /// <summary>
+        /// Gets the types with registered converters that yield a string as the output (this allows for standard use as a key in a dictionary).
+        /// </summary>
+        protected HashSet<Type> TypesWithStringConverters { get; } = new HashSet<Type>();
     }
 
     /// <summary>
@@ -87,14 +87,5 @@ namespace Naos.Serialization.Json
     /// </summary>
     public sealed class NullJsonConfiguration : JsonConfigurationBase
     {
-        /// <inheritdoc />
-        protected override void RegisterTypes(IReadOnlyCollection<Type> types)
-        {
-            var registrationDetails = new RegistrationDetails(this.GetType());
-            foreach (var type in types ?? new Type[0])
-            {
-                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
-            }
-        }
     }
 }

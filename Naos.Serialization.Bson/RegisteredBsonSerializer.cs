@@ -11,8 +11,6 @@ namespace Naos.Serialization.Bson
 
     using MongoDB.Bson.Serialization;
 
-    using Naos.Serialization.Domain;
-
     using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
@@ -25,16 +23,13 @@ namespace Naos.Serialization.Bson
         /// </summary>
         /// <param name="serializerBuilderFunction">Builder function.</param>
         /// <param name="handledTypes"><see cref="Type" />'s handled by this converter.</param>
-        /// <param name="details">Details about the registration.</param>
-        public RegisteredBsonSerializer(Func<IBsonSerializer> serializerBuilderFunction, IReadOnlyCollection<Type> handledTypes, RegistrationDetails details)
+        public RegisteredBsonSerializer(Func<IBsonSerializer> serializerBuilderFunction, IReadOnlyCollection<Type> handledTypes)
         {
             new { converterBuilderFunction = serializerBuilderFunction }.Must().NotBeNull();
             new { handledTypes }.Must().NotBeNull().And().NotBeEmptyEnumerable();
-            new { details }.Must().NotBeNull();
 
             this.SerializerBuilderFunction = serializerBuilderFunction;
             this.HandledTypes = handledTypes;
-            this.Details = details;
         }
 
         /// <summary>
@@ -46,10 +41,5 @@ namespace Naos.Serialization.Bson
         /// Gets the <see cref="Type" /> that this converter will handle.
         /// </summary>
         public IReadOnlyCollection<Type> HandledTypes { get; private set; }
-
-        /// <summary>
-        /// Gets the details about the registration.
-        /// </summary>
-        public RegistrationDetails Details { get; private set; }
     }
 }

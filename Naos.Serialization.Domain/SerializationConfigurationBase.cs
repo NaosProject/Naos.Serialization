@@ -54,16 +54,16 @@ namespace Naos.Serialization.Domain
             };
 
         /// <summary>
-        /// Gets the version of <see cref="RegisteredTypeToDetailsMap" />.
-        /// </summary>
-        protected Dictionary<Type, RegistrationDetails> MutableRegisteredTypeToDetailsMap { get; } =
-            new Dictionary<Type, RegistrationDetails>();
-
-        /// <summary>
         /// Gets a map of dependent configuration instances that have already run, keyed on type.
         /// </summary>
         protected IDictionary<Type, SerializationConfigurationBase> DependentConfigurationTypeToInstanceMap { get; } =
             new Dictionary<Type, SerializationConfigurationBase>();
+
+        /// <summary>
+        /// Gets the version of <see cref="RegisteredTypeToDetailsMap" />.
+        /// </summary>
+        protected Dictionary<Type, RegistrationDetails> MutableRegisteredTypeToDetailsMap { get; } =
+            new Dictionary<Type, RegistrationDetails>();
 
         /// <summary>
         /// Gets a map of registration details keyed on type registered.
@@ -82,15 +82,15 @@ namespace Naos.Serialization.Domain
                     if (!this.configured)
                     {
                         // Save locals to work with.
-                        var localClassTypesToRegister = this.ClassTypesToRegister;
+                        var localClassTypesToRegister = this.ClassTypesToRegister ?? new List<Type>();
                         var localInterfaceTypesToRegisterImplementationOf = this.InterfaceTypesToRegisterImplementationOf ?? new List<Type>();
-                        var localTypeToAutoRegisterWithDiscovery = this.TypesToAutoRegisterWithDiscovery ?? new List<Type>();
+                        var localTypesToAutoRegisterWithDiscovery = this.TypesToAutoRegisterWithDiscovery ?? new List<Type>();
                         var localTypesToAutoRegister = this.TypesToAutoRegister ?? new List<Type>();
                         var localClassTypesToRegisterAlongWithInheritors = this.ClassTypesToRegisterAlongWithInheritors ?? new List<Type>();
 
                         // Basic assertions.
                         localInterfaceTypesToRegisterImplementationOf.Must().NotContainAnyNullElements();
-                        localTypeToAutoRegisterWithDiscovery.Must().NotContainAnyNullElements();
+                        localTypesToAutoRegisterWithDiscovery.Must().NotContainAnyNullElements();
                         localTypesToAutoRegister.Must().NotContainAnyNullElements();
                         localClassTypesToRegisterAlongWithInheritors.Must().NotContainAnyNullElements();
 
@@ -100,13 +100,26 @@ namespace Naos.Serialization.Domain
                         // Run optional initial config.
                         this.InitialConfiguration();
 
-                        // Run all dependent configurations.
-                        foreach (var dependentConfigurationType in
-                            (this is IDoNotNeedInternalDependencies
-                                ? new Type[0]
-                                : this.GetInternalDependentConfigurations()).ToList().Concat(this.DependentConfigurationTypes ?? new List<Type>()))
+                        // Run all dependent configurations; inject internal config (except when running internal config, hence the IDoNotNeedInternalDependencies interface)
+                        var thisIsAnInternalConfigRightNow = this is IDoNotNeedInternalDependencies;
+
+                        var dependentConfigurationsToInject = thisIsAnInternalConfigRightNow
+                            ? new Type[0]
+                            : this.GetInternalDependentConfigurations();
+
+                        var dependentConfigurationTypesToUse = dependentConfigurationsToInject
+                            .Concat(this.DependentConfigurationTypes ?? new List<Type>()).Distinct().ToList();
+
+                        foreach (var dependentConfigurationType in dependentConfigurationTypesToUse)
                         {
                             var dependentConfig = SerializationConfigurationManager.ConfigureWithReturn<SerializationConfigurationBase>(dependentConfigurationType);
+
+                            // TODO: depdendentA <- dependentC
+                            //       depdendentB <- dependentC
+                            // Both A & B will publish the types from C
+
+                            // A <- B <- C
+                            // C
 
                             // capture the config for use in specific derivations as well as the types covered.
                             this.DependentConfigurationTypeToInstanceMap.Add(dependentConfigurationType, dependentConfig);
@@ -115,16 +128,15 @@ namespace Naos.Serialization.Domain
 
                         this.InternalConfigure();
 
-                        var discoveredTypes = DiscoverAllContainedAssignableTypes(localTypeToAutoRegisterWithDiscovery);
+                        var discoveredTypes = this.DiscoverAllContainedAssignableTypes(localTypesToAutoRegisterWithDiscovery);
 
                         var typesToAutoRegister = new Type[0]
                             .Concat(localClassTypesToRegister)
                             .Concat(localTypesToAutoRegister)
                             .Concat(localInterfaceTypesToRegisterImplementationOf)
                             .Concat(localClassTypesToRegisterAlongWithInheritors)
-                            .Concat(localTypeToAutoRegisterWithDiscovery)
+                            .Concat(localTypesToAutoRegisterWithDiscovery)
                             .Concat(discoveredTypes)
-                            .Distinct()
                             .ToList();
 
                         var typesToAutoRegisterAlreadyHandledByDependentConfiguration = typesToAutoRegister.Intersect(this.RegisteredTypeToDetailsMap.Keys).ToList();
@@ -138,7 +150,6 @@ namespace Naos.Serialization.Domain
                             DiscoverAllAssignableTypes(typesToAutoRegister)
                                 .Concat(discoveredTypes)
                                 .Distinct()
-                                .Except(this.RegisteredTypeToDetailsMap.Keys)
                                 .ToList();
 
                         this.RegisterTypes(allTypesToRegister);
@@ -151,7 +162,7 @@ namespace Naos.Serialization.Domain
             }
         }
 
-        private static IReadOnlyCollection<Type> DiscoverAllContainedAssignableTypes(IReadOnlyCollection<Type> types)
+        private IReadOnlyCollection<Type> DiscoverAllContainedAssignableTypes(IReadOnlyCollection<Type> types)
         {
             var typeHashSet = new HashSet<Type>();
             var typeSeen = new HashSet<Type>();
@@ -164,7 +175,7 @@ namespace Naos.Serialization.Domain
                 var type = typesToInspect.First();
                 typesToInspect.Remove(type);
 
-                if (typeSeen.Contains(type))
+                if (typeSeen.Contains(type) || this.RegisteredTypeToDetailsMap.ContainsKey(type))
                 {
                     continue;
                 }
@@ -235,7 +246,6 @@ namespace Naos.Serialization.Domain
                             .IsGenericTypeDefinition) && // can't do an IsAssignableTo check on generic type definitions
                         types.Any(typeToAutoRegister => typeToConsider.IsAssignableTo(typeToAutoRegister) || typeToAutoRegister.IsAssignableTo(typeToConsider)))
                 .Concat(types.Where(_ => _.IsInterface)) // add interfaces back as they were explicitly provided.
-                .Distinct()
                 .ToList();
 
             return classTypesToRegister;
@@ -268,11 +278,6 @@ namespace Naos.Serialization.Domain
         /// Will take these specified types and recursively detect all model objects used then treat them all as if they were specified on <see cref="TypesToAutoRegister" /> directly.
         /// </summary>
         protected virtual IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new Type[0];
-
-        /// <summary>
-        /// Gets an optional <see cref="TrackerCollisionStrategy" /> to use when a <see cref="Type" /> is already registered; DEFAULT is <see cref="TrackerCollisionStrategy.Skip" />.
-        /// </summary>
-        protected virtual TrackerCollisionStrategy TypeTrackerCollisionStrategy => TrackerCollisionStrategy.Skip;
 
         /// <summary>
         /// Gets a list of class <see cref="Type"/>s to register.

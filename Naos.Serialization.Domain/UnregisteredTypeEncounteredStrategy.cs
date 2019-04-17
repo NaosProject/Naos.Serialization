@@ -7,7 +7,7 @@
 namespace Naos.Serialization.Domain
 {
     /// <summary>
-    /// Format of serialization.
+    /// Enumeration of options on how to deal with an attempted operation on an object where the type has not been registered.
     /// </summary>
     public enum UnregisteredTypeEncounteredStrategy
     {
