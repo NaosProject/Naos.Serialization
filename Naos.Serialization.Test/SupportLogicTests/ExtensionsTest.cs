@@ -132,7 +132,8 @@ namespace Naos.Serialization.Test
                 objectToPackageIntoDescribedSerialization,
                 serializerDescription,
                 SerializerFactory.Instance,
-                CompressorFactory.Instance);
+                CompressorFactory.Instance,
+                unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt);
 
             // Assert
             describedSerialization.Should().NotBeNull();
@@ -157,7 +158,8 @@ namespace Naos.Serialization.Test
             var actual = DomainExtensions.DeserializePayloadUsingSpecificFactory(
                 describedSerialization,
                 SerializerFactory.Instance,
-                CompressorFactory.Instance);
+                CompressorFactory.Instance,
+                unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt);
 
             // Assert
             actual.Should().Be(expected);
@@ -179,7 +181,8 @@ namespace Naos.Serialization.Test
             var actual = DomainExtensions.DeserializePayloadUsingSpecificFactory(
                 describedSerialization,
                 SerializerFactory.Instance,
-                CompressorFactory.Instance);
+                CompressorFactory.Instance,
+                unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt);
 
             // Assert
             actual.Should().NotBeNull();
@@ -194,7 +197,7 @@ namespace Naos.Serialization.Test
             var serializerDescription = new SerializationDescription(SerializationKind.Json, SerializationFormat.String, typeof(NullJsonConfiguration).ToTypeDescription(), CompressionKind.None);
 
             // Act
-            var describedSerialization = objectToPackageIntoDescribedSerialization.ToDescribedSerialization(serializerDescription);
+            var describedSerialization = objectToPackageIntoDescribedSerialization.ToDescribedSerialization(serializerDescription, unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt);
 
             // Assert
             describedSerialization.Should().NotBeNull();
@@ -216,7 +219,7 @@ namespace Naos.Serialization.Test
                 serializerDescription);
 
             // Act
-            var actual = describedSerialization.DeserializePayload();
+            var actual = describedSerialization.DeserializePayload(unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt);
 
             // Assert
             actual.Should().NotBeNull();
@@ -236,7 +239,7 @@ namespace Naos.Serialization.Test
                 serializerDescription);
 
             // Act
-            var actual = describedSerialization.DeserializePayload<string>();
+            var actual = describedSerialization.DeserializePayload<string>(unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt);
 
             // Assert
             actual.Should().NotBeNull();

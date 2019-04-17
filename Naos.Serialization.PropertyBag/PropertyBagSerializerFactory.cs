@@ -33,7 +33,7 @@ namespace Naos.Serialization.PropertyBag
         }
 
         /// <inheritdoc />
-        public ISerializeAndDeserialize BuildSerializer(SerializationDescription serializationDescription, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
+        public ISerializeAndDeserialize BuildSerializer(SerializationDescription serializationDescription, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple, UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy = UnregisteredTypeEncounteredStrategy.Default)
         {
             new { serializationDescription }.Must().NotBeNull();
 
@@ -43,7 +43,7 @@ namespace Naos.Serialization.PropertyBag
 
                 switch (serializationDescription.SerializationKind)
                 {
-                    case SerializationKind.PropertyBag: return new NaosPropertyBagSerializer(configurationType);
+                    case SerializationKind.PropertyBag: return new NaosPropertyBagSerializer(configurationType, unregisteredTypeEncounteredStrategy);
                     default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationKind)} of {serializationDescription.SerializationKind} is not supported."));
                 }
             }

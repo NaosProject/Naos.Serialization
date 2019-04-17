@@ -7,13 +7,13 @@
 namespace Naos.Serialization.Json
 {
     using System;
+    using System.Linq;
     using System.Text;
 
     using Naos.Serialization.Domain;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
@@ -36,17 +36,27 @@ namespace Naos.Serialization.Json
 
         private readonly JsonConfigurationBase configuration;
 
+        private readonly UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy;
+
         private readonly JsonFormattingKind formattingKind;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NaosJsonSerializer"/> class.
         /// </summary>
-        /// <param name="configurationType">Type of configuration to use.</param>
-        /// <param name="formattingKind">Type of serialization to use.</param>
+        /// <param name="configurationType">Optional type of configuration to use; DEFAULT is none.</param>
+        /// <param name="unregisteredTypeEncounteredStrategy">Optional strategy of what to do when encountering a type that has never been registered; DEFAULT is <see cref="UnregisteredTypeEncounteredStrategy.Throw" />.</param>
+        /// <param name="formattingKind">Optional type of formatting to use; DEFAULT is <see cref="JsonFormattingKind.Default" />.</param>
         public NaosJsonSerializer(
             Type configurationType = null,
+            UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy = UnregisteredTypeEncounteredStrategy.Default,
             JsonFormattingKind formattingKind = JsonFormattingKind.Default)
         {
+            this.unregisteredTypeEncounteredStrategy =
+                (unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Default && configurationType != null) ||
+                unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw
+                    ? UnregisteredTypeEncounteredStrategy.Throw
+                    : UnregisteredTypeEncounteredStrategy.Attempt;
+
             new { formattingKind }.Must().NotBeEqualTo(JsonFormattingKind.Invalid);
             this.formattingKind = formattingKind;
 
@@ -120,7 +130,15 @@ namespace Naos.Serialization.Json
         /// <inheritdoc />
         public string SerializeToString(object objectToSerialize)
         {
-            var jsonSerializerSettings = objectToSerialize != null && objectToSerialize.GetType().IsAnonymous()
+            var objectType = objectToSerialize?.GetType();
+            if (objectType != null &&
+                this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
+                !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
+            {
+                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.SerializeToString)}' on unregistered type '{objectType.FullName}'"), objectType);
+            }
+
+            var jsonSerializerSettings = objectToSerialize != null && objectType.IsAnonymous()
                 ? this.anonymousWriteSerializationSettings
                 : this.configuration.BuildJsonSerializerSettings(SerializationDirection.Serialize, this.formattingKind);
 
@@ -137,6 +155,13 @@ namespace Naos.Serialization.Json
         /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
+            var objectType = typeof(T);
+            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
+                !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
+            {
+                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}<T>({nameof(serializedString)})' on unregistered type '{objectType.FullName}'"), objectType);
+            }
+
             var jsonSerializerSettings = this.configuration.BuildJsonSerializerSettings(SerializationDirection.Deserialize, this.formattingKind);
             var ret = JsonConvert.DeserializeObject<T>(serializedString, jsonSerializerSettings);
 
@@ -147,6 +172,12 @@ namespace Naos.Serialization.Json
         public object Deserialize(string serializedString, Type type)
         {
             new { type }.Must().NotBeNull();
+
+            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
+                !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(type))
+            {
+                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}({nameof(serializedString)}, {nameof(type)})' on unregistered type '{type.FullName}'"), type);
+            }
 
             object ret;
             if (type == typeof(DynamicTypePlaceholder))

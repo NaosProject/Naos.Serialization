@@ -23,10 +23,10 @@ namespace Naos.Serialization.Test
             var configured = SerializationConfigurationManager.ConfigureWithReturn<NullDiscoverySerializationConfiguration<TypeWithObjectArray>>(config);
 
             // Assert
-            configured.AllRegisteredTypes.Should().HaveCount(2 + SerializationConfigurationBase.InternallyRequiredTypes.Count);
-            configured.AllRegisteredTypes.Should().Contain(typeof(TypeWithObjectArray));
-            configured.AllRegisteredTypes.Should().Contain(typeof(TypeWithObjectArrayElementType));
-            configured.AllRegisteredTypes.Should().NotContain(typeof(TypeWithObjectArrayElementType[]));
+            configured.RegisteredTypeToDetailsMap.Keys.Should().HaveCount(2 + SerializationConfigurationBase.InternallyRequiredTypes.Count);
+            configured.RegisteredTypeToDetailsMap.Keys.Should().Contain(typeof(TypeWithObjectArray));
+            configured.RegisteredTypeToDetailsMap.Keys.Should().Contain(typeof(TypeWithObjectArrayElementType));
+            configured.RegisteredTypeToDetailsMap.Keys.Should().NotContain(typeof(TypeWithObjectArrayElementType[]));
         }
     }
 

@@ -33,7 +33,7 @@ namespace Naos.Serialization.Domain
         };
 
         private readonly object syncTracking = new object();
-        private readonly IList<TrackedObjectContainer> trackedObjects = new List<TrackedObjectContainer>();
+        private readonly IList<TrackedObjectContainer<T>> trackedObjects = new List<TrackedObjectContainer<T>>();
         private readonly TrackedObjectEqualityFunction equalityFunction;
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Naos.Serialization.Domain
                     trackedOperation(trackedObject);
                     stopwatch.Stop();
 
-                    var container = new TrackedObjectContainer(trackedObject, callingType, DateTime.UtcNow, stopwatch.Elapsed);
+                    var container = new TrackedObjectContainer<T>(trackedObject, callingType, DateTime.UtcNow, stopwatch.Elapsed);
                     this.trackedObjects.Add(container);
                 }
             }
@@ -100,7 +100,7 @@ namespace Naos.Serialization.Domain
         /// </summary>
         /// <returns>Currently tracked containers.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Don't want an active operation like this in a property.")]
-        public IReadOnlyCollection<TrackedObjectContainer> GetAllTrackedObjectContainers()
+        public IReadOnlyCollection<TrackedObjectContainer<T>> GetAllTrackedObjectContainers()
         {
             lock (this.syncTracking)
             {
@@ -122,91 +122,92 @@ namespace Naos.Serialization.Domain
                 return this.trackedObjects.Select(_ => _.TrackedObject).ToList();
             }
         }
+    }
+
+    /// <summary>
+    /// Object to hold information about the tracking and the object.
+    /// </summary>
+    /// <typeparam name="T">Type of payload that is being tracked.</typeparam>
+    public class TrackedObjectContainer<T>
+    {
+        private readonly List<TrackedSkipContainer> skipped = new List<TrackedSkipContainer>();
 
         /// <summary>
-        /// Object to hold information about the tracking and the object.
+        /// Initializes a new instance of the <see cref="TrackedObjectContainer{T}"/> class.
         /// </summary>
-        public class TrackedObjectContainer
+        /// <param name="trackedObject">The object that was tracked.</param>
+        /// <param name="callingType">Type that operated on the object.</param>
+        /// <param name="trackedTimeInUtc">Time of event in UTC.</param>
+        /// <param name="timeOfOperation">Elapsed time of the operation.</param>
+        public TrackedObjectContainer(T trackedObject, Type callingType, DateTime trackedTimeInUtc, TimeSpan timeOfOperation)
         {
-            private readonly List<TrackedSkipContainer> skipped = new List<TrackedSkipContainer>();
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="TrackedObjectContainer"/> class.
-            /// </summary>
-            /// <param name="trackedObject">The object that was tracked.</param>
-            /// <param name="callingType">Type that operated on the object.</param>
-            /// <param name="trackedTimeInUtc">Time of event in UTC.</param>
-            /// <param name="timeOfOperation">Elapsed time of the operation.</param>
-            public TrackedObjectContainer(T trackedObject, Type callingType, DateTime trackedTimeInUtc, TimeSpan timeOfOperation)
-            {
-                this.TrackedObject = trackedObject;
-                this.CallingType = callingType;
-                this.TrackedTimeInUtc = trackedTimeInUtc;
-                this.TimeOfOperation = timeOfOperation;
-            }
-
-            /// <summary>
-            /// Gets the elapsed time of the operation.
-            /// </summary>
-            public TimeSpan TimeOfOperation { get; private set; }
-
-            /// <summary>
-            /// Gets the object that was tracked.
-            /// </summary>
-            public T TrackedObject { get; private set; }
-
-            /// <summary>
-            /// Gets type that operated on the object.
-            /// </summary>
-            public Type CallingType { get; private set; }
-
-            /// <summary>
-            /// Gets time of event in UTC.
-            /// </summary>
-            public DateTime TrackedTimeInUtc { get; private set; }
-
-            /// <summary>
-            /// Gets the skipped type registrations if any.
-            /// </summary>
-            public IReadOnlyCollection<TrackedSkipContainer> Skipped => this.skipped;
-
-            /// <summary>
-            /// Updates the skipped tracking.
-            /// </summary>
-            /// <param name="callingType">Type that was attempting to operate on the object.</param>
-            /// <param name="skippedTimeInUtc">Time of event in UTC.</param>
-            public void UpdateSkipped(Type callingType, DateTime skippedTimeInUtc)
-            {
-                this.skipped.Add(new TrackedSkipContainer(callingType, skippedTimeInUtc));
-            }
+            this.TrackedObject = trackedObject;
+            this.CallingType = callingType;
+            this.TrackedTimeInUtc = trackedTimeInUtc;
+            this.TimeOfOperation = timeOfOperation;
         }
 
         /// <summary>
-        /// Object to hold information about the tracking skips.
+        /// Gets the elapsed time of the operation.
         /// </summary>
-        public class TrackedSkipContainer
+        public TimeSpan TimeOfOperation { get; private set; }
+
+        /// <summary>
+        /// Gets the object that was tracked.
+        /// </summary>
+        public T TrackedObject { get; private set; }
+
+        /// <summary>
+        /// Gets type that operated on the object.
+        /// </summary>
+        public Type CallingType { get; private set; }
+
+        /// <summary>
+        /// Gets time of event in UTC.
+        /// </summary>
+        public DateTime TrackedTimeInUtc { get; private set; }
+
+        /// <summary>
+        /// Gets the skipped type registrations if any.
+        /// </summary>
+        public IReadOnlyCollection<TrackedSkipContainer> Skipped => this.skipped;
+
+        /// <summary>
+        /// Updates the skipped tracking.
+        /// </summary>
+        /// <param name="callingType">Type that was attempting to operate on the object.</param>
+        /// <param name="skippedTimeInUtc">Time of event in UTC.</param>
+        public void UpdateSkipped(Type callingType, DateTime skippedTimeInUtc)
         {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="TrackedSkipContainer"/> class.
-            /// </summary>
-            /// <param name="callingType">Type that was attempting to operate on the object.</param>
-            /// <param name="skippedTimeInUtc">Time of event in UTC.</param>
-            public TrackedSkipContainer(Type callingType, DateTime skippedTimeInUtc)
-            {
-                this.CallingType = callingType;
-                this.SkippedTimeInUtc = skippedTimeInUtc;
-            }
-
-            /// <summary>
-            /// Gets type that operated on the object.
-            /// </summary>
-            public Type CallingType { get; private set; }
-
-            /// <summary>
-            /// Gets time of event in UTC.
-            /// </summary>
-            public DateTime SkippedTimeInUtc { get; private set; }
+            this.skipped.Add(new TrackedSkipContainer(callingType, skippedTimeInUtc));
         }
+    }
+
+    /// <summary>
+    /// Object to hold information about the tracking skips.
+    /// </summary>
+    public class TrackedSkipContainer
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TrackedSkipContainer"/> class.
+        /// </summary>
+        /// <param name="callingType">Type that was attempting to operate on the object.</param>
+        /// <param name="skippedTimeInUtc">Time of event in UTC.</param>
+        public TrackedSkipContainer(Type callingType, DateTime skippedTimeInUtc)
+        {
+            this.CallingType = callingType;
+            this.SkippedTimeInUtc = skippedTimeInUtc;
+        }
+
+        /// <summary>
+        /// Gets type that operated on the object.
+        /// </summary>
+        public Type CallingType { get; private set; }
+
+        /// <summary>
+        /// Gets time of event in UTC.
+        /// </summary>
+        public DateTime SkippedTimeInUtc { get; private set; }
     }
 
     /// <summary>

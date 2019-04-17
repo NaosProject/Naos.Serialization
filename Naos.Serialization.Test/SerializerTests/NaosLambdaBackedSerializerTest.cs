@@ -36,7 +36,7 @@ namespace Naos.Serialization.Test
                            + "}";
 
             var test = new TestObjectForLambda { Property1 = property1, Property2 = property2, Property3 = property3, };
-            var backingSerializer = new NaosJsonSerializer();
+            var backingSerializer = new NaosJsonSerializer(unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt);
             var serializer = new NaosLambdaBackedSerializer(
                 backingSerializer.SerializeToString,
                 backingSerializer.Deserialize,

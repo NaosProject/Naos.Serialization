@@ -40,6 +40,7 @@ namespace Naos.Serialization.Test
             RoundtripSerializationCallback<T> validationCallback,
             Type jsonConfigType = null,
             Type bsonConfigType = null,
+            UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy = UnregisteredTypeEncounteredStrategy.Default,
             bool testBson = true,
             bool testJson = true)
         {
@@ -49,13 +50,13 @@ namespace Naos.Serialization.Test
 
             if (testJson)
             {
-                var jsonSerializer = new NaosJsonSerializer(jsonConfigType);
+                var jsonSerializer = new NaosJsonSerializer(jsonConfigType, unregisteredTypeEncounteredStrategy);
                 serializers.Add(jsonSerializer);
             }
 
             if (testBson)
             {
-                var bsonSerializer = new NaosBsonSerializer(bsonConfigType);
+                var bsonSerializer = new NaosBsonSerializer(bsonConfigType, unregisteredTypeEncounteredStrategy);
                 serializers.Add(bsonSerializer);
             }
 

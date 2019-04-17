@@ -35,7 +35,7 @@ namespace Naos.Serialization.Json
         }
 
         /// <inheritdoc />
-        public ISerializeAndDeserialize BuildSerializer(SerializationDescription serializationDescription, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
+        public ISerializeAndDeserialize BuildSerializer(SerializationDescription serializationDescription, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple, UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy = UnregisteredTypeEncounteredStrategy.Default)
         {
             new { serializationDescription }.Must().NotBeNull();
 
@@ -45,7 +45,7 @@ namespace Naos.Serialization.Json
 
                 switch (serializationDescription.SerializationKind)
                 {
-                    case SerializationKind.Json: return new NaosJsonSerializer(configurationType);
+                    case SerializationKind.Json: return new NaosJsonSerializer(configurationType, unregisteredTypeEncounteredStrategy);
                     default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationKind)} of {serializationDescription.SerializationKind} is not supported."));
                 }
             }

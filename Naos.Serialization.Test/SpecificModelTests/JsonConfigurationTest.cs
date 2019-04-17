@@ -30,7 +30,7 @@ namespace Naos.Serialization.Test
                 TestName = "Hello",
             };
             
-            var result = new NaosJsonSerializer().SerializeToString(value);
+            var result = new NaosJsonSerializer(unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt).SerializeToString(value);
 
             var serializedValue = "{" + Environment.NewLine +
                                   "  \"testName\": \"Hello\"" + Environment.NewLine +
@@ -46,7 +46,7 @@ namespace Naos.Serialization.Test
                                   "  \"testName\": \"there\"" + Environment.NewLine +
                                   "}";
 
-            var result = new NaosJsonSerializer().Deserialize<CamelCasedPropertyTest>(serializedValue);
+            var result = new NaosJsonSerializer(unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt).Deserialize<CamelCasedPropertyTest>(serializedValue);
 
             result.TestName.Should().Be("there");
         }
@@ -59,7 +59,7 @@ namespace Naos.Serialization.Test
                 Value = TestEnum.FirstOption,
             };
 
-            var result = new NaosJsonSerializer().SerializeToString(value);
+            var result = new NaosJsonSerializer(unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt).SerializeToString(value);
 
             var serializedValue = "{" + Environment.NewLine +
                                   "  \"value\": \"firstOption\"" + Environment.NewLine +
@@ -75,7 +75,7 @@ namespace Naos.Serialization.Test
                                   "  \"value\": \"secondOption\"" + Environment.NewLine +
                                   "}";
 
-            var result = new NaosJsonSerializer().Deserialize<CamelCasedEnumTest>(serializedValue);
+            var result = new NaosJsonSerializer(unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt).Deserialize<CamelCasedEnumTest>(serializedValue);
 
             result.Value.Should().Be(TestEnum.SecondOption);
         }
@@ -87,7 +87,7 @@ namespace Naos.Serialization.Test
                                   "  \"secure\": \"Password\"" + Environment.NewLine +
                                   "}";
 
-            var deserialized = new NaosJsonSerializer().Deserialize<SecureStringTest>(serializedValue);
+            var deserialized = new NaosJsonSerializer(unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt).Deserialize<SecureStringTest>(serializedValue);
 
             var result = new NaosJsonSerializer().SerializeToString(deserialized);
 
@@ -111,7 +111,7 @@ namespace Naos.Serialization.Test
                 },
             };
 
-            var result = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<InheritedTypeBase>)).SerializeToString(value);
+            var result = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<InheritedTypeBase>), unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt).SerializeToString(value);
 
             var serializedValue = "[\r\n  {\r\n    \"child1\": \"Child1\",\r\n    \"base\": \"Base\",\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+InheritedType1, Naos.Serialization.Test\"\r\n  },\r\n  {\r\n    \"child2\": \"my child 2\",\r\n    \"base\": \"my base\",\r\n    \"$concreteType\": \"Naos.Serialization.Test.JsonConfigurationTest+InheritedType2, Naos.Serialization.Test\"\r\n  }\r\n]";
 
@@ -132,7 +132,7 @@ namespace Naos.Serialization.Test
                                   "  }" + Environment.NewLine +
                                   "]";
 
-            var result = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<InheritedTypeBase>)).Deserialize<InheritedTypeBase[]>(serializedValue);
+            var result = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<InheritedTypeBase>), UnregisteredTypeEncounteredStrategy.Attempt).Deserialize<InheritedTypeBase[]>(serializedValue);
 
             result.Length.Should().Be(2);
             result[0].Base.Should().Be("My base");
@@ -157,7 +157,7 @@ namespace Naos.Serialization.Test
                                   "  }" + Environment.NewLine +
                                   "]";
 
-            var result = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<IBaseInterface>)).Deserialize<IBaseInterface[]>(serializedValue);
+            var result = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<IBaseInterface>), UnregisteredTypeEncounteredStrategy.Attempt).Deserialize<IBaseInterface[]>(serializedValue);
 
             result.Length.Should().Be(2);
 
@@ -359,7 +359,7 @@ namespace Naos.Serialization.Test
         {
             var dogDietJson = "{\"dog\":{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}, \"diet\":{}}";
 
-            var dogDiet = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Diet>)).Deserialize<DogDiet>(dogDietJson);
+            var dogDiet = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Diet>), unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt).Deserialize<DogDiet>(dogDietJson);
 
             dogDiet.Should().NotBeNull();
 
@@ -377,7 +377,7 @@ namespace Naos.Serialization.Test
         {
             var dogDietJson = "{\"dog\":{\"name\":\"Barney\",\"furColor\":\"brindle\",\"age\":10}, \"diet\":null}";
 
-            var dogDiet = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Diet>)).Deserialize<DogDiet>(dogDietJson);
+            var dogDiet = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Diet>), UnregisteredTypeEncounteredStrategy.Attempt).Deserialize<DogDiet>(dogDietJson);
 
             dogDiet.Should().NotBeNull();
 
@@ -395,7 +395,7 @@ namespace Naos.Serialization.Test
         {
             var catDietJson = "{\"cat\":{\"numberOfLives\":9,\"name\":\"Cleo\",\"age\":3}, \"diet\":{}}";
             
-            var catDiet = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Diet>)).Deserialize<CatDiet>(catDietJson);
+            var catDiet = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Diet>), UnregisteredTypeEncounteredStrategy.Attempt).Deserialize<CatDiet>(catDietJson);
 
             catDiet.Should().NotBeNull();
             catDiet.Cat.Should().NotBeNull();
@@ -411,7 +411,7 @@ namespace Naos.Serialization.Test
         {
             var catDietJson = "{\"cat\":{\"numberOfLives\":9,\"name\":\"Cleo\",\"age\":3}, \"diet\":null}";
 
-            var catDiet = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Diet>)).Deserialize<CatDiet>(catDietJson);
+            var catDiet = new NaosJsonSerializer(typeof(GenericDiscoveryJsonConfiguration<Diet>), unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt).Deserialize<CatDiet>(catDietJson);
 
             catDiet.Should().NotBeNull();
             catDiet.Cat.Should().NotBeNull();
@@ -632,7 +632,7 @@ namespace Naos.Serialization.Test
                 },
             };
 
-            var json = new NaosJsonSerializer().SerializeToString(expected);
+            var json = new NaosJsonSerializer(unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt).SerializeToString(expected);
 
             var actual = new NaosJsonSerializer().Deserialize<DictionaryPropertiesTest>(json);
 

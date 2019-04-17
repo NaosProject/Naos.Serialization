@@ -92,7 +92,7 @@ namespace Naos.Serialization.Test
 
         protected override IReadOnlyCollection<Type> InterfaceTypesToRegisterImplementationOf => this.SettableInterfaceTypesToRegisterImplementationOf;
 
-        protected override IReadOnlyCollection<Type> DependentConfigurationTypes => this.SettableDependentConfigurationTypes;
+        public override IReadOnlyCollection<Type> DependentConfigurationTypes => this.SettableDependentConfigurationTypes;
 
         protected override TrackerCollisionStrategy TypeTrackerCollisionStrategy => this.SettableTypeTrackerCollisionStrategy;
     }

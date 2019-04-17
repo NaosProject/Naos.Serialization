@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include=".recipes\OBeautifulCode.Collection\CollectionExtensions.cs" />
     <Compile Include=".recipes\OBeautifulCode.Collection\EnumerableExtensions.cs" />
     <Compile Include=".recipes\OBeautifulCode.Enum\EnumExtensions.cs" />
     <Compile Include=".recipes\OBeautifulCode.Reflection\AssemblyHelper.cs" />
@@ -89,6 +90,9 @@
     <Compile Include="Converters\InheritedTypeWriterJsonConverter.cs" />
     <Compile Include="Converters\SecureStringJsonConverter.cs" />
     <Compile Include="Converters\DictionaryJsonConverter.cs" />
+    <Compile Include="JsonConfigurationBase.Override.cs" />
+    <Compile Include="JsonConfigurationBase.Virtual.cs" />
+    <Compile Include="JsonConfigurationBase.Newtonsoft.cs" />
     <Compile Include="RegisteredContractResolver.cs" />
     <Compile Include="RegisteredJsonConverter.cs" />
     <Compile Include="JsonConfigurationException.cs" />

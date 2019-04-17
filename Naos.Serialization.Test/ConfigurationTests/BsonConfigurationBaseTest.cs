@@ -188,7 +188,7 @@ namespace Naos.Serialization.Test
             config.Configure();
 
             // Assert
-            config.BsonClassMapRegisteredTypes.Should().Contain(expected);
+            config.RegisteredTypeToDetailsMap.Keys.Should().Contain(expected);
         }
 
         [Fact]
@@ -214,7 +214,7 @@ namespace Naos.Serialization.Test
             config.Configure();
 
             // Assert
-            config.BsonClassMapRegisteredTypes.Intersect(expectedTypes).Should().BeEquivalentTo(expectedTypes);
+            config.RegisteredTypeToDetailsMap.Keys.Intersect(expectedTypes).Should().BeEquivalentTo(expectedTypes);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "configs", Justification = "Name/spelling is correct.")]
@@ -261,16 +261,16 @@ namespace Naos.Serialization.Test
             configTwo.Configure();
 
             // Act
-            var trackedContainersOne = configOne.AllTrackedTypeContainers;
-            var trackedContainersTwo = configTwo.AllTrackedTypeContainers;
+            var trackedContainersOne = configOne.RegisteredTypeToDetailsMap.Keys;
+            var trackedContainersTwo = configTwo.RegisteredTypeToDetailsMap.Keys;
 
             // Assert
             trackedContainersTwo.Should().Equal(trackedContainersOne);
-            var trackedContainer = trackedContainersOne.Single(_ => _.TrackedObject == testType);
+            var trackedContainer = trackedContainersOne.Single(_ => _ == testType);
             trackedContainer.Should().NotBeNull();
-            var skipped = trackedContainer.Skipped.Single();
-            skipped.Should().NotBeNull();
-            skipped.CallingType.Should().Be(configTwo.GetType());
+            //var skipped = trackedContainer.Skipped.Single();
+            //skipped.Should().NotBeNull();
+            //skipped.CallingType.Should().Be(configTwo.GetType());
         }
 
         private static BsonClassMap RunTestCode(object configuration)

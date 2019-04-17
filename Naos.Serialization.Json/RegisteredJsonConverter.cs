@@ -8,6 +8,7 @@ namespace Naos.Serialization.Json
 {
     using System;
     using System.Collections.Generic;
+    using Naos.Serialization.Domain;
     using Newtonsoft.Json;
     using OBeautifulCode.Validation.Recipes;
 
@@ -22,14 +23,17 @@ namespace Naos.Serialization.Json
         /// <param name="converterBuilderFunction">Builder function.</param>
         /// <param name="outputKind"><see cref="RegisteredJsonConverterOutputKind" /> of this converter.</param>
         /// <param name="handledTypes"><see cref="Type" />'s handled by this converter.</param>
-        public RegisteredJsonConverter(Func<JsonConverter> converterBuilderFunction, RegisteredJsonConverterOutputKind outputKind, IReadOnlyCollection<Type> handledTypes)
+        /// <param name="details">Details about the registration.</param>
+        public RegisteredJsonConverter(Func<JsonConverter> converterBuilderFunction, RegisteredJsonConverterOutputKind outputKind, IReadOnlyCollection<Type> handledTypes, RegistrationDetails details)
         {
             new { converterBuilderFunction }.Must().NotBeNull();
-            new { handledTypes }.Must().NotBeNull();
+            new { handledTypes }.Must().NotBeNull().And().NotBeEmptyEnumerable();
+            new { details }.Must().NotBeNull();
 
             this.ConverterBuilderFunction = converterBuilderFunction;
             this.OutputKind = outputKind;
             this.HandledTypes = handledTypes;
+            this.Details = details;
         }
 
         /// <summary>
@@ -46,6 +50,11 @@ namespace Naos.Serialization.Json
         /// Gets the <see cref="Type" /> that this converter will handle.
         /// </summary>
         public IReadOnlyCollection<Type> HandledTypes { get; private set; }
+
+        /// <summary>
+        /// Gets the details about the registration.
+        /// </summary>
+        public RegistrationDetails Details { get; private set; }
     }
 
     /// <summary>

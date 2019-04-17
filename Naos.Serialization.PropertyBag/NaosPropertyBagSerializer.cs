@@ -51,12 +51,23 @@ namespace Naos.Serialization.PropertyBag
 
         private readonly Dictionary<Type, IStringSerializeAndDeserialize> cachedAttributeSerializerTypeToObjectMap;
 
+        private readonly UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy;
+
+        private readonly PropertyBagConfigurationBase configuration;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NaosPropertyBagSerializer"/> class.
         /// </summary>
         /// <param name="configurationType">Type of configuration to use.</param>
-        public NaosPropertyBagSerializer(Type configurationType = null)
+        /// <param name="unregisteredTypeEncounteredStrategy">Optional strategy of what to do when encountering a type that has never been registered; DEFAULT is <see cref="UnregisteredTypeEncounteredStrategy.Throw" />.</param>
+        public NaosPropertyBagSerializer(Type configurationType = null, UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy = UnregisteredTypeEncounteredStrategy.Default)
         {
+            this.unregisteredTypeEncounteredStrategy =
+                (unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Default && configurationType != null) ||
+                unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw
+                    ? UnregisteredTypeEncounteredStrategy.Throw
+                    : UnregisteredTypeEncounteredStrategy.Attempt;
+
             if (configurationType != null)
             {
                 configurationType.IsSubclassOf(typeof(PropertyBagConfigurationBase)).Named(
@@ -69,12 +80,12 @@ namespace Naos.Serialization.PropertyBag
 
             this.ConfigurationType = configurationType ?? typeof(NullPropertyBagConfiguration);
 
-            var configuration = this.ConfigurationType.Construct<PropertyBagConfigurationBase>();
+            this.configuration = this.ConfigurationType.Construct<PropertyBagConfigurationBase>();
             this.dictionaryStringSerializer = new NaosDictionaryStringStringSerializer(
-                configuration.StringSerializationKeyValueDelimiter,
-                configuration.StringSerializationLineDelimiter,
-                configuration.StringSerializationNullValueEncoding);
-            this.configuredTypeToSerializerMap = configuration.BuildTypeToSerializerMap();
+                this.configuration.StringSerializationKeyValueDelimiter,
+                this.configuration.StringSerializationLineDelimiter,
+                this.configuration.StringSerializationNullValueEncoding);
+            this.configuredTypeToSerializerMap = this.configuration.BuildTypeToSerializerMap();
             this.cachedAttributeSerializerTypeToObjectMap = new Dictionary<Type, IStringSerializeAndDeserialize>();
         }
 
@@ -135,6 +146,14 @@ namespace Naos.Serialization.PropertyBag
         /// <inheritdoc />
         public string SerializeToString(object objectToSerialize)
         {
+            var objectType = objectToSerialize?.GetType();
+            if (objectType != null &&
+                this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
+                !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
+            {
+                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.SerializeToString)}({nameof(objectToSerialize)})' on unregistered type '{objectType.FullName}'"), objectType);
+            }
+
             var serializedObject = this.SerializeToPropertyBag(objectToSerialize);
             var ret = this.dictionaryStringSerializer.SerializeDictionaryToString(serializedObject);
 
@@ -144,6 +163,13 @@ namespace Naos.Serialization.PropertyBag
         /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
+            var objectType = typeof(T);
+            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
+                !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
+            {
+                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}<T>({nameof(serializedString)})' on unregistered type '{objectType.FullName}'"), objectType);
+            }
+
             var dictionary = this.dictionaryStringSerializer.DeserializeToDictionary(serializedString);
             var ret = this.Deserialize<T>(dictionary);
 
@@ -154,6 +180,12 @@ namespace Naos.Serialization.PropertyBag
         public object Deserialize(string serializedString, Type type)
         {
             new { type }.Must().NotBeNull();
+
+            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
+                !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(type))
+            {
+                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}({nameof(serializedString)}, {nameof(type)})' on unregistered type '{type.FullName}'"), type);
+            }
 
             var dictionary = this.dictionaryStringSerializer.DeserializeToDictionary(serializedString);
             var ret = this.Deserialize(dictionary, type);

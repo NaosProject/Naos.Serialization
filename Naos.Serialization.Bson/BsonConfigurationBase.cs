@@ -46,34 +46,26 @@ namespace Naos.Serialization.Bson
         private static readonly MethodInfo RegisterClassMapGenericMethod = typeof(BsonClassMap).GetMethods().Single(_ => (_.Name == RegisterClassMapMethodName) && (!_.GetParameters().Any()) && _.IsGenericMethod);
 
         /// <summary>
-        /// All registered types (static and used by all configurations to accomodate the fact that you have dependent configs that are only run once).
-        /// </summary>
-        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is immutable.")]
-        protected static readonly Tracker<Type> BsonClassMapRegisteredTypesTracker = new Tracker<Type>((a, b) => a == b);
-
-        /// <summary>
         /// Gets a map of <see cref="Type"/> to the <see cref="IBsonSerializer"/> to register.
         /// </summary>
-        protected virtual IReadOnlyDictionary<Type, IBsonSerializer> TypeToCustomSerializerMap => new Dictionary<Type, IBsonSerializer>();
+        protected virtual IReadOnlyCollection<RegisteredBsonSerializer> SerializersToRegister => new List<RegisteredBsonSerializer>();
 
-        /// <summary>
-        /// Gets all the types from this and any other <see cref="SerializationConfigurationBase"/> derivative that have been registered.
-        /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want this accessible via the object.")]
-        public IReadOnlyCollection<Type> BsonClassMapRegisteredTypes => BsonClassMapRegisteredTypesTracker.GetAllTrackedObjects();
-
-        /// <summary>
-        /// Gets all the types in their wrapped form with telemetry from this and any other <see cref="SerializationConfigurationBase"/> derivative that have been registered.
-        /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want this accessible via the object.")]
-        public IReadOnlyCollection<Tracker<Type>.TrackedObjectContainer> AllTrackedTypeContainers => BsonClassMapRegisteredTypesTracker.GetAllTrackedObjectContainers();
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
+        {
+            return new[] { typeof(InternalBsonConfiguration) };
+        }
 
         /// <inheritdoc />
         protected override void InternalConfigure()
         {
-            foreach (var typeToCustomSerializer in this.TypeToCustomSerializerMap ?? new Dictionary<Type, IBsonSerializer>())
+            foreach (var serializerToRegister in this.SerializersToRegister ?? new List<RegisteredBsonSerializer>())
             {
-                this.RegisterCustomSerializer(typeToCustomSerializer.Key, typeToCustomSerializer.Value);
+                var serializer = serializerToRegister.SerializerBuilderFunction();
+                foreach (var handledType in serializerToRegister.HandledTypes)
+                {
+                    this.RegisterCustomSerializer(handledType, serializer);
+                }
             }
         }
 
@@ -84,13 +76,16 @@ namespace Naos.Serialization.Bson
         /// <param name="customSerializer">Serializer implementation to use.</param>
         protected void RegisterCustomSerializer(Type typeToUseSerializerFor, IBsonSerializer customSerializer)
         {
-            void TrackedOperation(Type localType)
+            if (this.RegisteredTypeToDetailsMap.ContainsKey(typeToUseSerializerFor))
             {
-                BsonSerializer.RegisterSerializer(localType, customSerializer);
+                throw new DuplicateRegistrationException(
+                    Invariant($"Trying to register {typeToUseSerializerFor} in {nameof(this.RegisterCustomSerializer)} but it is already registered."),
+                    new[] { typeToUseSerializerFor });
             }
 
-            // We should throw here because this is expected to be more important than an auto map.
-            BsonClassMapRegisteredTypesTracker.RunTrackedOperation(typeToUseSerializerFor, TrackedOperation, TrackerCollisionStrategy.Throw, this.GetType());
+            BsonSerializer.RegisterSerializer(typeToUseSerializerFor, customSerializer);
+            var registrationDetails = new RegistrationDetails(this.GetType());
+            this.MutableRegisteredTypeToDetailsMap.Add(typeToUseSerializerFor, registrationDetails);
         }
 
         /// <summary>
@@ -102,16 +97,20 @@ namespace Naos.Serialization.Bson
         {
             new { type }.Must().NotBeNull();
 
+            if (this.RegisteredTypeToDetailsMap.ContainsKey(type))
+            {
+                throw new DuplicateRegistrationException(
+                    Invariant($"Trying to register {type} in {nameof(this.RegisterClassMapForTypeUsingMongoGeneric)} but it is already registered."),
+                    new[] { type });
+            }
+
             try
             {
-                // this should be tracked since it's side band to the normal way types are identified and therefore needs to maintain consistent list of registered types.
-                void TrackedOperation(Type localType)
-                {
-                    var genericRegisterClassMapMethod = RegisterClassMapGenericMethod.MakeGenericMethod(localType);
-                    genericRegisterClassMapMethod.Invoke(null, null);
-                }
+                var genericRegisterClassMapMethod = RegisterClassMapGenericMethod.MakeGenericMethod(type);
+                genericRegisterClassMapMethod.Invoke(null, null);
 
-                BsonClassMapRegisteredTypesTracker.RunTrackedOperation(type, TrackedOperation, this.TypeTrackerCollisionStrategy, this.GetType());
+                var registrationDetails = new RegistrationDetails(this.GetType());
+                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
             }
             catch (Exception ex)
             {
@@ -141,17 +140,21 @@ namespace Naos.Serialization.Bson
         {
             new { type }.Must().NotBeNull();
 
+            if (this.RegisteredTypeToDetailsMap.ContainsKey(type))
+            {
+                throw new DuplicateRegistrationException(
+                    Invariant($"Trying to register {type} in {nameof(this.RegisterTypeWithPropertyConstraints)} but it is already registered."),
+                    new[] { type });
+            }
+
             try
             {
                 if (type.IsClass)
                 {
-                    void TrackedOperation(Type localType)
-                    {
-                        var bsonClassMap = this.AutomaticallyBuildBsonClassMap(localType, constrainToProperties);
-                        BsonClassMap.RegisterClassMap(bsonClassMap);
-                    }
-
-                    BsonClassMapRegisteredTypesTracker.RunTrackedOperation(type, TrackedOperation, this.TypeTrackerCollisionStrategy, this.GetType());
+                    var bsonClassMap = this.AutomaticallyBuildBsonClassMap(type, constrainToProperties);
+                    BsonClassMap.RegisterClassMap(bsonClassMap);
+                    var registrationDetails = new RegistrationDetails(this.GetType());
+                    this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
                 }
             }
             catch (Exception ex)
@@ -318,6 +321,15 @@ namespace Naos.Serialization.Bson
     }
 
     /// <summary>
+    /// Internal implementation of <see cref="BsonConfigurationBase" /> that will auto register necessary internal types.
+    /// </summary>
+    public sealed class InternalBsonConfiguration : BsonConfigurationBase, IDoNotNeedInternalDependencies
+    {
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => InternallyRequiredTypes;
+    }
+
+    /// <summary>
     /// Generic implementation of <see cref="BsonConfigurationBase" /> that will auto register with discovery using type <typeparamref name="T" />.
     /// </summary>
     /// <typeparam name="T">Type to auto register with discovery.</typeparam>
@@ -346,7 +358,11 @@ namespace Naos.Serialization.Bson
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
-            /* no-op */
+            var registrationDetails = new RegistrationDetails(this.GetType());
+            foreach (var type in types ?? new Type[0])
+            {
+                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
+            }
         }
     }
 }

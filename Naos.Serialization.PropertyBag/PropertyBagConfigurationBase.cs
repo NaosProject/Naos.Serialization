@@ -24,7 +24,17 @@ namespace Naos.Serialization.PropertyBag
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
-            /* no-op */
+            var registrationDetails = new RegistrationDetails(this.GetType());
+            foreach (var type in types ?? new Type[0])
+            {
+                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
+            }
+        }
+
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
+        {
+            return new[] { typeof(InternalPropertyBagConfiguration) };
         }
 
         /// <summary>
@@ -99,6 +109,15 @@ namespace Naos.Serialization.PropertyBag
         {
             return new Dictionary<Type, IStringSerializeAndDeserialize>();
         }
+    }
+
+    /// <summary>
+    /// Internal implementation of <see cref="PropertyBagConfigurationBase" /> that will auto register necessary internal types.
+    /// </summary>
+    public sealed class InternalPropertyBagConfiguration : PropertyBagConfigurationBase
+    {
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => InternallyRequiredTypes;
     }
 
     /// <summary>

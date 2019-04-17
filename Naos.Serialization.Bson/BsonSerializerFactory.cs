@@ -33,7 +33,7 @@ namespace Naos.Serialization.Bson
         }
 
         /// <inheritdoc />
-        public ISerializeAndDeserialize BuildSerializer(SerializationDescription serializationDescription, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
+        public ISerializeAndDeserialize BuildSerializer(SerializationDescription serializationDescription, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple, UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy = UnregisteredTypeEncounteredStrategy.Default)
         {
             new { serializationDescription }.Must().NotBeNull();
 
@@ -43,7 +43,7 @@ namespace Naos.Serialization.Bson
 
                 switch (serializationDescription.SerializationKind)
                 {
-                    case SerializationKind.Bson: return new NaosBsonSerializer(configurationType);
+                    case SerializationKind.Bson: return new NaosBsonSerializer(configurationType, unregisteredTypeEncounteredStrategy);
                     default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationKind)} of {serializationDescription.SerializationKind} is not supported."));
                 }
             }

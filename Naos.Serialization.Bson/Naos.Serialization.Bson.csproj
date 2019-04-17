@@ -80,6 +80,7 @@
     <Compile Include=".recipes\OBeautifulCode.Validation\Range.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ValidatedNotNullAttribute.cs" />
     <Compile Include="BsonConfigurationBase.cs" />
+    <Compile Include="RegisteredBsonSerializer.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="BsonSerializerFactory.cs" />
     <Compile Include="GlobalSuppressions.cs" />

@@ -236,7 +236,7 @@ namespace Naos.Serialization.Test
 
         private class PropertyBagConfig : PropertyBagConfigurationBase
         {
-            protected override IReadOnlyCollection<Type> DependentConfigurationTypes => new[] { typeof(PropertyBagConfigDepend) };
+            public override IReadOnlyCollection<Type> DependentConfigurationTypes => new[] { typeof(PropertyBagConfigDepend) };
         }
 
         private class PropertyBagConfigDepend : PropertyBagConfigurationBase

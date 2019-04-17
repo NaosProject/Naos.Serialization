@@ -38,7 +38,7 @@ namespace Naos.Serialization.Factory
         }
 
         /// <inheritdoc />
-        public ISerializeAndDeserialize BuildSerializer(SerializationDescription serializationDescription, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple)
+        public ISerializeAndDeserialize BuildSerializer(SerializationDescription serializationDescription, TypeMatchStrategy typeMatchStrategy = TypeMatchStrategy.NamespaceAndName, MultipleMatchStrategy multipleMatchStrategy = MultipleMatchStrategy.ThrowOnMultiple, UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy = UnregisteredTypeEncounteredStrategy.Default)
         {
             new { serializationDescription }.Must().NotBeNull();
 
@@ -48,9 +48,9 @@ namespace Naos.Serialization.Factory
 
                 switch (serializationDescription.SerializationKind)
                 {
-                    case SerializationKind.Bson: return new NaosBsonSerializer(configurationType);
-                    case SerializationKind.Json: return new NaosJsonSerializer(configurationType);
-                    case SerializationKind.PropertyBag: return new NaosPropertyBagSerializer(configurationType);
+                    case SerializationKind.Bson: return new NaosBsonSerializer(configurationType, unregisteredTypeEncounteredStrategy);
+                    case SerializationKind.Json: return new NaosJsonSerializer(configurationType, unregisteredTypeEncounteredStrategy);
+                    case SerializationKind.PropertyBag: return new NaosPropertyBagSerializer(configurationType, unregisteredTypeEncounteredStrategy);
                     default: throw new NotSupportedException(Invariant($"{nameof(serializationDescription)} from enumeration {nameof(SerializationKind)} of {serializationDescription.SerializationKind} is not supported."));
                 }
             }

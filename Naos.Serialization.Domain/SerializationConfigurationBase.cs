@@ -53,12 +53,22 @@ namespace Naos.Serialization.Domain
                 typeof(Array),
             };
 
-        private readonly HashSet<Type> allRegisteredTypes = new HashSet<Type>();
+        /// <summary>
+        /// Gets the version of <see cref="RegisteredTypeToDetailsMap" />.
+        /// </summary>
+        protected Dictionary<Type, RegistrationDetails> MutableRegisteredTypeToDetailsMap { get; } =
+            new Dictionary<Type, RegistrationDetails>();
 
         /// <summary>
-        /// Gets all types that were registered.
+        /// Gets a map of dependent configuration instances that have already run, keyed on type.
         /// </summary>
-        public IReadOnlyCollection<Type> AllRegisteredTypes => this.allRegisteredTypes;
+        protected IDictionary<Type, SerializationConfigurationBase> DependentConfigurationTypeToInstanceMap { get; } =
+            new Dictionary<Type, SerializationConfigurationBase>();
+
+        /// <summary>
+        /// Gets a map of registration details keyed on type registered.
+        /// </summary>
+        public IReadOnlyDictionary<Type, RegistrationDetails> RegisteredTypeToDetailsMap => this.MutableRegisteredTypeToDetailsMap;
 
         /// <summary>
         /// Run configuration logic.
@@ -91,16 +101,23 @@ namespace Naos.Serialization.Domain
                         this.InitialConfiguration();
 
                         // Run all dependent configurations.
-                        foreach (var dependentConfigurationType in this.DependentConfigurationTypes ?? new List<Type>())
+                        foreach (var dependentConfigurationType in
+                            (this is IDoNotNeedInternalDependencies
+                                ? new Type[0]
+                                : this.GetInternalDependentConfigurations()).ToList().Concat(this.DependentConfigurationTypes ?? new List<Type>()))
                         {
                             var dependentConfig = SerializationConfigurationManager.ConfigureWithReturn<SerializationConfigurationBase>(dependentConfigurationType);
-                            this.allRegisteredTypes.AddRange(dependentConfig.AllRegisteredTypes);
+
+                            // capture the config for use in specific derivations as well as the types covered.
+                            this.DependentConfigurationTypeToInstanceMap.Add(dependentConfigurationType, dependentConfig);
+                            this.MutableRegisteredTypeToDetailsMap.AddRange(dependentConfig.RegisteredTypeToDetailsMap);
                         }
+
+                        this.InternalConfigure();
 
                         var discoveredTypes = DiscoverAllContainedAssignableTypes(localTypeToAutoRegisterWithDiscovery);
 
                         var typesToAutoRegister = new Type[0]
-                            .Concat(InternallyRequiredTypes)
                             .Concat(localClassTypesToRegister)
                             .Concat(localTypesToAutoRegister)
                             .Concat(localInterfaceTypesToRegisterImplementationOf)
@@ -110,12 +127,21 @@ namespace Naos.Serialization.Domain
                             .Distinct()
                             .ToList();
 
-                        var allTypesToRegister = DiscoverAllAssignableTypes(typesToAutoRegister).Concat(discoveredTypes).Distinct().ToList();
+                        var typesToAutoRegisterAlreadyHandledByDependentConfiguration = typesToAutoRegister.Intersect(this.RegisteredTypeToDetailsMap.Keys).ToList();
+                        if (typesToAutoRegisterAlreadyHandledByDependentConfiguration.Any())
+                        {
+                            // TODO: what info do we want to capture here?
+                            throw new DuplicateRegistrationException("Attempted to register types that are already registered", typesToAutoRegisterAlreadyHandledByDependentConfiguration);
+                        }
+
+                        var allTypesToRegister =
+                            DiscoverAllAssignableTypes(typesToAutoRegister)
+                                .Concat(discoveredTypes)
+                                .Distinct()
+                                .Except(this.RegisteredTypeToDetailsMap.Keys)
+                                .ToList();
 
                         this.RegisterTypes(allTypesToRegister);
-                        this.allRegisteredTypes.AddRange(allTypesToRegister);
-
-                        this.InternalConfigure();
 
                         this.FinalConfiguration();
 
@@ -228,7 +254,7 @@ namespace Naos.Serialization.Domain
         /// <summary>
         /// Gets a list of <see cref="SerializationConfigurationBase"/>'s that are needed for the current implementation of <see cref="SerializationConfigurationBase"/>.  Optionally overrideable, DEFAULT is empty collection.
         /// </summary>
-        protected virtual IReadOnlyCollection<Type> DependentConfigurationTypes => new Type[0];
+        public virtual IReadOnlyCollection<Type> DependentConfigurationTypes => new Type[0];
 
         /// <summary>
         /// Gets a list of <see cref="Type"/>s to auto-register.
@@ -314,6 +340,13 @@ namespace Naos.Serialization.Domain
         /// <param name="types">Types to register.</param>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
         protected abstract void RegisterTypes(IReadOnlyCollection<Type> types);
+
+        /// <summary>
+        /// Get the dependent configurations that encompasses any necessary internal types.
+        /// </summary>
+        /// <returns>Configurations necessary to accomodate internal types.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Want a method here.")]
+        protected abstract IReadOnlyCollection<Type> GetInternalDependentConfigurations();
     }
 
     /// <summary>
@@ -324,12 +357,22 @@ namespace Naos.Serialization.Domain
         where T : SerializationConfigurationBase
     {
         /// <inheritdoc />
-        protected override IReadOnlyCollection<Type> DependentConfigurationTypes => new[] { typeof(T) };
+        public override IReadOnlyCollection<Type> DependentConfigurationTypes => new[] { typeof(T) };
 
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
-            /* no-op */
+            var registrationDetails = new RegistrationDetails(this.GetType());
+            foreach (var type in types ?? new Type[0])
+            {
+                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
+            }
+        }
+
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
+        {
+            return new Type[0];
         }
     }
 
@@ -343,12 +386,22 @@ namespace Naos.Serialization.Domain
         where T2 : SerializationConfigurationBase
     {
         /// <inheritdoc />
-        protected override IReadOnlyCollection<Type> DependentConfigurationTypes => new[] { typeof(T1), typeof(T2) };
+        public override IReadOnlyCollection<Type> DependentConfigurationTypes => new[] { typeof(T1), typeof(T2) };
 
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
-            /* no-op */
+            var registrationDetails = new RegistrationDetails(this.GetType());
+            foreach (var type in types ?? new Type[0])
+            {
+                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
+            }
+        }
+
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
+        {
+            return new Type[0];
         }
     }
 
@@ -360,7 +413,42 @@ namespace Naos.Serialization.Domain
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
-            /* no-op */
+            var registrationDetails = new RegistrationDetails(this.GetType());
+            foreach (var type in types ?? new Type[0])
+            {
+                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
+            }
+        }
+
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
+        {
+            return new Type[0];
+        }
+    }
+
+    /// <summary>
+    /// Internal implementation of <see cref="SerializationConfigurationBase" /> that will auto register necessary internal types.
+    /// </summary>
+    public sealed class InternalNullDiscoveryConfiguration : SerializationConfigurationBase, IDoNotNeedInternalDependencies
+    {
+        /// <inheritdoc />
+        protected override void RegisterTypes(IReadOnlyCollection<Type> types)
+        {
+            var registrationDetails = new RegistrationDetails(this.GetType());
+            foreach (var type in types ?? new Type[0])
+            {
+                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
+            }
+        }
+
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => InternallyRequiredTypes;
+
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
+        {
+            return new Type[0];
         }
     }
 
@@ -376,7 +464,17 @@ namespace Naos.Serialization.Domain
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
-            /* no-op */
+            var registrationDetails = new RegistrationDetails(this.GetType());
+            foreach (var type in types ?? new Type[0])
+            {
+                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
+            }
+        }
+
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
+        {
+            return new[] { typeof(InternalNullDiscoveryConfiguration) };
         }
     }
 
@@ -393,7 +491,25 @@ namespace Naos.Serialization.Domain
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
-            /* no-op */
+            var registrationDetails = new RegistrationDetails(this.GetType());
+            foreach (var type in types ?? new Type[0])
+            {
+                this.MutableRegisteredTypeToDetailsMap.Add(type, registrationDetails);
+            }
         }
+
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
+        {
+            return new Type[0];
+        }
+    }
+
+    /// <summary>
+    /// Interface to declare that it does not require the internal dependency configuration.
+    /// </summary>
+    [SuppressMessage("Microsoft.Design", "CA1040:AvoidEmptyInterfaces", Justification = "Prefer an interface for this instead of an attribute.")]
+    public interface IDoNotNeedInternalDependencies
+    {
     }
 }
