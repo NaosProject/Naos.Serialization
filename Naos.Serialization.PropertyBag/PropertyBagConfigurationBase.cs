@@ -32,10 +32,7 @@ namespace Naos.Serialization.PropertyBag
         }
 
         /// <inheritdoc />
-        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
-        {
-            return new[] { typeof(InternalPropertyBagConfiguration) };
-        }
+        public sealed override IReadOnlyCollection<Type> InternalDependentConfigurationTypes => new[] { typeof(InternalPropertyBagConfiguration) };
 
         /// <summary>
         /// Gets the key value delimiter to use for string serialization of the property bag.

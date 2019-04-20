@@ -8,6 +8,7 @@ namespace Naos.Serialization.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -153,7 +154,7 @@ namespace Naos.Serialization.Test
                              };
 
             // Act
-            config.Configure();
+            config.Configure(new Dictionary<Type, SerializationConfigurationBase>());
 
             // Assert
             config.RegisteredTypeToDetailsMap.Keys.Intersect(expectedTypes).Should().BeEquivalentTo(expectedTypes);
@@ -168,7 +169,7 @@ namespace Naos.Serialization.Test
                                  SettableDependentConfigurationTypes = new[] { typeof(CustomThrowsConfig) },
                              };
 
-            Action action = () => config.Configure();
+            Action action = () => config.Configure(new Dictionary<Type, SerializationConfigurationBase>());
 
             // Act
             var exception = Record.Exception(action);
@@ -199,8 +200,8 @@ namespace Naos.Serialization.Test
                                  SettableTypesToAutoRegister = new[] { testType },
                              };
 
-            configOne.Configure();
-            configTwo.Configure();
+            configOne.Configure(new Dictionary<Type, SerializationConfigurationBase>());
+            configTwo.Configure(new Dictionary<Type, SerializationConfigurationBase>());
 
             // Act
             var trackedContainersOne = configOne.RegisteredTypeToDetailsMap.Keys;

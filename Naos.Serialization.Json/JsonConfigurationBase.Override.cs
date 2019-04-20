@@ -36,12 +36,12 @@ namespace Naos.Serialization.Json
             while (dependentConfigTypes.Any())
             {
                 var type = dependentConfigTypes.Last();
-                dependentConfigTypes.RemoveAt(dependentConfigTypes.Count);
+                dependentConfigTypes.RemoveAt(dependentConfigTypes.Count - 1);
 
                 var dependentConfig = (JsonConfigurationBase)this.DependentConfigurationTypeToInstanceMap[type];
                 dependentConfigTypes.AddRange(dependentConfig.DependentConfigurationTypes);
 
-                this.ProcessConverter(dependentConfig.RegisteredConverters);
+                this.ProcessConverter(dependentConfig.RegisteredConverters, false);
             }
 
             var converters = (this.ConvertersToRegister ?? new RegisteredJsonConverter[0]).ToList();
@@ -54,11 +54,11 @@ namespace Naos.Serialization.Json
             }
         }
 
-        private IReadOnlyCollection<Type> ProcessConverter(IList<RegisteredJsonConverter> registeredConverters)
+        private IReadOnlyCollection<Type> ProcessConverter(IList<RegisteredJsonConverter> registeredConverters, bool checkForAlreadyRegistered = true)
         {
             var handledTypes = registeredConverters.SelectMany(_ => _.HandledTypes).ToList();
 
-            if (this.RegisteredTypeToDetailsMap.Keys.Intersect(handledTypes).Any())
+            if (checkForAlreadyRegistered && this.RegisteredTypeToDetailsMap.Keys.Intersect(handledTypes).Any())
             {
                 throw new DuplicateRegistrationException(
                     Invariant(

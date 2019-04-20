@@ -26,10 +26,7 @@ namespace Naos.Serialization.Json
             };
 
         /// <inheritdoc />
-        protected override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
-        {
-            return new[] { typeof(InternalJsonConfiguration) };
-        }
+        public sealed override IReadOnlyCollection<Type> InternalDependentConfigurationTypes => new[] { typeof(InternalJsonConfiguration) };
 
         /// <summary>
         /// Gets the types that have been registered with a converter.

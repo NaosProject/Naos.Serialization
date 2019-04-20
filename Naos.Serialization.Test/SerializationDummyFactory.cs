@@ -15,7 +15,7 @@ namespace Naos.Serialization.Recipes
 
     using Naos.Compression.Domain;
     using Naos.Serialization.Domain;
-
+    using Naos.Serialization.Json;
     using OBeautifulCode.AutoFakeItEasy;
 
     /// <summary>
@@ -33,10 +33,10 @@ namespace Naos.Serialization.Recipes
         /// </summary>
         public SerializationDummyFactory()
         {
-            AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationKind.Invalid,
-                SerializationKind.Proprietary);
+            AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationKind.Invalid, SerializationKind.Proprietary);
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(SerializationFormat.Invalid);
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(CompressionKind.Invalid);
+            AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(RegisteredJsonConverterOutputKind.Unknown);
 
             #if NaosSerializationDomainTest
             AutoFixtureBackedDummyFactory.UseRandomConcreteSubclassForDummy<Naos.Serialization.Test.TestBase>();

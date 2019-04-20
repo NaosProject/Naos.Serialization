@@ -7,8 +7,10 @@
 namespace Naos.Serialization.Domain
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
-
+    using System.Collections.ObjectModel;
+    using System.Linq;
     using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.Validation.Recipes;
 
@@ -32,8 +34,7 @@ namespace Naos.Serialization.Domain
             where T : SerializationConfigurationBase, new()
         {
             // TODO: is there a race condition here? should we lock while calling configure...
-            var instance = FetchOrCreateConfigurationInstance<T>();
-            instance.Configure();
+            GetConfiguredType(typeof(T));
         }
 
         /// <summary>
@@ -63,9 +64,8 @@ namespace Naos.Serialization.Domain
             type.IsAssignableTo(typeof(TReturn)).Named(Invariant($"typeMustBeSubclassOf{nameof(TReturn)}")).Must().BeTrue();
             type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue();
 
-            var instance = FetchOrCreateConfigurationInstance(type, () => (SerializationConfigurationBase)type.Construct());
-            instance.Configure();
-            return (TReturn)instance;
+            var result = GetConfiguredType(type);
+            return (TReturn)result;
         }
 
         /// <summary>
@@ -79,32 +79,59 @@ namespace Naos.Serialization.Domain
             type.IsSubclassOf(typeof(SerializationConfigurationBase)).Named(Invariant($"typeMustBeSubclassOf{nameof(SerializationConfigurationBase)}")).Must().BeTrue();
             type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue();
 
-            var instance = FetchOrCreateConfigurationInstance(type, () => (SerializationConfigurationBase)type.Construct());
-            instance.Configure();
+            GetConfiguredType(type);
+         }
+
+        private static SerializationConfigurationBase GetConfiguredType(Type configurationType, Dictionary<Type, SerializationConfigurationBase> dependentConfigMap = null)
+        {
+            var instanceWasCreated = FetchOrCreateConfigurationInstance(configurationType, out var instance);
+
+            new { instance }.Must().NotBeNull();
+
+            if (!instanceWasCreated)
+            {
+                return instance;
+            }
+
+            if (dependentConfigMap == null)
+            {
+                dependentConfigMap = new Dictionary<Type, SerializationConfigurationBase>();
+            }
+
+            foreach (var dependentType in instance.DependentConfigurationTypes)
+            {
+                var dependentInstance = GetConfiguredType(dependentType, dependentConfigMap);
+
+                if (!dependentConfigMap.ContainsKey(dependentType))
+                {
+                    dependentConfigMap.Add(dependentType, dependentInstance);
+                }
+            }
+
+            var dependentConfigMapShallowClone = dependentConfigMap.ToDictionary(k => k.Key, v => v.Value);
+            instance.Configure(dependentConfigMapShallowClone);
+
+            return instance;
         }
 
-        /// <summary>
-        /// Gets the singleton instance of the specified type.
-        /// </summary>
-        /// <typeparam name="T">Type of derivative of <see cref="SerializationConfigurationBase"/> to use.</typeparam>
-        /// <returns>Singleton instance of the specified type.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "Prefer to use in the generic sense.")]
-        private static SerializationConfigurationBase FetchOrCreateConfigurationInstance<T>()
-            where T : SerializationConfigurationBase, new()
+        private static bool FetchOrCreateConfigurationInstance(
+            Type type,
+            out SerializationConfigurationBase outputResult,
+            Func<SerializationConfigurationBase> creatorFunc = null)
         {
-            return FetchOrCreateConfigurationInstance(typeof(T), () => new T());
-        }
+            var result = false;
+            var localCreatorFunc = creatorFunc ?? (() => (SerializationConfigurationBase)type.Construct());
 
-        private static SerializationConfigurationBase FetchOrCreateConfigurationInstance(Type type, Func<SerializationConfigurationBase> creatorFunc)
-        {
             lock (SyncInstances)
             {
                 if (!Instances.ContainsKey(type))
                 {
-                    Instances.Add(type, creatorFunc());
+                    Instances.Add(type, localCreatorFunc());
+                    result = true;
                 }
 
-                return Instances[type];
+                outputResult = Instances[type];
+                return result;
             }
         }
     }

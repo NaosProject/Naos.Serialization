@@ -51,10 +51,7 @@ namespace Naos.Serialization.Bson
         protected virtual IReadOnlyCollection<RegisteredBsonSerializer> SerializersToRegister => new List<RegisteredBsonSerializer>();
 
         /// <inheritdoc />
-        protected sealed override IReadOnlyCollection<Type> GetInternalDependentConfigurations()
-        {
-            return new[] { typeof(InternalBsonConfiguration) };
-        }
+        public sealed override IReadOnlyCollection<Type> InternalDependentConfigurationTypes => new[] { typeof(InternalBsonConfiguration) };
 
         /// <inheritdoc />
         protected sealed override void InternalConfigure()
