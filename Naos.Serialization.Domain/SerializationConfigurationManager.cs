@@ -7,9 +7,7 @@
 namespace Naos.Serialization.Domain
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
     using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.Validation.Recipes;
@@ -84,34 +82,38 @@ namespace Naos.Serialization.Domain
 
         private static SerializationConfigurationBase GetConfiguredType(Type configurationType, Dictionary<Type, SerializationConfigurationBase> dependentConfigMap = null)
         {
-            var instanceWasCreated = FetchOrCreateConfigurationInstance(configurationType, out var instance);
-
-            new { instance }.Must().NotBeNull();
-
-            if (!instanceWasCreated)
+            lock (SyncInstances)
             {
+                var instanceWasCreated = FetchOrCreateConfigurationInstance(configurationType, out var instance);
+
+                new { instance }.Must().NotBeNull();
+
+                if (!instanceWasCreated)
+                {
+                    return instance;
+                }
+
+                if (dependentConfigMap == null)
+                {
+                    dependentConfigMap = new Dictionary<Type, SerializationConfigurationBase>();
+                }
+
+                foreach (var dependentType in instance.DependentConfigurationTypes
+                    .Concat(instance.InternalDependentConfigurationTypes).ToList())
+                {
+                    var dependentInstance = GetConfiguredType(dependentType, dependentConfigMap);
+
+                    if (!dependentConfigMap.ContainsKey(dependentType))
+                    {
+                        dependentConfigMap.Add(dependentType, dependentInstance);
+                    }
+                }
+
+                var dependentConfigMapShallowClone = dependentConfigMap.ToDictionary(k => k.Key, v => v.Value);
+                instance.Configure(dependentConfigMapShallowClone);
+
                 return instance;
             }
-
-            if (dependentConfigMap == null)
-            {
-                dependentConfigMap = new Dictionary<Type, SerializationConfigurationBase>();
-            }
-
-            foreach (var dependentType in instance.DependentConfigurationTypes)
-            {
-                var dependentInstance = GetConfiguredType(dependentType, dependentConfigMap);
-
-                if (!dependentConfigMap.ContainsKey(dependentType))
-                {
-                    dependentConfigMap.Add(dependentType, dependentInstance);
-                }
-            }
-
-            var dependentConfigMapShallowClone = dependentConfigMap.ToDictionary(k => k.Key, v => v.Value);
-            instance.Configure(dependentConfigMapShallowClone);
-
-            return instance;
         }
 
         private static bool FetchOrCreateConfigurationInstance(
@@ -122,17 +124,14 @@ namespace Naos.Serialization.Domain
             var result = false;
             var localCreatorFunc = creatorFunc ?? (() => (SerializationConfigurationBase)type.Construct());
 
-            lock (SyncInstances)
+            if (!Instances.ContainsKey(type))
             {
-                if (!Instances.ContainsKey(type))
-                {
-                    Instances.Add(type, localCreatorFunc());
-                    result = true;
-                }
-
-                outputResult = Instances[type];
-                return result;
+                Instances.Add(type, localCreatorFunc());
+                result = true;
             }
+
+            outputResult = Instances[type];
+            return result;
         }
     }
 }
