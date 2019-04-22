@@ -98,8 +98,17 @@ namespace Naos.Serialization.Domain
                     dependentConfigMap = new Dictionary<Type, SerializationConfigurationBase>();
                 }
 
-                foreach (var dependentType in instance.DependentConfigurationTypes
-                    .Concat(instance.InternalDependentConfigurationTypes).ToList())
+                var allDependentTypes = instance.DependentConfigurationTypes.Concat(instance.InternalDependentConfigurationTypes).Distinct().ToList();
+                var configInheritor = configurationType.GetInheritorOfSerializationBase();
+
+                // TODO: test this throw
+                var rogueDependents = allDependentTypes.Where(_ => _.GetInheritorOfSerializationBase() != configInheritor).ToList();
+                if (rogueDependents.Any())
+                {
+                    throw new InvalidOperationException(Invariant($"Configuration {configurationType} has {nameof(instance.DependentConfigurationTypes)} ({string.Join(",", rogueDependents)}) that do not share the same first layer of inheritance {configInheritor}"));
+                }
+
+                foreach (var dependentType in allDependentTypes)
                 {
                     var dependentInstance = GetConfiguredType(dependentType, dependentConfigMap);
 
@@ -114,6 +123,22 @@ namespace Naos.Serialization.Domain
 
                 return instance;
             }
+        }
+
+        private static Type GetInheritorOfSerializationBase(this Type configurationType)
+        {
+            var type = configurationType.BaseType;
+            while (type != null && type.BaseType != null && type.BaseType.BaseType != typeof(SerializationConfigurationBase))
+            {
+                type = type.BaseType;
+            }
+
+            return
+                      type != null
+                   && type.BaseType != null
+                   && type.BaseType.BaseType == typeof(SerializationConfigurationBase)
+                ? type
+                : null;
         }
 
         private static bool FetchOrCreateConfigurationInstance(

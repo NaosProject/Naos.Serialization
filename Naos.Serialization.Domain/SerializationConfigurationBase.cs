@@ -84,15 +84,20 @@ namespace Naos.Serialization.Domain
                         this.DependentConfigurationTypeToInstanceMap = dependentConfigurationTypeToInstanceMap;
                         foreach (var dependentConfigurationTypeToInstance in dependentConfigurationTypeToInstanceMap)
                         {
-                            var registrationDetails = new RegistrationDetails(dependentConfigurationTypeToInstance.Key);
+                            var dependentConfigType = dependentConfigurationTypeToInstance.Key;
+                            var dependentConfigInstance = dependentConfigurationTypeToInstance.Value;
 
-                            foreach (var dependentType in dependentConfigurationTypeToInstance.Value.RegisteredTypeToDetailsMap.Keys)
+                            var registrationDetails = new RegistrationDetails(dependentConfigType);
+
+                            var dependentConfigRegisteredTypes = dependentConfigInstance
+                                .RegisteredTypeToDetailsMap
+                                .Where(_ => _.Value.RegisteringType == dependentConfigType).ToList();
+
+                            foreach (var dependentConfigRegisteredType in dependentConfigRegisteredTypes)
                             {
-                                if (!this.MutableRegisteredTypeToDetailsMap.ContainsKey(dependentType))
-                                {
-                                    // Since dependent types will have their dependents you can have overlap, duplicate registration is guarded separately.
-                                    this.MutableRegisteredTypeToDetailsMap.Add(dependentType, registrationDetails);
-                                }
+                                this.MutableRegisteredTypeToDetailsMap.Add(
+                                    dependentConfigRegisteredType.Key,
+                                    registrationDetails);
                             }
                         }
 
@@ -261,7 +266,7 @@ namespace Naos.Serialization.Domain
         public virtual IReadOnlyCollection<Type> DependentConfigurationTypes => new Type[0];
 
         /// <summary>
-        /// Gets the dependent configurations that encompasses any necessary internal types.
+        /// Gets the dependent configurations that encompasses any necessary internal types, this should be used by first level inheritor and sealed.
         /// </summary>
         /// <returns>Configurations necessary to accomodate internal types.</returns>
         public abstract IReadOnlyCollection<Type> InternalDependentConfigurationTypes { get; }
