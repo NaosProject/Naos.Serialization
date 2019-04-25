@@ -9,6 +9,7 @@ namespace Naos.Serialization.Bson
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Drawing;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -51,7 +52,7 @@ namespace Naos.Serialization.Bson
         protected virtual IReadOnlyCollection<RegisteredBsonSerializer> SerializersToRegister => new List<RegisteredBsonSerializer>();
 
         /// <inheritdoc />
-        public sealed override IReadOnlyCollection<Type> InternalDependentConfigurationTypes => new[] { typeof(InternalBsonConfiguration) };
+        public sealed override IReadOnlyCollection<Type> InternalDependentConfigurationTypes => new[] { typeof(InternalBsonConfiguration), typeof(NetDrawingBsonConfiguration) };
 
         /// <inheritdoc />
         protected sealed override void InternalConfigure()
@@ -314,6 +315,19 @@ namespace Naos.Serialization.Bson
     {
         /// <inheritdoc />
         protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => InternallyRequiredTypes;
+    }
+
+    /// <summary>
+    /// Internal implementation of <see cref="BsonConfigurationBase" /> that will auto register necessary internal types.
+    /// </summary>
+    public sealed class NetDrawingBsonConfiguration : BsonConfigurationBase, IDoNotNeedInternalDependencies
+    {
+        /// <inheritdoc />
+        protected override IReadOnlyCollection<RegisteredBsonSerializer> SerializersToRegister => new[]
+        {
+            new RegisteredBsonSerializer(() => new ColorSerializer(), new[] { typeof(Color) }),
+            new RegisteredBsonSerializer(() => new NullableColorSerializer(), new[] { typeof(Color?) }),
+        };
     }
 
     /// <summary>
