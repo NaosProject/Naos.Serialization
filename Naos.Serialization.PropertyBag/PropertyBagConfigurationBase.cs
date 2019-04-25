@@ -8,11 +8,9 @@ namespace Naos.Serialization.PropertyBag
 {
     using System;
     using System.Collections.Generic;
-
+    using System.Linq;
     using Naos.Serialization.Domain;
-
-    using OBeautifulCode.Reflection.Recipes;
-    using OBeautifulCode.Validation.Recipes;
+    using OBeautifulCode.Collection.Recipes;
 
     using static System.FormattableString;
 
@@ -21,6 +19,11 @@ namespace Naos.Serialization.PropertyBag
     /// </summary>
     public abstract class PropertyBagConfigurationBase : SerializationConfigurationBase
     {
+        /// <summary>
+        /// Gets the map of type to specific serializer.
+        /// </summary>
+        private Dictionary<Type, IStringSerializeAndDeserialize> TypeToSerializerMap { get; } = new Dictionary<Type, IStringSerializeAndDeserialize>();
+
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
         {
@@ -33,6 +36,11 @@ namespace Naos.Serialization.PropertyBag
 
         /// <inheritdoc />
         public sealed override IReadOnlyCollection<Type> InternalDependentConfigurationTypes => new[] { typeof(InternalPropertyBagConfiguration) };
+
+        /// <summary>
+        /// Gets the registered serializer set to use.
+        /// </summary>
+        protected IList<RegisteredStringSerializer> RegisteredSerializers { get; } = new List<RegisteredStringSerializer>();
 
         /// <summary>
         /// Gets the key value delimiter to use for string serialization of the property bag.
@@ -49,62 +57,79 @@ namespace Naos.Serialization.PropertyBag
         /// </summary>
         public virtual string StringSerializationNullValueEncoding { get; private set; } = NaosDictionaryStringStringSerializer.DefaultNullValueEncoding;
 
-        /// <summary>
-        /// Gets the strategy for collisions in type to serializer registrations.
-        /// </summary>
-        public virtual TypeSerializationRegistrationCollisionStrategy CollisionStrategy { get; private set; } = TypeSerializationRegistrationCollisionStrategy.Throw;
-
-        /// <summary>
-        /// Build a map of types to serializers to consider for property serialization.
-        /// </summary>
-        /// <returns>Map of types to serializes to consider for property serialization.</returns>
-        public IReadOnlyDictionary<Type, IStringSerializeAndDeserialize> BuildTypeToSerializerMap()
+        /// <inheritdoc />
+        protected sealed override void InternalConfigure()
         {
-            var ret = new Dictionary<Type, IStringSerializeAndDeserialize>();
-            var customTypeToSerializerMappings = this.CustomTypeToSerializerMappings();
-            new { customTypeToSerializerMappings }.Must().NotBeNull();
-
-            foreach (var customMapping in customTypeToSerializerMappings)
+            var dependentConfigTypes = new List<Type>(this.DependentConfigurationTypes.Reverse());
+            while (dependentConfigTypes.Any())
             {
-                ret.Add(customMapping.Key, customMapping.Value);
+                var type = dependentConfigTypes.Last();
+                dependentConfigTypes.RemoveAt(dependentConfigTypes.Count - 1);
+
+                var dependentConfig = (PropertyBagConfigurationBase)this.DependentConfigurationTypeToInstanceMap[type];
+                dependentConfigTypes.AddRange(dependentConfig.DependentConfigurationTypes);
+
+                this.ProcessSerializer(dependentConfig.SerializersToRegister, false);
             }
 
-            foreach (var dependentConfigurationType in this.DependentConfigurationTypes)
+            var serializers = (this.SerializersToRegister ?? new RegisteredStringSerializer[0]).ToList();
+            var handledTypes = this.ProcessSerializer(serializers);
+            var registrationDetails = new RegistrationDetails(this.GetType());
+
+            foreach (var handledType in handledTypes)
             {
-                var configuration = dependentConfigurationType.Construct<PropertyBagConfigurationBase>();
-                var mappingsFromDependent = configuration.BuildTypeToSerializerMap();
-                foreach (var mappingFromDependent in mappingsFromDependent)
+                this.MutableRegisteredTypeToDetailsMap.Add(handledType, registrationDetails);
+            }
+        }
+
+        private IReadOnlyCollection<Type> ProcessSerializer(IReadOnlyCollection<RegisteredStringSerializer> serializersToRegister, bool checkForAlreadyRegistered = true)
+        {
+            var handledTypes = serializersToRegister.SelectMany(_ => _.HandledTypes).ToList();
+
+            if (checkForAlreadyRegistered && this.RegisteredTypeToDetailsMap.Keys.Intersect(handledTypes).Any())
+            {
+                throw new DuplicateRegistrationException(
+                    Invariant($"Trying to register one or more types via {nameof(this.SerializersToRegister)} processing, but one is already registered."),
+                    handledTypes);
+            }
+
+            this.RegisteredSerializers.AddRange(serializersToRegister);
+
+            foreach (var registeredSerializer in serializersToRegister)
+            {
+                foreach (var handledType in handledTypes)
                 {
-                    var collision = ret.ContainsKey(mappingFromDependent.Key);
-                    if (collision && this.CollisionStrategy == TypeSerializationRegistrationCollisionStrategy.Throw)
+                    if (this.TypeToSerializerMap.ContainsKey(handledType))
                     {
-                        throw new PropertyBagConfigurationException(Invariant($"Dependent configuration type {dependentConfigurationType} tried to add mapping for {mappingFromDependent.Key} but it was already added by {nameof(this.CustomTypeToSerializerMappings)} or a prior dependent with strategy set to {this.CollisionStrategy}"));
-                    }
-                    else if (collision && this.CollisionStrategy == TypeSerializationRegistrationCollisionStrategy.FirstWins)
-                    {
-                        /* no-op */
-                    }
-                    else if (collision && this.CollisionStrategy == TypeSerializationRegistrationCollisionStrategy.LastWins)
-                    {
-                        ret[mappingFromDependent.Key] = mappingFromDependent.Value;
+                        if (checkForAlreadyRegistered)
+                        {
+                            throw new DuplicateRegistrationException(
+                                Invariant($"Type {handledType} is already registered."),
+                                new[] { handledType });
+                        }
                     }
                     else
                     {
-                        ret.Add(mappingFromDependent.Key, mappingFromDependent.Value);
+                        this.TypeToSerializerMap.Add(handledType, registeredSerializer.SerializerBuilderFunction());
                     }
                 }
             }
 
-            return ret;
+            return handledTypes;
         }
 
         /// <summary>
-        /// Build a map of types to serializers to consider for property serialization.
+        /// Gets the optional serializers to add.
         /// </summary>
-        /// <returns>Map of types to serializes to consider for property serialization.</returns>
-        protected virtual IReadOnlyDictionary<Type, IStringSerializeAndDeserialize> CustomTypeToSerializerMappings()
+        protected virtual IReadOnlyCollection<RegisteredStringSerializer> SerializersToRegister => new List<RegisteredStringSerializer>();
+
+        /// <summary>
+        /// Builds a map of type to serializer.
+        /// </summary>
+        /// <returns>Map of type to specific serializer.</returns>
+        public IReadOnlyDictionary<Type, IStringSerializeAndDeserialize> BuildConfiguredTypeToSerializerMap()
         {
-            return new Dictionary<Type, IStringSerializeAndDeserialize>();
+            return this.TypeToSerializerMap;
         }
     }
 

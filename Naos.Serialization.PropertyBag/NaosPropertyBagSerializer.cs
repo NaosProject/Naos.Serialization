@@ -80,12 +80,12 @@ namespace Naos.Serialization.PropertyBag
 
             this.ConfigurationType = configurationType ?? typeof(NullPropertyBagConfiguration);
 
-            this.configuration = this.ConfigurationType.Construct<PropertyBagConfigurationBase>();
+            this.configuration = SerializationConfigurationManager.ConfigureWithReturn<PropertyBagConfigurationBase>(this.ConfigurationType);
             this.dictionaryStringSerializer = new NaosDictionaryStringStringSerializer(
                 this.configuration.StringSerializationKeyValueDelimiter,
                 this.configuration.StringSerializationLineDelimiter,
                 this.configuration.StringSerializationNullValueEncoding);
-            this.configuredTypeToSerializerMap = this.configuration.BuildTypeToSerializerMap();
+            this.configuredTypeToSerializerMap = this.configuration.BuildConfiguredTypeToSerializerMap();
             this.cachedAttributeSerializerTypeToObjectMap = new Dictionary<Type, IStringSerializeAndDeserialize>();
         }
 

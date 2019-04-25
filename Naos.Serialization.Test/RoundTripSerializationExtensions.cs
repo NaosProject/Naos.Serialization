@@ -13,6 +13,7 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Bson;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
+    using Naos.Serialization.PropertyBag;
     using OBeautifulCode.Type;
     using OBeautifulCode.Validation.Recipes;
     using static System.FormattableString;
@@ -40,9 +41,11 @@ namespace Naos.Serialization.Test
             RoundtripSerializationCallback<T> validationCallback,
             Type jsonConfigType = null,
             Type bsonConfigType = null,
+            Type propBagConfigType = null,
             UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy = UnregisteredTypeEncounteredStrategy.Default,
             bool testBson = true,
-            bool testJson = true)
+            bool testJson = true,
+            bool testPropBag = false)
         {
             new { validationCallback }.Must().NotBeNull();
 
@@ -58,6 +61,12 @@ namespace Naos.Serialization.Test
             {
                 var bsonSerializer = new NaosBsonSerializer(bsonConfigType, unregisteredTypeEncounteredStrategy);
                 serializers.Add(bsonSerializer);
+            }
+
+            if (testPropBag)
+            {
+                var propBagSerializer = new NaosPropertyBagSerializer(propBagConfigType, unregisteredTypeEncounteredStrategy);
+                serializers.Add(propBagSerializer);
             }
 
             if (!serializers.Any())

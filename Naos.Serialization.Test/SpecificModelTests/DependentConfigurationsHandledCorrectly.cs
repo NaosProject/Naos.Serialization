@@ -17,6 +17,7 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Bson;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
+    using Naos.Serialization.PropertyBag;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using OBeautifulCode.Validation.Recipes;
@@ -34,6 +35,7 @@ namespace Naos.Serialization.Test
             // Arrange
             var bsonConfigType = typeof(BsonConfigA);
             var jsonConfigType = typeof(JsonConfigA);
+            var propBagConfigType = typeof(PropBagConfigA);
 
             var expected = A.Dummy<TestingDependentConfigAbstractTypeInheritor>();
 
@@ -44,7 +46,15 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType);
+            expected.RoundtripSerializeWithCallback(
+                ThrowIfObjectsDiffer,
+                jsonConfigType,
+                bsonConfigType,
+                propBagConfigType,
+                UnregisteredTypeEncounteredStrategy.Throw,
+                true,
+                true,
+                true);
         }
     }
 
@@ -60,6 +70,12 @@ namespace Naos.Serialization.Test
             new[] { typeof(BsonConfigB), typeof(BsonConfigC) };
     }
 
+    public class PropBagConfigA : PropertyBagConfigurationBase
+    {
+        public override IReadOnlyCollection<Type> DependentConfigurationTypes =>
+            new[] { typeof(PropBagConfigB), typeof(PropBagConfigC) };
+    }
+
     public class JsonConfigB : JsonConfigurationBase
     {
         public override IReadOnlyCollection<Type> DependentConfigurationTypes =>
@@ -70,6 +86,12 @@ namespace Naos.Serialization.Test
     {
         public override IReadOnlyCollection<Type> DependentConfigurationTypes =>
             new[] { typeof(BsonConfigC) };
+    }
+
+    public class PropBagConfigB : PropertyBagConfigurationBase
+    {
+        public override IReadOnlyCollection<Type> DependentConfigurationTypes =>
+            new[] { typeof(PropBagConfigC) };
     }
 
     public class JsonConfigC : JsonConfigurationBase
@@ -187,6 +209,63 @@ namespace Naos.Serialization.Test
             context.Reader.ReadEndDocument();
 
             return result;
+        }
+    }
+
+    public class PropBagConfigC : PropertyBagConfigurationBase
+    {
+        protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery =>
+            new[] { typeof(TestingDependentConfigAbstractType) };
+
+        protected override IReadOnlyCollection<RegisteredStringSerializer> SerializersToRegister => new[]
+        {
+            new RegisteredStringSerializer(
+                () => new TestingDependentPropBagSerializer(),
+                new[] { typeof(TestingDependentConfigType) }),
+        };
+    }
+
+    public class TestingDependentPropBagSerializer : IStringSerializeAndDeserialize
+    {
+        public Type ConfigurationType => typeof(NullPropertyBagConfiguration);
+
+        public string SerializeToString(object objectToSerialize)
+        {
+            if (objectToSerialize == null)
+            {
+                return null;
+            }
+            else if (objectToSerialize.GetType() != typeof(TestingDependentConfigType))
+            {
+                throw new NotSupportedException(Invariant($"Type: {objectToSerialize.GetType()} is not supported by this serializer: {this.GetType()}.  Confirm your configuration is correct."));
+            }
+            else
+            {
+                return ((TestingDependentConfigType)objectToSerialize).SomeValue;
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.Convert.ChangeType(System.Object,System.Type)", Justification = "This isn't real.")]
+        public T Deserialize<T>(string serializedString)
+        {
+            var result = this.Deserialize(serializedString, typeof(T));
+            return (T)Convert.ChangeType(result, typeof(T));
+        }
+
+        public object Deserialize(string serializedString, Type type)
+        {
+            if (type != typeof(TestingDependentConfigType))
+            {
+                throw new NotSupportedException(Invariant($"Type: {type} is not supported by this serializer: {this.GetType()}.  Confirm your configuration is correct."));
+            }
+            else if (serializedString == null)
+            {
+                return null;
+            }
+            else
+            {
+                return new TestingDependentConfigType { SomeValue = serializedString };
+            }
         }
     }
 

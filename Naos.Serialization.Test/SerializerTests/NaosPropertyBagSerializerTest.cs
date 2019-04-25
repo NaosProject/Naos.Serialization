@@ -241,10 +241,11 @@ namespace Naos.Serialization.Test
 
         private class PropertyBagConfigDepend : PropertyBagConfigurationBase
         {
-            protected override IReadOnlyDictionary<Type, IStringSerializeAndDeserialize> CustomTypeToSerializerMappings()
-            {
-                return new Dictionary<Type, IStringSerializeAndDeserialize> { { typeof(string), new CustomStringSerializer() } };
-            }
+            protected override IReadOnlyCollection<RegisteredStringSerializer> SerializersToRegister =>
+                new[]
+                {
+                    new RegisteredStringSerializer(() => new CustomStringSerializer(), new[] { typeof(string) }),
+                };
         }
 
         private class StringProperty

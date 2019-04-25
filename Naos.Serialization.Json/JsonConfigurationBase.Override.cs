@@ -58,7 +58,6 @@ namespace Naos.Serialization.Json
                     handledTypes);
             }
 
-            // TODO: how do we check the scenario above to ensure we do not double register converters
             this.RegisteredConverters.AddRange(registeredConverters);
             this.TypesWithConverters.AddRange(handledTypes);
             this.TypesWithStringConverters.AddRange(

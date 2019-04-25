@@ -242,7 +242,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType, UnregisteredTypeEncounteredStrategy.Attempt);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType, unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt);
         }
 
         [Fact]
@@ -301,7 +301,7 @@ namespace Naos.Serialization.Test
             }
 
             // Act & Assert
-            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType, UnregisteredTypeEncounteredStrategy.Attempt);
+            expected.RoundtripSerializeWithCallback(ThrowIfObjectsDiffer, jsonConfigType, bsonConfigType, unregisteredTypeEncounteredStrategy: UnregisteredTypeEncounteredStrategy.Attempt);
         }
 
         [Fact]
