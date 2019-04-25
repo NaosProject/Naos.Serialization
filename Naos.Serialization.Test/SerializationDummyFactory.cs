@@ -39,6 +39,7 @@ namespace Naos.Serialization.Recipes
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(RegisteredJsonConverterOutputKind.Unknown);
 
             #if NaosSerializationDomainTest
+            AutoFixtureBackedDummyFactory.UseRandomConcreteSubclassForDummy<Naos.Serialization.Test.KeyOrValueObjectHierarchyBase>();
             AutoFixtureBackedDummyFactory.UseRandomConcreteSubclassForDummy<Naos.Serialization.Test.TestBase>();
             #endif
         }

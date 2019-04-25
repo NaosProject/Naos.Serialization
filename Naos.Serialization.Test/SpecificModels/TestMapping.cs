@@ -127,130 +127,6 @@ namespace Naos.Serialization.Test
         public IEnumerable<AnotherEnumeration> EnumerableOfEnum { get; set; }
     }
 
-    public class TestDictionaryFields
-    {
-        //add datetime key, guid
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public Dictionary<string, string> DictionaryStringString { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public IDictionary<string, string> IDictionaryStringString { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ReadOnlyDictionary<string, string> ReadOnlyDictionaryStringString { get; set; }
-
-        public IReadOnlyDictionary<string, string> IReadOnlyDictionaryStringString { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ConcurrentDictionary<string, string> ConcurrentDictionaryStringString { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ReadOnlyDictionary<string, int> ReadOnlyDictionaryStringInt { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ReadOnlyDictionary<int, string> ReadOnlyDictionaryIntString { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public IDictionary<AnotherEnumeration, string> IDictionaryEnumString { get; set; }
-    }
-
-    public class TestDictionaryMixedKeyValues
-    {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public Dictionary<TestBase, string> DictionaryBaseString { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public IDictionary<TestBase, string> IDictionaryBaseString { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ReadOnlyDictionary<TestBase, string> ReadOnlyDictionaryBaseString { get; set; }
-
-        public IReadOnlyDictionary<TestBase, string> IReadOnlyDictionaryBaseString { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ConcurrentDictionary<TestBase, string> ConcurrentDictionaryBaseString { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public Dictionary<string, ClassWithPrivateSetter> DictionaryStringConstructor { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public IDictionary<string, ClassWithPrivateSetter> IDictionaryStringConstructor { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ReadOnlyDictionary<string, ClassWithPrivateSetter> ReadOnlyDictionaryStringConstructor { get; set; }
-
-        public IReadOnlyDictionary<string, ClassWithPrivateSetter> IReadOnlyDictionaryStringConstructor { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ConcurrentDictionary<string, ClassWithPrivateSetter> ConcurrentDictionaryStringConstructor { get; set; }
-        
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public Dictionary<ClassWithPrivateSetter, AnotherEnumeration> DictionaryConstructorEnum { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public IDictionary<ClassWithPrivateSetter, AnotherEnumeration> IDictionaryConstructorEnum { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ReadOnlyDictionary<ClassWithPrivateSetter, AnotherEnumeration> ReadOnlyDictionaryConstructorEnum { get; set; }
-
-        public IReadOnlyDictionary<ClassWithPrivateSetter, AnotherEnumeration> IReadOnlyDictionaryConstructorEnum { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ConcurrentDictionary<ClassWithPrivateSetter, AnotherEnumeration> ConcurrentDictionaryConstructorEnum { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public Dictionary<AnotherEnumeration, TestBase> DictionaryEnumBase { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public IDictionary<AnotherEnumeration, TestBase> IDictionaryEnumBase { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ReadOnlyDictionary<AnotherEnumeration, TestBase> ReadOnlyDictionaryEnumBase { get; set; }
-
-        public IReadOnlyDictionary<AnotherEnumeration, TestBase> IReadOnlyDictionaryEnumBase { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ConcurrentDictionary<AnotherEnumeration, TestBase> ConcurrentDictionaryEnumBase { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public Dictionary<int, VanillaClass> DictionaryIntPoco { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public IDictionary<int, VanillaClass> IDictionaryIntPoco { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ReadOnlyDictionary<int, VanillaClass> ReadOnlyDictionaryIntPoco { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
-        public IReadOnlyDictionary<int, VanillaClass> IReadOnlyDictionaryIntPoco { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ConcurrentDictionary<int, VanillaClass> ConcurrentDictionaryIntPoco { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public Dictionary<VanillaClass, int> DictionaryPocoInt { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public IDictionary<VanillaClass, int> IDictionaryPocoInt { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ReadOnlyDictionary<VanillaClass, int> ReadOnlyDictionaryPocoInt { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
-        public IReadOnlyDictionary<VanillaClass, int> IReadOnlyDictionaryPocoInt { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Poco", Justification = "Name/spelling is correct.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public ConcurrentDictionary<VanillaClass, int> ConcurrentDictionaryPocoInt { get; set; }
-    }
-
     public class TestCollectionFields
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
@@ -274,13 +150,6 @@ namespace Naos.Serialization.Test
         public Collection<Guid> CollectionGuid { get; set; }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "Just need a type to test.")]
-    public class TestWithDictionaryKeyedOnEnum
-    {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Just need a type to test.")]
-        public IDictionary<TestEnumeration, string> TestDictionary { get; set; }
-    }
-
     public class TestWithReadOnlyCollectionOfBaseClass
     {
         public IReadOnlyCollection<TestBase> TestCollection { get; set; }
@@ -290,19 +159,9 @@ namespace Naos.Serialization.Test
         public TestImplementationTwo RootTwo { get; set; }
     }
 
-    public class TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums
-    {
-        public IReadOnlyDictionary<TestEnumeration, IReadOnlyCollection<AnotherEnumeration>> TestDictionary { get; set; }
-    }
-
     public class TestWithReadOnlyCollectionOfBaseClassConfig : BsonConfigurationBase
     {
         protected override IReadOnlyCollection<Type> ClassTypesToRegisterAlongWithInheritors => new[] { typeof(TestBase), typeof(TestWithReadOnlyCollectionOfBaseClass) };
-    }
-
-    public class TestWithDictionaryOfEnumToReadOnlyCollectionOfEnumsConfig : BsonConfigurationBase
-    {
-        protected override IReadOnlyCollection<Type> ClassTypesToRegisterAlongWithInheritors => new[] { typeof(TestWithDictionaryOfEnumToReadOnlyCollectionOfEnums) };
     }
 
     public abstract class TestBase

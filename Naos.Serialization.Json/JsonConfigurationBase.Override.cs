@@ -24,14 +24,6 @@ namespace Naos.Serialization.Json
         /// <inheritdoc />
         protected sealed override void InternalConfigure()
         {
-            // TODO: depdendentA <- dependentC
-            //       depdendentB <- dependentC
-            // Both A & B will publish the converters from C
-
-            // A <- B <- C.ConverterB
-            // C.ConverterB
-            // B.ConverterB
-
             var dependentConfigTypes = new List<Type>(this.DependentConfigurationTypes.Reverse());
             while (dependentConfigTypes.Any())
             {
@@ -42,6 +34,7 @@ namespace Naos.Serialization.Json
                 dependentConfigTypes.AddRange(dependentConfig.DependentConfigurationTypes);
 
                 this.ProcessConverter(dependentConfig.RegisteredConverters, false);
+                this.ProcessInheritedTypeConverterTypes(dependentConfig.RegisteredTypeToDetailsMap.Keys.ToList());
             }
 
             var converters = (this.ConvertersToRegister ?? new RegisteredJsonConverter[0]).ToList();
@@ -61,8 +54,7 @@ namespace Naos.Serialization.Json
             if (checkForAlreadyRegistered && this.RegisteredTypeToDetailsMap.Keys.Intersect(handledTypes).Any())
             {
                 throw new DuplicateRegistrationException(
-                    Invariant(
-                        $"Trying to register one or more types via {nameof(this.ConvertersToRegister)} processing, but one is already registered."),
+                    Invariant($"Trying to register one or more types via {nameof(this.ConvertersToRegister)} processing, but one is already registered."),
                     handledTypes);
             }
 
@@ -85,6 +77,11 @@ namespace Naos.Serialization.Json
             var discoveredRegistrationDetails = new RegistrationDetails(this.GetType());
             this.MutableRegisteredTypeToDetailsMap.AddRange(types.ToDictionary(k => k, v => discoveredRegistrationDetails));
 
+            this.ProcessInheritedTypeConverterTypes(types);
+        }
+
+        private void ProcessInheritedTypeConverterTypes(IReadOnlyCollection<Type> types)
+        {
             var inheritedTypeConverterTypes = types.Where(t =>
                 !InheritedTypeConverterBlackList.Contains(t) &&
                 (t.IsAbstract || t.IsInterface || types.Any(a => a != t && (t.IsAssignableTo(a) || a.IsAssignableTo(t))))).Distinct().ToList();

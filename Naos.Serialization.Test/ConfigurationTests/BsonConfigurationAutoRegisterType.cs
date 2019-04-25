@@ -40,6 +40,11 @@ namespace Naos.Serialization.Test
         }
     }
 
+    public class DependsOnCustomThrowsConfig : BsonConfigurationBase
+    {
+        public override IReadOnlyCollection<Type> DependentConfigurationTypes => new[] { typeof(CustomThrowsConfig) };
+    }
+
     public class CustomThrowsConfig : BsonConfigurationBase
     {
         /// <summary>
@@ -61,6 +66,17 @@ namespace Naos.Serialization.Test
         }
     }
 
+    public class TestVariousTypeOverloadsConfig : BsonConfigurationBase
+    {
+        protected override IReadOnlyCollection<Type> ClassTypesToRegister => new[] { typeof(TestConfigureActionSingle) };
+
+        protected override IReadOnlyCollection<Type> TypesToAutoRegister => new[] { typeof(ITestConfigureActionFromAuto), typeof(TestConfigureActionBaseFromAuto) };
+
+        protected override IReadOnlyCollection<Type> ClassTypesToRegisterAlongWithInheritors => new[] { typeof(TestConfigureActionBaseFromSub) };
+
+        protected override IReadOnlyCollection<Type> InterfaceTypesToRegisterImplementationOf => new[] { typeof(ITestConfigureActionFromInterface) };
+    }
+
     public class TestConfigWithSettableFields : BsonConfigurationBase
     {
 #pragma warning disable SA1401 // Fields should be private
@@ -76,9 +92,6 @@ namespace Naos.Serialization.Test
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "For testing.")]
         public IReadOnlyCollection<Type> SettableInterfaceTypesToRegisterImplementationOf = new Type[0];
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "For testing.")]
-        public IReadOnlyCollection<Type> SettableDependentConfigurationTypes = new Type[0];
-
 #pragma warning restore SA1401 // Fields should be private
 
         protected override IReadOnlyCollection<Type> ClassTypesToRegister => this.SettableClassTypesToRegister;
@@ -88,8 +101,6 @@ namespace Naos.Serialization.Test
         protected override IReadOnlyCollection<Type> ClassTypesToRegisterAlongWithInheritors => this.SettableClassTypesToRegisterAlongWithInheritors;
 
         protected override IReadOnlyCollection<Type> InterfaceTypesToRegisterImplementationOf => this.SettableInterfaceTypesToRegisterImplementationOf;
-
-        public override IReadOnlyCollection<Type> DependentConfigurationTypes => this.SettableDependentConfigurationTypes;
     }
 
     public class InvestigationConfiguration : BsonConfigurationBase

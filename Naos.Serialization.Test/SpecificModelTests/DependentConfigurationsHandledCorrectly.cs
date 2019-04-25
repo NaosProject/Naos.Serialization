@@ -35,11 +35,12 @@ namespace Naos.Serialization.Test
             var bsonConfigType = typeof(BsonConfigA);
             var jsonConfigType = typeof(JsonConfigA);
 
-            var expected = A.Dummy<TestingDependentConfigType>();
+            var expected = A.Dummy<TestingDependentConfigAbstractTypeInheritor>();
 
-            void ThrowIfObjectsDiffer(DescribedSerialization serialized, TestingDependentConfigType deserialized)
+            void ThrowIfObjectsDiffer(DescribedSerialization serialized, TestingDependentConfigAbstractTypeInheritor deserialized)
             {
                 deserialized.Should().NotBeNull();
+                deserialized.Property.SomeValue.Should().Be(expected.Property.SomeValue);
             }
 
             // Act & Assert
@@ -73,6 +74,9 @@ namespace Naos.Serialization.Test
 
     public class JsonConfigC : JsonConfigurationBase
     {
+        protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery =>
+            new[] { typeof(TestingDependentConfigAbstractType) };
+
         protected override IReadOnlyCollection<RegisteredJsonConverter> ConvertersToRegister => new[]
         {
             new RegisteredJsonConverter(
@@ -136,6 +140,9 @@ namespace Naos.Serialization.Test
 
     public class BsonConfigC : BsonConfigurationBase
     {
+        protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery =>
+            new[] { typeof(TestingDependentConfigAbstractType) };
+
         protected override IReadOnlyCollection<RegisteredBsonSerializer> SerializersToRegister => new[]
         {
             new RegisteredBsonSerializer(
@@ -186,5 +193,14 @@ namespace Naos.Serialization.Test
     public class TestingDependentConfigType
     {
         public string SomeValue { get; set; }
+    }
+
+    public abstract class TestingDependentConfigAbstractType
+    {
+        public TestingDependentConfigType Property { get; set; }
+    }
+
+    public class TestingDependentConfigAbstractTypeInheritor : TestingDependentConfigAbstractType
+    {
     }
 }

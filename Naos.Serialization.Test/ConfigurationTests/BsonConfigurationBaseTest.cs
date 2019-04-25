@@ -145,16 +145,11 @@ namespace Naos.Serialization.Test
                                         typeof(TestConfigureActionFromInterface),
                                         typeof(TestConfigureActionBaseFromAuto), typeof(TestConfigureActionInheritedAuto), typeof(TestConfigureActionFromAuto),
                                     };
-            var config = new TestConfigWithSettableFields
-                             {
-                                 SettableClassTypesToRegisterAlongWithInheritors = new[] { typeof(TestConfigureActionBaseFromSub) },
-                                 SettableClassTypesToRegister = new[] { typeof(TestConfigureActionSingle) },
-                                 SettableInterfaceTypesToRegisterImplementationOf = new[] { typeof(ITestConfigureActionFromInterface) },
-                                 SettableTypesToAutoRegister = new[] { typeof(ITestConfigureActionFromAuto), typeof(TestConfigureActionBaseFromAuto) },
-                             };
+
+            var configType = typeof(TestVariousTypeOverloadsConfig);
 
             // Act
-            config.Configure(new Dictionary<Type, SerializationConfigurationBase>());
+            var config = SerializationConfigurationManager.ConfigureWithReturn<SerializationConfigurationBase>(configType);
 
             // Assert
             config.RegisteredTypeToDetailsMap.Keys.Intersect(expectedTypes).Should().BeEquivalentTo(expectedTypes);
@@ -164,12 +159,7 @@ namespace Naos.Serialization.Test
         [Fact]
         public static void Configure___Provided_with_dependent_configs___Configures_dependents()
         {
-            var config = new TestConfigWithSettableFields
-                             {
-                                 SettableDependentConfigurationTypes = new[] { typeof(CustomThrowsConfig) },
-                             };
-
-            Action action = () => config.Configure(new Dictionary<Type, SerializationConfigurationBase>());
+            Action action = SerializationConfigurationManager.Configure<DependsOnCustomThrowsConfig>;
 
             // Act
             var exception = Record.Exception(action);
@@ -189,31 +179,15 @@ namespace Naos.Serialization.Test
         [Fact]
         public static void AllTrackedTypeContainers___Post_registration___Returns_fully_loaded_set()
         {
+            // Arrange
             var testType = typeof(TestTracking);
-            var configOne = new TestConfigWithSettableFields
-                             {
-                                 SettableTypesToAutoRegister = new[] { testType },
-                             };
-
-            var configTwo = new TestConfigWithSettableFields
-                             {
-                                 SettableTypesToAutoRegister = new[] { testType },
-                             };
-
-            configOne.Configure(new Dictionary<Type, SerializationConfigurationBase>());
-            configTwo.Configure(new Dictionary<Type, SerializationConfigurationBase>());
+            var configType = typeof(GenericDiscoveryBsonConfiguration<TestTracking>);
 
             // Act
-            var trackedContainersOne = configOne.RegisteredTypeToDetailsMap.Keys;
-            var trackedContainersTwo = configTwo.RegisteredTypeToDetailsMap.Keys;
+            var config = SerializationConfigurationManager.ConfigureWithReturn<BsonConfigurationBase>(configType);
 
             // Assert
-            trackedContainersTwo.Should().Equal(trackedContainersOne);
-            var trackedContainer = trackedContainersOne.Single(_ => _ == testType);
-            trackedContainer.Should().NotBeNull();
-            //var skipped = trackedContainer.Skipped.Single();
-            //skipped.Should().NotBeNull();
-            //skipped.CallingType.Should().Be(configTwo.GetType());
+            config.RegisteredTypeToDetailsMap.Keys.Should().Contain(testType);
         }
 
         private static BsonClassMap RunTestCode(object configuration)
