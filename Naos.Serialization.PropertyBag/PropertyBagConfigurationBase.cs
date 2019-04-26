@@ -69,7 +69,7 @@ namespace Naos.Serialization.PropertyBag
                 var dependentConfig = (PropertyBagConfigurationBase)this.DependentConfigurationTypeToInstanceMap[type];
                 dependentConfigTypes.AddRange(dependentConfig.DependentConfigurationTypes);
 
-                this.ProcessSerializer(dependentConfig.SerializersToRegister, false);
+                this.ProcessSerializer(dependentConfig.RegisteredSerializers, false);
             }
 
             var serializers = (this.SerializersToRegister ?? new RegisteredStringSerializer[0]).ToList();
@@ -82,9 +82,9 @@ namespace Naos.Serialization.PropertyBag
             }
         }
 
-        private IReadOnlyCollection<Type> ProcessSerializer(IReadOnlyCollection<RegisteredStringSerializer> serializersToRegister, bool checkForAlreadyRegistered = true)
+        private IReadOnlyCollection<Type> ProcessSerializer(IList<RegisteredStringSerializer> registeredSerializers, bool checkForAlreadyRegistered = true)
         {
-            var handledTypes = serializersToRegister.SelectMany(_ => _.HandledTypes).ToList();
+            var handledTypes = registeredSerializers.SelectMany(_ => _.HandledTypes).ToList();
 
             if (checkForAlreadyRegistered && this.RegisteredTypeToDetailsMap.Keys.Intersect(handledTypes).Any())
             {
@@ -93,11 +93,11 @@ namespace Naos.Serialization.PropertyBag
                     handledTypes);
             }
 
-            this.RegisteredSerializers.AddRange(serializersToRegister);
+            this.RegisteredSerializers.AddRange(registeredSerializers);
 
-            foreach (var registeredSerializer in serializersToRegister)
+            foreach (var registeredSerializer in registeredSerializers)
             {
-                foreach (var handledType in handledTypes)
+                foreach (var handledType in registeredSerializer.HandledTypes)
                 {
                     if (this.TypeToSerializerMap.ContainsKey(handledType))
                     {

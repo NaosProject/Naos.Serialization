@@ -22,7 +22,7 @@ namespace Naos.Serialization.Domain
         /// <param name="handledTypes"><see cref="Type" />'s handled by this converter.</param>
         public RegisteredStringSerializer(Func<IStringSerializeAndDeserialize> serializerBuilderFunction, IReadOnlyCollection<Type> handledTypes)
         {
-            new { converterBuilderFunction = serializerBuilderFunction }.Must().NotBeNull();
+            new { serializerBuilderFunction }.Must().NotBeNull();
             new { handledTypes }.Must().NotBeNull().And().NotBeEmptyEnumerable();
 
             this.SerializerBuilderFunction = serializerBuilderFunction;
