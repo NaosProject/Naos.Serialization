@@ -105,7 +105,7 @@ namespace Naos.Serialization.Domain
                 var rogueDependents = allDependentTypes.Where(_ => _.GetInheritorOfSerializationBase() != configInheritor).ToList();
                 if (rogueDependents.Any())
                 {
-                    throw new InvalidOperationException(Invariant($"Configuration {configurationType} has {nameof(instance.DependentConfigurationTypes)} ({string.Join(",", rogueDependents)}) that do not share the same first layer of inheritance {configInheritor}"));
+                    throw new InvalidOperationException(Invariant($"Configuration {configurationType} has {nameof(instance.DependentConfigurationTypes)} ({string.Join(",", rogueDependents)}) that do not share the same first layer of inheritance {configInheritor}."));
                 }
 
                 foreach (var dependentType in allDependentTypes)
@@ -128,7 +128,7 @@ namespace Naos.Serialization.Domain
         private static Type GetInheritorOfSerializationBase(this Type configurationType)
         {
             var type = configurationType.BaseType;
-            while (type != null && type.BaseType != null && type.BaseType.BaseType != typeof(SerializationConfigurationBase))
+            while (type != null && type.BaseType != null && type.BaseType != typeof(SerializationConfigurationBase))
             {
                 type = type.BaseType;
             }
@@ -136,7 +136,7 @@ namespace Naos.Serialization.Domain
             return
                       type != null
                    && type.BaseType != null
-                   && type.BaseType.BaseType == typeof(SerializationConfigurationBase)
+                   && type.BaseType == typeof(SerializationConfigurationBase)
                 ? type
                 : null;
         }

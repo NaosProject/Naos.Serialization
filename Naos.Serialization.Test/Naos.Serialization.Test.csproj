@@ -117,6 +117,7 @@
     <Compile Include="RoundtripSerializationExtensions.cs" />
     <Compile Include="SpecificModels\ITopInterface.cs" />
     <Compile Include="SpecificModels\Animal.cs" />
+    <Compile Include="SpecificModelTests\ConfirmSameInheritorsUsedForDependencies.cs" />
     <Compile Include="SpecificModelTests\NetDrawingTypeTests.cs" />
     <Compile Include="SpecificModelTests\DictionaryFlavorSupportTest.cs" />
     <Compile Include="SpecificModelTests\DependentConfigurationsHandledCorrectly.cs" />
