@@ -500,4 +500,17 @@ namespace Naos.Serialization.PropertyBag
             return allTypes;
         }
     }
+
+    /// <inheritdoc />
+    public sealed class NaosPropertyBagSerializer<TPropertyBagConfiguration> : NaosPropertyBagSerializer
+        where TPropertyBagConfiguration : PropertyBagConfigurationBase, new()
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NaosPropertyBagSerializer{TPropertyBagConfiguration}"/> class.
+        /// </summary>
+        public NaosPropertyBagSerializer()
+            : base(typeof(TPropertyBagConfiguration))
+        {
+        }
+    }
 }

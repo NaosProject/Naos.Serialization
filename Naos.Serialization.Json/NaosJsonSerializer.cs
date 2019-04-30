@@ -20,7 +20,7 @@ namespace Naos.Serialization.Json
     /// <summary>
     /// JSON serializer.
     /// </summary>
-    public sealed class NaosJsonSerializer : ISerializeAndDeserialize
+    public class NaosJsonSerializer : ISerializeAndDeserialize
     {
         /// <summary>
         /// Encoding to use for conversion in and out of bytes.
@@ -191,6 +191,19 @@ namespace Naos.Serialization.Json
             }
 
             return ret;
+        }
+    }
+
+    /// <inheritdoc />
+    public sealed class NaosJsonSerializer<TJsonConfiguration> : NaosJsonSerializer
+        where TJsonConfiguration : JsonConfigurationBase, new()
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NaosJsonSerializer{TJsonConfiguration}"/> class.
+        /// </summary>
+        public NaosJsonSerializer()
+            : base(typeof(TJsonConfiguration))
+        {
         }
     }
 }

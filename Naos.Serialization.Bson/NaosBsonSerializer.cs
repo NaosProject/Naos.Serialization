@@ -145,10 +145,7 @@ namespace Naos.Serialization.Bson
         }
     }
 
-    /// <summary>
-    /// Mongo BSON serializer with generic configuration type.
-    /// </summary>
-    /// <typeparam name="TBsonConfiguration">Type of <see cref="BsonConfigurationBase"/> to use (can use <see cref="NullBsonConfiguration"/> if none needed).</typeparam>
+    /// <inheritdoc />
     public sealed class NaosBsonSerializer<TBsonConfiguration> : NaosBsonSerializer
         where TBsonConfiguration : BsonConfigurationBase, new()
     {
