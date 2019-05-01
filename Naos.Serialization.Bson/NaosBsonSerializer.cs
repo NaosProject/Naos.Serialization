@@ -69,6 +69,11 @@ namespace Naos.Serialization.Bson
                 throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.SerializeToBytes)}({nameof(objectToSerialize)})' on unregistered type '{objectType.FullName}'"), objectType);
             }
 
+            if (objectToSerialize == null)
+            {
+                return null;
+            }
+
             return NaosBsonSerializerHelper.SerializeToBytes(objectToSerialize);
         }
 
@@ -80,6 +85,11 @@ namespace Naos.Serialization.Bson
                 !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
             {
                 throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}<T>({nameof(serializedBytes)})' on unregistered type '{objectType.FullName}'"), objectType);
+            }
+
+            if (serializedBytes == null)
+            {
+                return default(T);
             }
 
             return NaosBsonSerializerHelper.Deserialize<T>(serializedBytes);
@@ -94,6 +104,11 @@ namespace Naos.Serialization.Bson
                 !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(type))
             {
                 throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}({nameof(serializedBytes)}, {nameof(type)})' on unregistered type '{type.FullName}'"), type);
+            }
+
+            if (serializedBytes == null)
+            {
+                return null;
             }
 
             return NaosBsonSerializerHelper.Deserialize(serializedBytes, type);
@@ -137,7 +152,7 @@ namespace Naos.Serialization.Bson
 
             if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
             {
-                return default(T); // This should be null if this happened.
+                return default(T);
             }
 
             var document = serializedString.ToBsonDocument();

@@ -24,12 +24,15 @@ namespace Naos.Serialization.Test
 
             // Act
             var actualNullString = serializer.SerializeToString(null);
+            var actualNullBytes = serializer.SerializeToBytes(null);
             var actualStringException = Record.Exception(() => serializer.SerializeToString(SerializationConfigurationBase.NullSerializedStringValue));
-            var actualNull = serializer.Deserialize<NullableObject>(actualNullString);
+            var actualNullFromString = serializer.Deserialize<NullableObject>(actualNullString);
+            var actualNullFromBytes = serializer.Deserialize<NullableObject>(actualNullBytes);
 
             // Assert
             actualNullString.Should().Be(SerializationConfigurationBase.NullSerializedStringValue);
-            actualNull.Should().BeNull();
+            actualNullFromString.Should().BeNull();
+            actualNullFromBytes.Should().BeNull();
             actualStringException.Should().NotBeNull();
             actualStringException.Should().BeOfType<NotSupportedException>();
             actualStringException.Message.Should().Be("String is not supported as a type for this serializer.");
@@ -43,13 +46,16 @@ namespace Naos.Serialization.Test
 
             // Act
             var actualNullString = serializer.SerializeToString(null);
+            var actualNullBytes = serializer.SerializeToBytes(null);
             var actualString = serializer.SerializeToString(SerializationConfigurationBase.NullSerializedStringValue);
-            var actualNull = serializer.Deserialize<NullableObject>(actualNullString);
+            var actualNullFromString = serializer.Deserialize<NullableObject>(actualNullString);
+            var actualNullFromBytes = serializer.Deserialize<NullableObject>(actualNullBytes);
             var actual = serializer.Deserialize<string>(actualString);
 
             // Assert
             actualNullString.Should().Be(SerializationConfigurationBase.NullSerializedStringValue);
-            actualNull.Should().BeNull();
+            actualNullFromString.Should().BeNull();
+            actualNullFromBytes.Should().BeNull();
             actualString.Should().NotBe(SerializationConfigurationBase.NullSerializedStringValue);
             actual.Should().Be(SerializationConfigurationBase.NullSerializedStringValue);
         }
@@ -62,12 +68,15 @@ namespace Naos.Serialization.Test
 
             // Act
             var actualNullString = serializer.SerializeToString(null);
+            var actualNullBytes = serializer.SerializeToBytes(null);
             var actualStringException = Record.Exception(() => serializer.SerializeToString(SerializationConfigurationBase.NullSerializedStringValue));
-            var actualNull = serializer.Deserialize<NullableObject>(actualNullString);
+            var actualNullFromString = serializer.Deserialize<NullableObject>(actualNullString);
+            var actualNullFromBytes = serializer.Deserialize<NullableObject>(actualNullBytes);
 
             // Assert
             actualNullString.Should().Be(SerializationConfigurationBase.NullSerializedStringValue);
-            actualNull.Should().BeNull();
+            actualNullFromString.Should().BeNull();
+            actualNullFromBytes.Should().BeNull();
             actualStringException.Should().NotBeNull();
             actualStringException.Should().BeOfType<NotSupportedException>();
             actualStringException.Message.Should().Be("String is not supported as a type for this serializer.");
