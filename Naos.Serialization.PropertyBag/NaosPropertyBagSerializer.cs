@@ -147,11 +147,21 @@ namespace Naos.Serialization.PropertyBag
         public string SerializeToString(object objectToSerialize)
         {
             var objectType = objectToSerialize?.GetType();
+            if (objectType == typeof(string))
+            {
+                throw new NotSupportedException("String is not supported as a type for this serializer.");
+            }
+
             if (objectType != null &&
                 this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
                 !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
             {
                 throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.SerializeToString)}({nameof(objectToSerialize)})' on unregistered type '{objectType.FullName}'"), objectType);
+            }
+
+            if (objectToSerialize == null)
+            {
+                return SerializationConfigurationBase.NullSerializedStringValue;
             }
 
             var serializedObject = this.SerializeToPropertyBag(objectToSerialize);
@@ -170,6 +180,11 @@ namespace Naos.Serialization.PropertyBag
                 throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}<T>({nameof(serializedString)})' on unregistered type '{objectType.FullName}'"), objectType);
             }
 
+            if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
+            {
+                return default(T);
+            }
+
             var dictionary = this.dictionaryStringSerializer.DeserializeToDictionary(serializedString);
             var ret = this.Deserialize<T>(dictionary);
 
@@ -185,6 +200,11 @@ namespace Naos.Serialization.PropertyBag
                 !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(type))
             {
                 throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}({nameof(serializedString)}, {nameof(type)})' on unregistered type '{type.FullName}'"), type);
+            }
+
+            if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
+            {
+                return null;
             }
 
             var dictionary = this.dictionaryStringSerializer.DeserializeToDictionary(serializedString);
@@ -240,7 +260,7 @@ namespace Naos.Serialization.PropertyBag
 
             if (serializedPropertyBag == null)
             {
-                return null;
+                return SerializationConfigurationBase.NullSerializedStringValue;
             }
 
             if (!serializedPropertyBag.Any())
@@ -335,6 +355,11 @@ namespace Naos.Serialization.PropertyBag
         private object MakeObjectFromString(string serializedString, Type type, Type serializerType, Type elementSerializerType)
         {
             new { serializedString }.Must().NotBeNull();
+
+            if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
+            {
+                return null;
+            }
 
             if (this.configuredTypeToSerializerMap.ContainsKey(type))
             {

@@ -75,7 +75,7 @@ namespace Naos.Serialization.Domain
         {
             if (objectToSerialize == null)
             {
-                return null;
+                return SerializationConfigurationBase.NullSerializedStringValue;
             }
 
             var dictionary = objectToSerialize as IReadOnlyDictionary<string, string>;
@@ -93,7 +93,7 @@ namespace Naos.Serialization.Domain
         {
             if (dictionary == null)
             {
-                return null;
+                return SerializationConfigurationBase.NullSerializedStringValue;
             }
 
             if (!dictionary.Any())
@@ -129,7 +129,7 @@ namespace Naos.Serialization.Domain
         /// <inheritdoc />
         public T Deserialize<T>(string serializedString)
         {
-            if (serializedString == null)
+            if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
             {
                 return default(T);
             }
@@ -140,7 +140,7 @@ namespace Naos.Serialization.Domain
         /// <inheritdoc />
         public object Deserialize(string serializedString, Type type)
         {
-            if (serializedString == null)
+            if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
             {
                 return null;
             }

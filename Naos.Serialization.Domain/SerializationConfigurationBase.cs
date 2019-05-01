@@ -23,6 +23,11 @@ namespace Naos.Serialization.Domain
     public abstract class SerializationConfigurationBase
     {
         /// <summary>
+        /// The string representation of null.
+        /// </summary>
+        public const string NullSerializedStringValue = "null";
+
+        /// <summary>
         /// Binding flags used in <see cref="DiscoverAllContainedAssignableTypes"/> to reflect on a type.
         /// </summary>
         [SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "Name is correct.")]

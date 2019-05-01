@@ -103,11 +103,21 @@ namespace Naos.Serialization.Bson
         public string SerializeToString(object objectToSerialize)
         {
             var objectType = objectToSerialize?.GetType();
+            if (objectType == typeof(string))
+            {
+                throw new NotSupportedException("String is not supported as a type for this serializer.");
+            }
+
             if (objectType != null &&
                 this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
                 !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
             {
                 throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.SerializeToString)}({nameof(objectToSerialize)})' on unregistered type '{objectType.FullName}'"), objectType);
+            }
+
+            if (objectToSerialize == null)
+            {
+                return SerializationConfigurationBase.NullSerializedStringValue;
             }
 
             var document = NaosBsonSerializerHelper.SerializeToDocument(objectToSerialize);
@@ -125,6 +135,11 @@ namespace Naos.Serialization.Bson
                 throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}<T>({nameof(serializedString)})' on unregistered type '{objectType.FullName}'"), objectType);
             }
 
+            if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
+            {
+                return default(T); // This should be null if this happened.
+            }
+
             var document = serializedString.ToBsonDocument();
             return NaosBsonSerializerHelper.DeserializeFromDocument<T>(document);
         }
@@ -138,6 +153,11 @@ namespace Naos.Serialization.Bson
                 !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(type))
             {
                 throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}({nameof(serializedString)}, {nameof(type)})' on unregistered type '{type.FullName}'"), type);
+            }
+
+            if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
+            {
+                return null;
             }
 
             var document = serializedString.ToBsonDocument();
