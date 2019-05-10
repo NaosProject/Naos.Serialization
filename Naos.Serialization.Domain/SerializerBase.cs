@@ -86,9 +86,12 @@ namespace Naos.Serialization.Domain
         /// <param name="type">Type to check.</param>
         protected void ThrowOnUnregisteredTypeIfAppropriate(Type type)
         {
-            new { type }.Must().NotBeNull();
-
-            if (type.IsGenericType && (type.Namespace?.StartsWith(nameof(System), StringComparison.Ordinal) ?? false))
+            if (type == null)
+            {
+                // this must be supported for serializing null.
+                return;
+            }
+            else if (type.IsGenericType && (type.Namespace?.StartsWith(nameof(System), StringComparison.Ordinal) ?? false))
             {
                 // this is for lists, dictionaries, and such.
                 foreach (var genericArgumentType in type.GetGenericArguments())
