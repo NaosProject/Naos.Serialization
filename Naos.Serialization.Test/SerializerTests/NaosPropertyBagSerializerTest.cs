@@ -35,7 +35,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Parameter 'Configuration type - System.String - must derive from PropertyBagConfigurationBase.' is not true.  Parameter value is 'False'.");
+            exception.Message.Should().Be("Parameter 'typeMustBeSubclassOfNaos.Serialization.Domain.SerializationConfigurationBase' is not true.  Parameter value is 'False'.");
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "RoundTrip", Justification = "Name/spelling is correct.")]

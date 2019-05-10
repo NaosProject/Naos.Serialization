@@ -145,7 +145,7 @@ namespace Naos.Serialization.PropertyBag
     /// <summary>
     /// Null implementation of <see cref="PropertyBagConfigurationBase"/>.
     /// </summary>
-    public sealed class NullPropertyBagConfiguration : PropertyBagConfigurationBase
+    public sealed class NullPropertyBagConfiguration : PropertyBagConfigurationBase, IImplementNullObjectPattern
     {
     }
 

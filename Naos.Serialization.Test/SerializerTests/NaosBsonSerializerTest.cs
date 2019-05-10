@@ -33,14 +33,17 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Parameter 'Configuration type - System.String - must derive from BsonConfigurationBase.' is not true.  Parameter value is 'False'.");
+            exception.Message.Should().Be("Parameter 'typeMustBeSubclassOfNaos.Serialization.Domain.SerializationConfigurationBase' is not true.  Parameter value is 'False'.");
         }
 
         [Fact]
         public static void Constructor___Type_without_default_constructor___Throws()
         {
             // Arrange
-            Action action = () => new NaosBsonSerializer(typeof(CustomNoPublicConstructor));
+            Action action = () =>
+            {
+                new NaosBsonSerializer(typeof(CustomNoPublicConstructor));
+            };
 
             // Act
             var exception = Record.Exception(action);
@@ -48,7 +51,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Parameter 'configurationType must contain a default constructor to use in NaosBsonSerializer.' is not true.  Parameter value is 'False'.");
+            exception.Message.Should().Be("Parameter 'typeHasParameterLessConstructor' is not true.  Parameter value is 'False'.");
         }
     }
 }

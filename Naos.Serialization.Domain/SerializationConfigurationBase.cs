@@ -409,7 +409,7 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Null implementation of <see cref="SerializationConfigurationBase"/>.
     /// </summary>
-    public sealed class NullSerializationConfiguration : SerializationConfigurationBase
+    public sealed class NullSerializationConfiguration : SerializationConfigurationBase, IImplementNullObjectPattern
     {
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
@@ -428,7 +428,7 @@ namespace Naos.Serialization.Domain
     /// <summary>
     /// Internal implementation of <see cref="SerializationConfigurationBase" /> that will auto register necessary internal types.
     /// </summary>
-    public sealed class InternalNullDiscoveryConfiguration : SerializationConfigurationBase, IDoNotNeedInternalDependencies
+    public sealed class InternalNullDiscoveryConfiguration : SerializationConfigurationBase, IDoNotNeedInternalDependencies, IImplementNullObjectPattern
     {
         /// <inheritdoc />
         protected override void RegisterTypes(IReadOnlyCollection<Type> types)
@@ -451,7 +451,7 @@ namespace Naos.Serialization.Domain
     /// Generic implementation of <see cref="SerializationConfigurationBase" /> that will perform discovery using type <typeparamref name="T" />.
     /// </summary>
     /// <typeparam name="T">Type to use for discovery.</typeparam>
-    public sealed class NullDiscoverySerializationConfiguration<T> : SerializationConfigurationBase
+    public sealed class NullDiscoverySerializationConfiguration<T> : SerializationConfigurationBase, IImplementNullObjectPattern
     {
         /// <inheritdoc />
         protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new[] { typeof(T) };
@@ -475,7 +475,7 @@ namespace Naos.Serialization.Domain
     /// </summary>
     /// <typeparam name="T1">Type one to use for discovery.</typeparam>
     /// <typeparam name="T2">Type two to use for discovery.</typeparam>
-    public sealed class NullDiscoverySerializationConfiguration<T1, T2> : SerializationConfigurationBase
+    public sealed class NullDiscoverySerializationConfiguration<T1, T2> : SerializationConfigurationBase, IImplementNullObjectPattern
     {
         /// <inheritdoc />
         protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => new[] { typeof(T1), typeof(T2) };

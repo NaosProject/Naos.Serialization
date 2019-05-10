@@ -354,7 +354,7 @@ namespace Naos.Serialization.Bson
     /// <summary>
     /// Null implementation of <see cref="BsonConfigurationBase"/>.
     /// </summary>
-    public sealed class NullBsonConfiguration : BsonConfigurationBase
+    public sealed class NullBsonConfiguration : BsonConfigurationBase, IImplementNullObjectPattern
     {
     }
 }

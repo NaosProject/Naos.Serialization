@@ -27,7 +27,7 @@ namespace Naos.Serialization.PropertyBag
     /// Serializer for moving in and out of a <see cref="Dictionary{TKey,TValue} "/> for string, string.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "This is not a problem.")]
-    public class NaosPropertyBagSerializer : ISerializeAndDeserialize, IPropertyBagSerializeAndDeserialize
+    public class NaosPropertyBagSerializer : SerializerBase, IPropertyBagSerializeAndDeserialize
     {
         /// <summary>
         /// Reserved key for storing <see cref="Type.FullName" />.
@@ -51,9 +51,7 @@ namespace Naos.Serialization.PropertyBag
 
         private readonly Dictionary<Type, IStringSerializeAndDeserialize> cachedAttributeSerializerTypeToObjectMap;
 
-        private readonly UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy;
-
-        private readonly PropertyBagConfigurationBase configuration;
+        private readonly PropertyBagConfigurationBase propertyBagConfiguration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NaosPropertyBagSerializer"/> class.
@@ -61,13 +59,8 @@ namespace Naos.Serialization.PropertyBag
         /// <param name="configurationType">Type of configuration to use.</param>
         /// <param name="unregisteredTypeEncounteredStrategy">Optional strategy of what to do when encountering a type that has never been registered; DEFAULT is <see cref="UnregisteredTypeEncounteredStrategy.Throw" />.</param>
         public NaosPropertyBagSerializer(Type configurationType = null, UnregisteredTypeEncounteredStrategy unregisteredTypeEncounteredStrategy = UnregisteredTypeEncounteredStrategy.Default)
+            : base(configurationType ?? typeof(NullPropertyBagConfiguration), unregisteredTypeEncounteredStrategy)
         {
-            this.unregisteredTypeEncounteredStrategy =
-                (unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Default && configurationType != null) ||
-                unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw
-                    ? UnregisteredTypeEncounteredStrategy.Throw
-                    : UnregisteredTypeEncounteredStrategy.Attempt;
-
             if (configurationType != null)
             {
                 configurationType.IsSubclassOf(typeof(PropertyBagConfigurationBase)).Named(
@@ -78,22 +71,17 @@ namespace Naos.Serialization.PropertyBag
                     .BeTrue();
             }
 
-            this.ConfigurationType = configurationType ?? typeof(NullPropertyBagConfiguration);
-
-            this.configuration = SerializationConfigurationManager.ConfigureWithReturn<PropertyBagConfigurationBase>(this.ConfigurationType);
+            this.propertyBagConfiguration = (PropertyBagConfigurationBase)this.configuration;
             this.dictionaryStringSerializer = new NaosDictionaryStringStringSerializer(
-                this.configuration.StringSerializationKeyValueDelimiter,
-                this.configuration.StringSerializationLineDelimiter,
-                this.configuration.StringSerializationNullValueEncoding);
-            this.configuredTypeToSerializerMap = this.configuration.BuildConfiguredTypeToSerializerMap();
+                this.propertyBagConfiguration.StringSerializationKeyValueDelimiter,
+                this.propertyBagConfiguration.StringSerializationLineDelimiter,
+                this.propertyBagConfiguration.StringSerializationNullValueEncoding);
+            this.configuredTypeToSerializerMap = this.propertyBagConfiguration.BuildConfiguredTypeToSerializerMap();
             this.cachedAttributeSerializerTypeToObjectMap = new Dictionary<Type, IStringSerializeAndDeserialize>();
         }
 
         /// <inheritdoc />
-        public Type ConfigurationType { get; private set; }
-
-        /// <inheritdoc />
-        public SerializationKind Kind => SerializationKind.PropertyBag;
+        public override SerializationKind Kind => SerializationKind.PropertyBag;
 
         /// <summary>
         /// Converts string into a byte array.
@@ -120,7 +108,7 @@ namespace Naos.Serialization.PropertyBag
         }
 
         /// <inheritdoc />
-        public byte[] SerializeToBytes(object objectToSerialize)
+        public override byte[] SerializeToBytes(object objectToSerialize)
         {
             var stringRepresentation = this.SerializeToString(objectToSerialize);
             var stringRepresentationBytes = ConvertStringToByteArray(stringRepresentation);
@@ -128,14 +116,14 @@ namespace Naos.Serialization.PropertyBag
         }
 
         /// <inheritdoc />
-        public T Deserialize<T>(byte[] serializedBytes)
+        public override T Deserialize<T>(byte[] serializedBytes)
         {
             var ret = this.Deserialize(serializedBytes, typeof(T));
             return (T)ret;
         }
 
         /// <inheritdoc />
-        public object Deserialize(byte[] serializedBytes, Type type)
+        public override object Deserialize(byte[] serializedBytes, Type type)
         {
             new { type }.Must().NotBeNull();
 
@@ -144,7 +132,7 @@ namespace Naos.Serialization.PropertyBag
         }
 
         /// <inheritdoc />
-        public string SerializeToString(object objectToSerialize)
+        public override string SerializeToString(object objectToSerialize)
         {
             var objectType = objectToSerialize?.GetType();
             if (objectType == typeof(string))
@@ -171,7 +159,7 @@ namespace Naos.Serialization.PropertyBag
         }
 
         /// <inheritdoc />
-        public T Deserialize<T>(string serializedString)
+        public override T Deserialize<T>(string serializedString)
         {
             var objectType = typeof(T);
             if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
@@ -192,7 +180,7 @@ namespace Naos.Serialization.PropertyBag
         }
 
         /// <inheritdoc cref="IStringSerializeAndDeserialize"/>
-        public object Deserialize(string serializedString, Type type)
+        public override object Deserialize(string serializedString, Type type)
         {
             new { type }.Must().NotBeNull();
 

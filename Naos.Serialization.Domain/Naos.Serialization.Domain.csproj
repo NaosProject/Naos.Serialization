@@ -82,7 +82,9 @@
     <Compile Include=".recipes\OBeautifulCode.Validation\Range.cs" />
     <Compile Include=".recipes\OBeautifulCode.Validation\ValidatedNotNullAttribute.cs" />
     <Compile Include="DuplicateRegistrationException.cs" />
+    <Compile Include="IImplementNullObjectPattern.cs" />
     <Compile Include="RegisteredStringSerializer.cs" />
+    <Compile Include="SerializerBase.cs" />
     <Compile Include="UnregisteredTypeAttemptException.cs" />
     <Compile Include="RegistrationDetails.cs" />
     <Compile Include="SerializationDirection.cs" />

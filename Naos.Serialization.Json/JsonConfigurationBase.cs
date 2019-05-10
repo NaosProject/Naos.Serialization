@@ -11,8 +11,6 @@ namespace Naos.Serialization.Json
 
     using Naos.Serialization.Domain;
 
-    using static System.FormattableString;
-
     /// <summary>
     /// Base class to use for creating <see cref="NaosJsonSerializer" /> configuration.
     /// </summary>
@@ -82,7 +80,7 @@ namespace Naos.Serialization.Json
     /// <summary>
     /// Null implementation of <see cref="JsonConfigurationBase"/>.
     /// </summary>
-    public sealed class NullJsonConfiguration : JsonConfigurationBase
+    public sealed class NullJsonConfiguration : JsonConfigurationBase, IImplementNullObjectPattern
     {
     }
 }
