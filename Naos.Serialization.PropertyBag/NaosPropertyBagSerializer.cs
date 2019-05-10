@@ -140,12 +140,7 @@ namespace Naos.Serialization.PropertyBag
                 throw new NotSupportedException("String is not supported as a type for this serializer.");
             }
 
-            if (objectType != null &&
-                this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.SerializeToString)}({nameof(objectToSerialize)})' on unregistered type '{objectType.FullName}'"), objectType);
-            }
+            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             if (objectToSerialize == null)
             {
@@ -162,11 +157,8 @@ namespace Naos.Serialization.PropertyBag
         public override T Deserialize<T>(string serializedString)
         {
             var objectType = typeof(T);
-            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}<T>({nameof(serializedString)})' on unregistered type '{objectType.FullName}'"), objectType);
-            }
+
+            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
             {
@@ -184,11 +176,7 @@ namespace Naos.Serialization.PropertyBag
         {
             new { type }.Must().NotBeNull();
 
-            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(type))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}({nameof(serializedString)}, {nameof(type)})' on unregistered type '{type.FullName}'"), type);
-            }
+            this.ThrowOnUnregisteredTypeIfAppropriate(type);
 
             if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
             {

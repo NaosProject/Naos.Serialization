@@ -119,12 +119,8 @@ namespace Naos.Serialization.Json
         public override string SerializeToString(object objectToSerialize)
         {
             var objectType = objectToSerialize?.GetType();
-            if (objectType != null &&
-                this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.jsonConfiguration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.SerializeToString)}' on unregistered type '{objectType.FullName}'"), objectType);
-            }
+
+            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             var jsonSerializerSettings = objectToSerialize != null && objectType.IsAnonymous()
                 ? this.anonymousWriteSerializationSettings
@@ -144,11 +140,8 @@ namespace Naos.Serialization.Json
         public override T Deserialize<T>(string serializedString)
         {
             var objectType = typeof(T);
-            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.jsonConfiguration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}<T>({nameof(serializedString)})' on unregistered type '{objectType.FullName}'"), objectType);
-            }
+
+            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             var jsonSerializerSettings = this.jsonConfiguration.BuildJsonSerializerSettings(SerializationDirection.Deserialize, this.formattingKind);
             var ret = JsonConvert.DeserializeObject<T>(serializedString, jsonSerializerSettings);
@@ -161,11 +154,7 @@ namespace Naos.Serialization.Json
         {
             new { type }.Must().NotBeNull();
 
-            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.jsonConfiguration.RegisteredTypeToDetailsMap.ContainsKey(type))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}({nameof(serializedString)}, {nameof(type)})' on unregistered type '{type.FullName}'"), type);
-            }
+            this.ThrowOnUnregisteredTypeIfAppropriate(type);
 
             object ret;
             if (type == typeof(DynamicTypePlaceholder))

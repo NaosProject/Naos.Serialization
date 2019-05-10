@@ -10,6 +10,8 @@ namespace Naos.Serialization.Domain
     using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.Validation.Recipes;
 
+    using static System.FormattableString;
+
     /// <summary>
     /// Represents a serialized object along with a description of the type of the object.
     /// </summary>
@@ -77,5 +79,33 @@ namespace Naos.Serialization.Domain
 
         /// <inheritdoc />
         public abstract object Deserialize(byte[] serializedBytes, Type type);
+
+        /// <summary>
+        /// Throw an <see cref="UnregisteredTypeAttemptException" /> if appropriate.
+        /// </summary>
+        /// <param name="type">Type to check.</param>
+        protected void ThrowOnUnregisteredTypeIfAppropriate(Type type)
+        {
+            new { type }.Must().NotBeNull();
+
+            if (type.IsGenericType && (type.Namespace?.StartsWith(nameof(System), StringComparison.Ordinal) ?? false))
+            {
+                // this is for lists, dictionaries, and such.
+                foreach (var genericArgumentType in type.GetGenericArguments())
+                {
+                    this.ThrowOnUnregisteredTypeIfAppropriate(genericArgumentType);
+                }
+            }
+            else
+            {
+                if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
+                    !this.configuration.RegisteredTypeToDetailsMap.ContainsKey(type))
+                {
+                    throw new UnregisteredTypeAttemptException(
+                        Invariant($"Attempted to perform operation on unregistered type '{type.FullName}'"),
+                        type);
+                }
+            }
+        }
     }
 }

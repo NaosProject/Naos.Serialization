@@ -20,6 +20,7 @@ namespace Naos.Serialization.Bson
     /// </summary>
     public class NaosBsonSerializer : SerializerBase
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Keeping for easy extension.")]
         private readonly BsonConfigurationBase bsonConfiguration;
 
         /// <summary>
@@ -51,12 +52,8 @@ namespace Naos.Serialization.Bson
         public override byte[] SerializeToBytes(object objectToSerialize)
         {
             var objectType = objectToSerialize?.GetType();
-            if (objectType != null &&
-                this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.bsonConfiguration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.SerializeToBytes)}({nameof(objectToSerialize)})' on unregistered type '{objectType.FullName}'"), objectType);
-            }
+
+            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             if (objectToSerialize == null)
             {
@@ -70,11 +67,8 @@ namespace Naos.Serialization.Bson
         public override T Deserialize<T>(byte[] serializedBytes)
         {
             var objectType = typeof(T);
-            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.bsonConfiguration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}<T>({nameof(serializedBytes)})' on unregistered type '{objectType.FullName}'"), objectType);
-            }
+
+            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             if (serializedBytes == null)
             {
@@ -89,11 +83,7 @@ namespace Naos.Serialization.Bson
         {
             new { type }.Must().NotBeNull();
 
-            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.bsonConfiguration.RegisteredTypeToDetailsMap.ContainsKey(type))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}({nameof(serializedBytes)}, {nameof(type)})' on unregistered type '{type.FullName}'"), type);
-            }
+            this.ThrowOnUnregisteredTypeIfAppropriate(type);
 
             if (serializedBytes == null)
             {
@@ -112,12 +102,7 @@ namespace Naos.Serialization.Bson
                 throw new NotSupportedException("String is not supported as a type for this serializer.");
             }
 
-            if (objectType != null &&
-                this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.bsonConfiguration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.SerializeToString)}({nameof(objectToSerialize)})' on unregistered type '{objectType.FullName}'"), objectType);
-            }
+            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             if (objectToSerialize == null)
             {
@@ -133,11 +118,8 @@ namespace Naos.Serialization.Bson
         public override T Deserialize<T>(string serializedString)
         {
             var objectType = typeof(T);
-            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.bsonConfiguration.RegisteredTypeToDetailsMap.ContainsKey(objectType))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}<T>({nameof(serializedString)})' on unregistered type '{objectType.FullName}'"), objectType);
-            }
+
+            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
             {
@@ -153,11 +135,7 @@ namespace Naos.Serialization.Bson
         {
             new { type }.Must().NotBeNull();
 
-            if (this.unregisteredTypeEncounteredStrategy == UnregisteredTypeEncounteredStrategy.Throw &&
-                !this.bsonConfiguration.RegisteredTypeToDetailsMap.ContainsKey(type))
-            {
-                throw new UnregisteredTypeAttemptException(Invariant($"Attempted to perform '{nameof(this.Deserialize)}({nameof(serializedString)}, {nameof(type)})' on unregistered type '{type.FullName}'"), type);
-            }
+            this.ThrowOnUnregisteredTypeIfAppropriate(type);
 
             if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
             {
