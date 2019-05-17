@@ -48,6 +48,26 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
+        public static void RoundtripSerializeDeserialize___Using_UTC_reduced_precision___Works()
+        {
+            // Arrange
+            var expected = DateTime.UtcNow;
+            var serializer = new NaosDateTimeStringSerializer();
+
+            // Act
+            var serialized = serializer.SerializeToString(expected);
+            var manipulated = serialized.Substring(0, serialized.Length - 2) + 'Z';
+            var actual = serializer.Deserialize<DateTime>(serialized);
+            var actualManipulated = serializer.Deserialize<DateTime>(manipulated);
+
+            // Assert
+            actual.Kind.Should().Be(expected.Kind);
+            actual.Should().Be(expected);
+
+            (expected.Ticks - actualManipulated.Ticks).Should().BeLessThan(10);
+        }
+
+        [Fact]
         public static void RoundtripSerializeDeserialize___Using_local_zero_offset___Works()
         {
             // Arrange

@@ -35,6 +35,7 @@ namespace Naos.Serialization.Test
             var expectedTuple = new Tuple<RegisteredKey, RegisteredValue>(expectedKey, expectedValue);
             var expectedDictionary = new Dictionary<RegisteredKey, RegisteredValue> { { expectedKey, expectedValue } };
             var expectedList = new List<RegisteredKey>(new[] { expectedKey });
+            var expectedArray = new[] { expectedValue };
 
             // Act
             // var tupleBsonString = bsonSerializer.SerializeToString(expectedTuple);
@@ -46,6 +47,8 @@ namespace Naos.Serialization.Test
             var dictionaryJson = jsonSerializer.Deserialize<Dictionary<RegisteredKey, RegisteredValue>>(dictionaryJsonString);
             var listJsonString = jsonSerializer.SerializeToString(expectedList);
             var listJson = jsonSerializer.Deserialize<List<RegisteredKey>>(listJsonString);
+            var arrayJsonString = jsonSerializer.SerializeToString(expectedArray);
+            var arrayJson = jsonSerializer.Deserialize<RegisteredValue[]>(arrayJsonString);
 
             // Assert
 
@@ -56,6 +59,7 @@ namespace Naos.Serialization.Test
             dictionaryJson.Single().Key.Property.Should().Be(expectedDictionary.Single().Key.Property);
             dictionaryJson.Single().Value.Property.Should().Be(expectedDictionary.Single().Value.Property);
             listJson.Single().Property.Should().Be(expectedList.Single().Property);
+            arrayJson.Single().Property.Should().Be(expectedArray.Single().Property);
         }
     }
 

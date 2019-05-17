@@ -91,6 +91,10 @@ namespace Naos.Serialization.Domain
                 // this must be supported for serializing null.
                 return;
             }
+            else if (type.IsArray)
+            {
+                this.ThrowOnUnregisteredTypeIfAppropriate(type.GetElementType());
+            }
             else if (type.IsGenericType && (type.Namespace?.StartsWith(nameof(System), StringComparison.Ordinal) ?? false))
             {
                 // this is for lists, dictionaries, and such.

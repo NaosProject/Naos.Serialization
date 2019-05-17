@@ -21,6 +21,40 @@ namespace Naos.Serialization.Domain
     /// </summary>
     public class NaosDateTimeStringSerializer : IStringSerializeAndDeserialize
     {
+        private enum StringEncodingPattern
+        {
+            /// <summary>
+            /// Universal kind.
+            /// </summary>
+            Utc,
+
+            /// <summary>
+            /// Utc with only six (not seven) decimal places after seconds.
+            /// </summary>
+            Utc_Six_Fs,
+
+            /// <summary>
+            /// Unspecified kind.
+            /// </summary>
+            Unspecified,
+
+            /// <summary>
+            /// Local kind.
+            /// </summary>
+            Local,
+        }
+
+        private class PatternParserSettings
+        {
+            public DateTimeKind DateTimeKind { get; set; }
+
+            public DateTimeStyles DateTimeStyles { get; set; }
+
+            public string FormatString { get; set; }
+
+            public DateTimeParseMethod DateTimeParseMethod { get; set; }
+        }
+
         /// <inheritdoc />
         public Type ConfigurationType => null;
 
@@ -32,7 +66,7 @@ namespace Naos.Serialization.Domain
             new ReadOnlyDictionary<DateTimeKind, string>(
                 new Dictionary<DateTimeKind, string>
                     {
-                        { DateTimeKind.Utc, "yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'" }, // Need some regexes here, need to also support UTC with "yyyy-MM-dd'T'HH:mm:ss'Z'"
+                        { DateTimeKind.Utc, "yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'" }, // Need some regexes here, need to also support Utc with "yyyy-MM-dd'T'HH:mm:ss'Z'"
                         { DateTimeKind.Unspecified, "yyyy-MM-dd'T'HH:mm:ss.fffffff''" }, // maybe also fall back on generic DateTime.TryParse if all else fails...
                         { DateTimeKind.Local, "yyyy-MM-dd'T'HH:mm:ss.fffffffK" },
                     });
@@ -76,6 +110,47 @@ namespace Naos.Serialization.Domain
         private static readonly StringComparison StringComparisonType = StringComparison.InvariantCultureIgnoreCase;
 
         private delegate DateTime DateTimeParseMethod(string valueToParse, string formatString, IFormatProvider formatProvider, DateTimeStyles styles);
+
+        private static readonly IReadOnlyDictionary<StringEncodingPattern, PatternParserSettings> PatternToSettingsMap =
+            new Dictionary<StringEncodingPattern, PatternParserSettings>
+            {
+                {
+                    StringEncodingPattern.Utc, new PatternParserSettings
+                    {
+                        DateTimeKind = DateTimeKind.Utc,
+                        DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Utc],
+                        FormatString = DateTimeKindToFormatStringMap[DateTimeKind.Utc],
+                        DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Utc],
+                    }
+                },
+                {
+                    StringEncodingPattern.Utc_Six_Fs, new PatternParserSettings
+                    {
+                        DateTimeKind = DateTimeKind.Utc,
+                        DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Utc],
+                        FormatString = "yyyy-MM-dd'T'HH:mm:ss.ffffff'Z'",
+                        DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Utc],
+                    }
+                },
+                {
+                    StringEncodingPattern.Unspecified, new PatternParserSettings
+                    {
+                        DateTimeKind = DateTimeKind.Unspecified,
+                        DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Unspecified],
+                        FormatString = DateTimeKindToFormatStringMap[DateTimeKind.Unspecified],
+                        DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Unspecified],
+                    }
+                },
+                {
+                    StringEncodingPattern.Local, new PatternParserSettings
+                    {
+                        DateTimeKind = DateTimeKind.Local,
+                        DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Local],
+                        FormatString = DateTimeKindToFormatStringMap[DateTimeKind.Local],
+                        DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Local],
+                    }
+                },
+            };
 
         /// <inheritdoc />
         public string SerializeToString(object objectToSerialize)
@@ -143,18 +218,11 @@ namespace Naos.Serialization.Domain
             try
             {
                 var kind = DiscoverKindInSerializedString(serializedString);
+                var settings = PatternToSettingsMap[kind];
+                settings.Named(Invariant($"{nameof(settings)}For{kind}")).Must().NotBeNull();
 
-                DateTimeKindToFormatStringMap.TryGetValue(kind, out string formatString)
-                    .Named(Invariant($"DidNotFindValueIn{nameof(DateTimeKindToFormatStringMap)}ForKind{kind}")).Must().BeTrue();
-
-                DateTimeKindToStylesMap.TryGetValue(kind, out DateTimeStyles styles)
-                    .Named(Invariant($"DidNotFindValueIn{nameof(DateTimeKindToStylesMap)}ForKind{kind}")).Must().BeTrue();
-
-                DateTimeKindToParseMethodMap.TryGetValue(kind, out DateTimeParseMethod parseMethod)
-                    .Named(Invariant($"DidNotFindValueIn{nameof(DateTimeKindToParseMethodMap)}ForKind{kind}")).Must().BeTrue();
-
-                var ret = parseMethod(serializedString, formatString, FormatProvider, styles);
-                ret.Kind.Named(Invariant($"ReturnKind-{ret.Kind}-MustBeSameAsDiscovered-{kind}")).Must().BeEqualTo(kind);
+                var ret = settings.DateTimeParseMethod(serializedString, settings.FormatString, FormatProvider, settings.DateTimeStyles);
+                ret.Kind.Named(Invariant($"ReturnKind-{ret.Kind}-MustBeSameAsDiscovered-{kind}")).Must().BeEqualTo(settings.DateTimeKind);
 
                 return ret;
             }
@@ -170,24 +238,35 @@ namespace Naos.Serialization.Domain
 
         private static readonly Regex MatchLocalRegex = new Regex(MatchLocalRegexPattern, RegexOptions.Compiled);
 
-        private static DateTimeKind DiscoverKindInSerializedString(string serializedString)
+        private static StringEncodingPattern DiscoverKindInSerializedString(string serializedString)
         {
             new { serializedString }.Must().NotBeNullNorWhiteSpace();
 
             if (serializedString.EndsWith("Z", StringComparisonType))
             {
-                return DateTimeKind.Utc;
+                if (serializedString.Length == PatternToSettingsMap[StringEncodingPattern.Utc].FormatString.Length - 4)
+                {
+                    return StringEncodingPattern.Utc;
+                }
+                else if (serializedString.Length == PatternToSettingsMap[StringEncodingPattern.Utc_Six_Fs].FormatString.Length - 4)
+                {
+                    return StringEncodingPattern.Utc_Six_Fs;
+                }
+                else
+                {
+                    throw new NotSupportedException(Invariant($"Provided {nameof(serializedString)}: {serializedString} is not a supported UTC format."));
+                }
             }
 
             // ends in timezone info (like -03:00 or +03:00)
             // no ending is considered unspecified kind
             if (MatchLocalRegex.Match(serializedString).Success)
             {
-                return DateTimeKind.Local;
+                return StringEncodingPattern.Local;
             }
             else
             {
-                return DateTimeKind.Unspecified;
+                return StringEncodingPattern.Unspecified;
             }
         }
     }
