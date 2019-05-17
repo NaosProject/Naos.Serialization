@@ -34,6 +34,36 @@ namespace Naos.Serialization.Domain
             Utc_Six_Fs,
 
             /// <summary>
+            /// Utc with only five (not seven) decimal places after seconds.
+            /// </summary>
+            Utc_Five_Fs,
+
+            /// <summary>
+            /// Utc with only four (not seven) decimal places after seconds.
+            /// </summary>
+            Utc_Four_Fs,
+
+            /// <summary>
+            /// Utc with only three (not seven) decimal places after seconds.
+            /// </summary>
+            Utc_Three_Fs,
+
+            /// <summary>
+            /// Utc with only two (not seven) decimal places after seconds.
+            /// </summary>
+            Utc_Two_Fs,
+
+            /// <summary>
+            /// Utc with only one (not seven) decimal places after seconds.
+            /// </summary>
+            Utc_One_Fs,
+
+            /// <summary>
+            /// Utc with zero (not seven) decimal places after seconds.
+            /// </summary>
+            Utc_Zero_Fs,
+
+            /// <summary>
             /// Unspecified kind.
             /// </summary>
             Unspecified,
@@ -129,6 +159,60 @@ namespace Naos.Serialization.Domain
                         DateTimeKind = DateTimeKind.Utc,
                         DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Utc],
                         FormatString = "yyyy-MM-dd'T'HH:mm:ss.ffffff'Z'",
+                        DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Utc],
+                    }
+                },
+                {
+                    StringEncodingPattern.Utc_Five_Fs, new PatternParserSettings
+                    {
+                        DateTimeKind = DateTimeKind.Utc,
+                        DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Utc],
+                        FormatString = "yyyy-MM-dd'T'HH:mm:ss.fffff'Z'",
+                        DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Utc],
+                    }
+                },
+                {
+                    StringEncodingPattern.Utc_Four_Fs, new PatternParserSettings
+                    {
+                        DateTimeKind = DateTimeKind.Utc,
+                        DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Utc],
+                        FormatString = "yyyy-MM-dd'T'HH:mm:ss.ffff'Z'",
+                        DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Utc],
+                    }
+                },
+                {
+                    StringEncodingPattern.Utc_Three_Fs, new PatternParserSettings
+                    {
+                        DateTimeKind = DateTimeKind.Utc,
+                        DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Utc],
+                        FormatString = "yyyy-MM-dd'T'HH:mm:ss.fff'Z'",
+                        DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Utc],
+                    }
+                },
+                {
+                    StringEncodingPattern.Utc_Two_Fs, new PatternParserSettings
+                    {
+                        DateTimeKind = DateTimeKind.Utc,
+                        DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Utc],
+                        FormatString = "yyyy-MM-dd'T'HH:mm:ss.ff'Z'",
+                        DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Utc],
+                    }
+                },
+                {
+                    StringEncodingPattern.Utc_One_Fs, new PatternParserSettings
+                    {
+                        DateTimeKind = DateTimeKind.Utc,
+                        DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Utc],
+                        FormatString = "yyyy-MM-dd'T'HH:mm:ss.f'Z'",
+                        DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Utc],
+                    }
+                },
+                {
+                    StringEncodingPattern.Utc_Zero_Fs, new PatternParserSettings
+                    {
+                        DateTimeKind = DateTimeKind.Utc,
+                        DateTimeStyles = DateTimeKindToStylesMap[DateTimeKind.Utc],
+                        FormatString = "yyyy-MM-dd'T'HH:mm:ss'Z'",
                         DateTimeParseMethod = DateTimeKindToParseMethodMap[DateTimeKind.Utc],
                     }
                 },
@@ -251,6 +335,30 @@ namespace Naos.Serialization.Domain
                 else if (serializedString.Length == PatternToSettingsMap[StringEncodingPattern.Utc_Six_Fs].FormatString.Length - 4)
                 {
                     return StringEncodingPattern.Utc_Six_Fs;
+                }
+                else if (serializedString.Length == PatternToSettingsMap[StringEncodingPattern.Utc_Five_Fs].FormatString.Length - 4)
+                {
+                    return StringEncodingPattern.Utc_Five_Fs;
+                }
+                else if (serializedString.Length == PatternToSettingsMap[StringEncodingPattern.Utc_Four_Fs].FormatString.Length - 4)
+                {
+                    return StringEncodingPattern.Utc_Four_Fs;
+                }
+                else if (serializedString.Length == PatternToSettingsMap[StringEncodingPattern.Utc_Three_Fs].FormatString.Length - 4)
+                {
+                    return StringEncodingPattern.Utc_Three_Fs;
+                }
+                else if (serializedString.Length == PatternToSettingsMap[StringEncodingPattern.Utc_Two_Fs].FormatString.Length - 4)
+                {
+                    return StringEncodingPattern.Utc_Two_Fs;
+                }
+                else if (serializedString.Length == PatternToSettingsMap[StringEncodingPattern.Utc_One_Fs].FormatString.Length - 4)
+                {
+                    return StringEncodingPattern.Utc_One_Fs;
+                }
+                else if (serializedString.Length == PatternToSettingsMap[StringEncodingPattern.Utc_Zero_Fs].FormatString.Length - 4)
+                {
+                    return StringEncodingPattern.Utc_Zero_Fs;
                 }
                 else
                 {

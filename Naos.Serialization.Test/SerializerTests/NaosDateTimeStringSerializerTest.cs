@@ -7,10 +7,13 @@
 namespace Naos.Serialization.Test
 {
     using System;
+    using System.Globalization;
+    using System.Linq;
 
     using FluentAssertions;
 
     using Naos.Serialization.Domain;
+
     using Xunit;
 
     public static class NaosDateTimeStringSerializerTest
@@ -48,23 +51,33 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
-        public static void RoundtripSerializeDeserialize___Using_UTC_reduced_precision___Works()
+        public static void Deserialize___Using_UTC_reduced_precision___Works()
         {
             // Arrange
-            var expected = DateTime.UtcNow;
+            var serializedDateTimes = new[]
+            {
+                "2017-05-06T02:28:46.2704883Z",
+                "2017-05-06T02:28:46.270484Z",
+                "2017-05-06T02:28:46.27048Z",
+                "2017-05-06T02:28:46.2704Z",
+                "2017-05-06T02:28:46.271Z",
+                "2017-05-06T02:28:46.27Z",
+                "2017-05-06T02:28:46.2Z",
+                "2017-05-06T02:28:46Z",
+                "2017-05-06T02:28:00Z",
+                "2017-05-06T02:00:00Z",
+                "2017-05-06T00:00:00Z",
+            };
+
+            var expected = serializedDateTimes.Select(_ => DateTime.Parse(_, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal)).ToList();
+
             var serializer = new NaosDateTimeStringSerializer();
 
             // Act
-            var serialized = serializer.SerializeToString(expected);
-            var manipulated = serialized.Substring(0, serialized.Length - 2) + 'Z';
-            var actual = serializer.Deserialize<DateTime>(serialized);
-            var actualManipulated = serializer.Deserialize<DateTime>(manipulated);
+            var actual = serializedDateTimes.Select(_ => serializer.Deserialize<DateTime>(_));
 
             // Assert
-            actual.Kind.Should().Be(expected.Kind);
-            actual.Should().Be(expected);
-
-            (expected.Ticks - actualManipulated.Ticks).Should().BeLessThan(10);
+            actual.Should().Equal(expected);
         }
 
         [Fact]
