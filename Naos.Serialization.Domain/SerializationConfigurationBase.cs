@@ -42,6 +42,7 @@ namespace Naos.Serialization.Domain
             typeof(TypeDescription),
             typeof(SerializationDescription),
             typeof(DescribedSerialization),
+            typeof(DynamicTypePlaceholder),
         };
 
         private readonly object syncConfigure = new object();
