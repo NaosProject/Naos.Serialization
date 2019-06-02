@@ -120,7 +120,7 @@ namespace Naos.Serialization.Json
         {
             var objectType = objectToSerialize?.GetType();
 
-            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
+            this.InternalJsonThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             var jsonSerializerSettings = objectToSerialize != null && objectType.IsAnonymous()
                 ? this.anonymousWriteSerializationSettings
@@ -141,7 +141,7 @@ namespace Naos.Serialization.Json
         {
             var objectType = typeof(T);
 
-            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
+            this.InternalJsonThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             var jsonSerializerSettings = this.jsonConfiguration.BuildJsonSerializerSettings(SerializationDirection.Deserialize, this.formattingKind);
             var ret = JsonConvert.DeserializeObject<T>(serializedString, jsonSerializerSettings);
@@ -154,7 +154,7 @@ namespace Naos.Serialization.Json
         {
             new { type }.Must().NotBeNull();
 
-            this.ThrowOnUnregisteredTypeIfAppropriate(type);
+            this.InternalJsonThrowOnUnregisteredTypeIfAppropriate(type);
 
             object ret;
             if (type == typeof(DynamicTypePlaceholder))
@@ -169,6 +169,15 @@ namespace Naos.Serialization.Json
             }
 
             return ret;
+        }
+
+        private void InternalJsonThrowOnUnregisteredTypeIfAppropriate(Type objectType)
+        {
+            // this type needs no registration and has value in consistent escaping/encoding...
+            if (objectType != typeof(string))
+            {
+                this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
+            }
         }
     }
 

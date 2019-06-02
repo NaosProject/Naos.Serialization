@@ -79,7 +79,6 @@ namespace Naos.Serialization.Test
             actualNullFromBytes.Should().BeNull();
             actualStringException.Should().NotBeNull();
             actualStringException.Should().BeOfType<NotSupportedException>();
-            actualStringException.Message.Should().Be("String is not supported as a type for this serializer.");
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "Not important.")]

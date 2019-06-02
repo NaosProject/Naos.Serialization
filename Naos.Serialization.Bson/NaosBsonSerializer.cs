@@ -53,7 +53,7 @@ namespace Naos.Serialization.Bson
         {
             var objectType = objectToSerialize?.GetType();
 
-            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
+            this.InternalBsonThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             if (objectToSerialize == null)
             {
@@ -68,7 +68,7 @@ namespace Naos.Serialization.Bson
         {
             var objectType = typeof(T);
 
-            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
+            this.InternalBsonThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             if (serializedBytes == null)
             {
@@ -83,7 +83,7 @@ namespace Naos.Serialization.Bson
         {
             new { type }.Must().NotBeNull();
 
-            this.ThrowOnUnregisteredTypeIfAppropriate(type);
+            this.InternalBsonThrowOnUnregisteredTypeIfAppropriate(type);
 
             if (serializedBytes == null)
             {
@@ -97,12 +97,8 @@ namespace Naos.Serialization.Bson
         public override string SerializeToString(object objectToSerialize)
         {
             var objectType = objectToSerialize?.GetType();
-            if (objectType == typeof(string))
-            {
-                throw new NotSupportedException("String is not supported as a type for this serializer.");
-            }
 
-            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
+            this.InternalBsonThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             if (objectToSerialize == null)
             {
@@ -119,7 +115,7 @@ namespace Naos.Serialization.Bson
         {
             var objectType = typeof(T);
 
-            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
+            this.InternalBsonThrowOnUnregisteredTypeIfAppropriate(objectType);
 
             if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
             {
@@ -135,7 +131,7 @@ namespace Naos.Serialization.Bson
         {
             new { type }.Must().NotBeNull();
 
-            this.ThrowOnUnregisteredTypeIfAppropriate(type);
+            this.InternalBsonThrowOnUnregisteredTypeIfAppropriate(type);
 
             if (serializedString == SerializationConfigurationBase.NullSerializedStringValue)
             {
@@ -144,6 +140,16 @@ namespace Naos.Serialization.Bson
 
             var document = serializedString.ToBsonDocument();
             return NaosBsonSerializerHelper.DeserializeFromDocument(document, type);
+        }
+
+        private void InternalBsonThrowOnUnregisteredTypeIfAppropriate(Type objectType)
+        {
+            if (objectType == typeof(string))
+            {
+                throw new NotSupportedException("String is not supported as a root type by the underlying BSON Serializer.");
+            }
+
+            this.ThrowOnUnregisteredTypeIfAppropriate(objectType);
         }
     }
 

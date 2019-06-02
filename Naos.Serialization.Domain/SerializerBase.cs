@@ -7,6 +7,7 @@
 namespace Naos.Serialization.Domain
 {
     using System;
+    using System.Collections.Generic;
     using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.Validation.Recipes;
 
