@@ -9,12 +9,13 @@ namespace Naos.Serialization.Domain
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
     using Naos.Compression.Domain;
-
+    using OBeautifulCode.Collection.Recipes;
     using OBeautifulCode.Math.Recipes;
     using OBeautifulCode.Type;
     using OBeautifulCode.Validation.Recipes;
+
+    using static System.FormattableString;
 
     /// <summary>
     /// Model object to desribe a serializer so you can persist and share the definition and rehydrate the serializer later.
@@ -67,6 +68,14 @@ namespace Naos.Serialization.Domain
         /// </summary>
         public IReadOnlyDictionary<string, string> Metadata { get; private set; }
 
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            var metadataString = string.Join(",", this.Metadata.Select(_ => Invariant($"[{_.Key}={_.Value}]")));
+            var result = Invariant($"{nameof(SerializationDescription)}: {nameof(this.SerializationKind)}={this.SerializationKind}, {nameof(this.SerializationFormat)}={this.SerializationFormat}, {nameof(this.CompressionKind)}={this.CompressionKind}, {nameof(this.ConfigurationTypeDescription)}={this.ConfigurationTypeDescription}, {nameof(this.Metadata)}={metadataString},");
+            return result;
+        }
+
         /// <summary>
         /// Equality operator.
         /// </summary>
@@ -85,20 +94,12 @@ namespace Naos.Serialization.Domain
                 return false;
             }
 
-            var metadataEqual = first.Metadata.Count == second.Metadata.Count;
-            foreach (var firstKey in first.Metadata.Keys)
-            {
-                if (!metadataEqual)
-                {
-                    break;
-                }
-
-                metadataEqual = second.Metadata.ContainsKey(firstKey) && second.Metadata[firstKey] == first.Metadata[firstKey];
-            }
+            var metadataEqual = first.Metadata.DictionaryEqual(second.Metadata);
 
             return first.SerializationKind == second.SerializationKind && first.SerializationFormat == second.SerializationFormat
                    && first.CompressionKind == second.CompressionKind
-                   && first.ConfigurationTypeDescription == second.ConfigurationTypeDescription && metadataEqual;
+                   && first.ConfigurationTypeDescription == second.ConfigurationTypeDescription
+                   && metadataEqual;
         }
 
         /// <summary>
@@ -116,8 +117,11 @@ namespace Naos.Serialization.Domain
         public override bool Equals(object obj) => this == (obj as SerializationDescription);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCodeHelper.Initialize().Hash(this.SerializationKind).Hash(this.SerializationFormat)
-            .Hash(this.CompressionKind).Hash(this.ConfigurationTypeDescription)
-            .HashElements(this.Metadata.OrderBy(_ => _.Key).Select(_ => new Tuple<string, string>(_.Key, _.Value))).Value;
+        public override int GetHashCode() => HashCodeHelper.Initialize()
+            .Hash(this.SerializationKind)
+            .Hash(this.SerializationFormat)
+            .Hash(this.CompressionKind)
+            .Hash(this.ConfigurationTypeDescription)
+            .HashDictionary(this.Metadata).Value;
     }
 }

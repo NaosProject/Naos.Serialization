@@ -108,5 +108,51 @@ namespace Naos.Serialization.Test
             bsonSerializer.ConfigurationType.Should().NotBeNull();
             bsonSerializer.ConfigurationType.Should().Be(expectedConfigType);
         }
+
+        [Fact]
+        public static void SerializationDescriptionToSerializerFactory_BuildSerializer___Works_for_matching_description()
+        {
+            // Arrange
+            var configType = typeof(GenericDiscoveryJsonConfiguration<string>);
+            var serializerDescription = new SerializationDescription(
+                SerializationKind.Json,
+                SerializationFormat.String,
+                configType.ToTypeDescription());
+
+            var seededSerializer = new NaosJsonSerializer(configType);
+
+            var factory = new SerializationDescriptionToSerializerFactory(serializerDescription, seededSerializer);
+
+            // Act
+            var actualSerializer = factory.BuildSerializer(serializerDescription);
+
+            // Assert
+            actualSerializer.Should().BeSameAs(seededSerializer);
+        }
+
+        [Fact]
+        public static void SerializationDescriptionToSerializerFactory_BuildSerializer___Throws_for_nonmatching_description()
+        {
+            // Arrange
+            var configType = typeof(GenericDiscoveryJsonConfiguration<string>);
+            var serializerDescription = new SerializationDescription(
+                SerializationKind.Json,
+                SerializationFormat.String,
+                configType.ToTypeDescription());
+
+            var seededSerializer = new NaosJsonSerializer(configType);
+
+            var factory = new SerializationDescriptionToSerializerFactory(serializerDescription, seededSerializer);
+
+            var invalidDescription = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary);
+
+            // Act
+            var exception = Record.Exception(() => factory.BuildSerializer(invalidDescription));
+
+            // Assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<NotSupportedException>();
+            exception.Message.Should().Be("Supplied 'serializationDescription' (SerializationDescription: SerializationKind=Bson, SerializationFormat=Binary, CompressionKind=None, ConfigurationTypeDescription=, Metadata=,) does not match 'supportedSerializationDescription' (SerializationDescription: SerializationKind=Json, SerializationFormat=String, CompressionKind=None, ConfigurationTypeDescription=OBeautifulCode.Type.TypeDescription, Metadata=,).");
+        }
     }
 }
