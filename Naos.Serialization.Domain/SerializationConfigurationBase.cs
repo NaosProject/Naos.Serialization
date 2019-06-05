@@ -59,14 +59,14 @@ namespace Naos.Serialization.Domain
             };
 
         /// <summary>
-        /// Gets a map of the the dependent configuration type (and any ancestors) to their configured instance.
-        /// </summary>
-        protected IReadOnlyDictionary<Type, SerializationConfigurationBase> DependentConfigurationTypeToInstanceMap { get; private set; }
-
-        /// <summary>
         /// Gets the version of <see cref="RegisteredTypeToDetailsMap" />.
         /// </summary>
         protected Dictionary<Type, RegistrationDetails> MutableRegisteredTypeToDetailsMap { get; } = new Dictionary<Type, RegistrationDetails>();
+
+        /// <summary>
+        /// Gets a map of the the dependent configuration type (and any ancestors) to their configured instance.
+        /// </summary>
+        public IReadOnlyDictionary<Type, SerializationConfigurationBase> DependentConfigurationTypeToInstanceMap { get; private set; }
 
         /// <summary>
         /// Gets a map of registration details keyed on type registered.

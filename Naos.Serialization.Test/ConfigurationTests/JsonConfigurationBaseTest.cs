@@ -6,10 +6,8 @@
 
 namespace Naos.Serialization.Test
 {
-    using System;
     using System.Collections.Generic;
-    using FakeItEasy;
-
+    
     using FluentAssertions;
 
     using Naos.Serialization.Domain;
@@ -17,11 +15,7 @@ namespace Naos.Serialization.Test
 
     using Newtonsoft.Json.Serialization;
 
-    using OBeautifulCode.Reflection;
-
     using Xunit;
-
-    using static System.FormattableString;
 
     public static class JsonConfigurationBaseTest
     {

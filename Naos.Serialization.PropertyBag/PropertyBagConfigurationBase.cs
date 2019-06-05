@@ -136,7 +136,7 @@ namespace Naos.Serialization.PropertyBag
     /// <summary>
     /// Internal implementation of <see cref="PropertyBagConfigurationBase" /> that will auto register necessary internal types.
     /// </summary>
-    public sealed class InternalPropertyBagConfiguration : PropertyBagConfigurationBase
+    public sealed class InternalPropertyBagConfiguration : PropertyBagConfigurationBase, IDoNotNeedInternalDependencies
     {
         /// <inheritdoc />
         protected override IReadOnlyCollection<Type> TypesToAutoRegisterWithDiscovery => InternallyRequiredTypes;

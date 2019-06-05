@@ -32,7 +32,7 @@ namespace Naos.Serialization.Domain
             where T : SerializationConfigurationBase, new()
         {
             // TODO: is there a race condition here? should we lock while calling configure...
-            GetConfiguredType(typeof(T));
+            FetchOrCreateConfigurationInstance(typeof(T));
         }
 
         /// <summary>
@@ -63,7 +63,8 @@ namespace Naos.Serialization.Domain
             type.IsAssignableTo(returnType).Named(Invariant($"typeMustBeSubclassOf{returnType}")).Must().BeTrue();
             type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue();
 
-            var result = GetConfiguredType(type);
+            var result = FetchOrCreateConfigurationInstance(type);
+
             return (TReturn)result;
         }
 
@@ -78,53 +79,8 @@ namespace Naos.Serialization.Domain
             type.IsSubclassOf(typeof(SerializationConfigurationBase)).Named(Invariant($"typeMustBeSubclassOf{nameof(SerializationConfigurationBase)}")).Must().BeTrue();
             type.HasParameterlessConstructor().Named("typeHasParameterLessConstructor").Must().BeTrue();
 
-            GetConfiguredType(type);
+            FetchOrCreateConfigurationInstance(type);
          }
-
-        private static SerializationConfigurationBase GetConfiguredType(Type configurationType, Dictionary<Type, SerializationConfigurationBase> dependentConfigMap = null)
-        {
-            lock (SyncInstances)
-            {
-                var instanceWasCreated = FetchOrCreateConfigurationInstance(configurationType, out var instance);
-
-                new { instance }.Must().NotBeNull();
-
-                if (!instanceWasCreated)
-                {
-                    return instance;
-                }
-
-                if (dependentConfigMap == null)
-                {
-                    dependentConfigMap = new Dictionary<Type, SerializationConfigurationBase>();
-                }
-
-                var allDependentTypes = instance.DependentConfigurationTypes.Concat(instance.InternalDependentConfigurationTypes).Distinct().ToList();
-                var configInheritor = configurationType.GetInheritorOfSerializationBase();
-
-                // TODO: test this throw
-                var rogueDependents = allDependentTypes.Where(_ => _.GetInheritorOfSerializationBase() != configInheritor).ToList();
-                if (rogueDependents.Any())
-                {
-                    throw new InvalidOperationException(Invariant($"Configuration {configurationType} has {nameof(instance.DependentConfigurationTypes)} ({string.Join(",", rogueDependents)}) that do not share the same first layer of inheritance {configInheritor}."));
-                }
-
-                foreach (var dependentType in allDependentTypes)
-                {
-                    var dependentInstance = GetConfiguredType(dependentType, dependentConfigMap);
-
-                    if (!dependentConfigMap.ContainsKey(dependentType))
-                    {
-                        dependentConfigMap.Add(dependentType, dependentInstance);
-                    }
-                }
-
-                var dependentConfigMapShallowClone = dependentConfigMap.ToDictionary(k => k.Key, v => v.Value);
-                instance.Configure(dependentConfigMapShallowClone);
-
-                return instance;
-            }
-        }
 
         private static Type GetInheritorOfSerializationBase(this Type configurationType)
         {
@@ -135,29 +91,71 @@ namespace Naos.Serialization.Domain
             }
 
             return
-                      type != null
+                   type != null
                    && type.BaseType != null
                    && type.BaseType == typeof(SerializationConfigurationBase)
                 ? type
                 : null;
         }
 
-        private static bool FetchOrCreateConfigurationInstance(
-            Type type,
-            out SerializationConfigurationBase outputResult,
-            Func<SerializationConfigurationBase> creatorFunc = null)
+        private static SerializationConfigurationBase FetchOrCreateConfigurationInstance(Type configurationType)
         {
-            var result = false;
-            var localCreatorFunc = creatorFunc ?? (() => (SerializationConfigurationBase)type.Construct());
-
-            if (!Instances.ContainsKey(type))
+            lock (SyncInstances)
             {
-                Instances.Add(type, localCreatorFunc());
-                result = true;
-            }
+                if (!Instances.ContainsKey(configurationType))
+                {
+                    var instance = (SerializationConfigurationBase)configurationType.Construct();
 
-            outputResult = Instances[type];
-            return result;
+                    var allDependentConfigTypes = instance.DependentConfigurationTypes.ToList();
+
+                    if (!(instance is IDoNotNeedInternalDependencies))
+                    {
+                        allDependentConfigTypes.AddRange(instance.InternalDependentConfigurationTypes);
+                    }
+
+                    allDependentConfigTypes = allDependentConfigTypes.Distinct().ToList();
+
+                    var configInheritor = configurationType.GetInheritorOfSerializationBase();
+
+                    // TODO: test this throw.
+                    // This protects against a JsonConfiguration listing dependent types that are BsonConfiguration derivatives, and vice-versa.
+                    var rogueDependents = allDependentConfigTypes.Where(_ => _.GetInheritorOfSerializationBase() != configInheritor).ToList();
+                    if (rogueDependents.Any())
+                    {
+                        throw new InvalidOperationException(Invariant($"Configuration {configurationType} has {nameof(instance.DependentConfigurationTypes)} ({string.Join(",", rogueDependents)}) that do not share the same first layer of inheritance {configInheritor}."));
+                    }
+
+                    var dependentConfigTypeToConfigMap = new Dictionary<Type, SerializationConfigurationBase>();
+
+                    foreach (var dependentConfigType in allDependentConfigTypes)
+                    {
+                        var dependentConfigInstance = FetchOrCreateConfigurationInstance(dependentConfigType);
+
+                        var dependentConfigDependentConfigurationTypeToInstanceMap = dependentConfigInstance.DependentConfigurationTypeToInstanceMap;
+
+                        foreach (var dependentConfigDependentConfigType in dependentConfigDependentConfigurationTypeToInstanceMap.Keys)
+                        {
+                            if (!dependentConfigTypeToConfigMap.ContainsKey(dependentConfigDependentConfigType))
+                            {
+                                dependentConfigTypeToConfigMap.Add(dependentConfigDependentConfigType, dependentConfigDependentConfigurationTypeToInstanceMap[dependentConfigDependentConfigType]);
+                            }
+                        }
+
+                        if (!dependentConfigTypeToConfigMap.ContainsKey(dependentConfigType))
+                        {
+                            dependentConfigTypeToConfigMap.Add(dependentConfigType, dependentConfigInstance);
+                        }
+                    }
+
+                    instance.Configure(dependentConfigTypeToConfigMap);
+
+                    Instances.Add(configurationType, instance);
+                }
+
+                var result = Instances[configurationType];
+
+                return result;
+            }
         }
     }
 }
