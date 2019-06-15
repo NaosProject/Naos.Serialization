@@ -7,6 +7,7 @@
 namespace Naos.Serialization.Domain
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
@@ -48,15 +49,19 @@ namespace Naos.Serialization.Domain
         private readonly object syncConfigure = new object();
         private bool configured;
 
-        private static readonly IReadOnlyCollection<Type> DiscoverAssignableTypesBlackList =
-            new[]
-            {
-                typeof(string),
-                typeof(object),
-                typeof(ValueType),
-                typeof(Enum),
-                typeof(Array),
-            };
+        private static readonly HashSet<Type> DiscoverAssignableTypesBlackList =
+            new HashSet<Type>(
+                new[]
+                {
+                    typeof(string),
+                    typeof(object),
+                    typeof(ValueType),
+                    typeof(Enum),
+                    typeof(Array),
+                });
+
+        private static readonly ConcurrentDictionary<Assembly, IReadOnlyCollection<Type>> AssemblyToTypesToConsiderForRegistration =
+            new ConcurrentDictionary<Assembly, IReadOnlyCollection<Type>>();
 
         /// <summary>
         /// Gets the version of <see cref="RegisteredTypeToDetailsMap" />.
@@ -242,13 +247,9 @@ namespace Naos.Serialization.Domain
             new { types }.Must().NotBeNull();
 
             var allTypesToConsiderForRegistration = GetAllTypesToConsiderForRegistration();
-            var classTypesToRegister = allTypesToConsiderForRegistration.Where(typeToConsider =>
-                        typeToConsider.IsClass &&
-                        (!typeToConsider.IsAnonymous()) &&
-                        (!DiscoverAssignableTypesBlackList.Contains(typeToConsider)) &&
-                        (!typeToConsider
-                            .IsGenericTypeDefinition) && // can't do an IsAssignableTo check on generic type definitions
-                        types.Any(typeToAutoRegister => typeToConsider.IsAssignableTo(typeToAutoRegister) || typeToAutoRegister.IsAssignableTo(typeToConsider)))
+
+            var classTypesToRegister = allTypesToConsiderForRegistration
+                .Where(_ => types.Any(typeToAutoRegister => IsAssignableToOrFrom(_, typeToAutoRegister)))
                 .Concat(types.Where(_ => _.IsInterface)) // add interfaces back as they were explicitly provided.
                 .ToList();
 
@@ -262,7 +263,39 @@ namespace Naos.Serialization.Domain
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Want this to be a method since it's running logic.")]
         protected static IReadOnlyCollection<Type> GetAllTypesToConsiderForRegistration()
         {
-            return AssemblyLoader.GetLoadedAssemblies().GetTypesFromAssemblies();
+            var assemblies = AssemblyLoader.GetLoadedAssemblies();
+            foreach (var assembly in assemblies)
+            {
+                if (!AssemblyToTypesToConsiderForRegistration.ContainsKey(assembly))
+                {
+                    var typesToConsiderForThisAssembly =
+                        new[] { assembly }
+                            .GetTypesFromAssemblies()
+                            .Where(_ =>
+                                _.IsClass &&
+                                (!_.IsAnonymous()) &&
+                                (!DiscoverAssignableTypesBlackList.Contains(_)) &&
+                                (!_.IsGenericTypeDefinition)) // can't do an IsAssignableTo check on generic type definitions
+                            .ToList();
+
+                    AssemblyToTypesToConsiderForRegistration.TryAdd(assembly, typesToConsiderForThisAssembly);
+                }
+            }
+
+            var result = AssemblyToTypesToConsiderForRegistration.Values.SelectMany(_ => _).ToList();
+
+            return result;
+        }
+
+        private static bool IsAssignableToOrFrom(
+            Type type1,
+            Type type2)
+        {
+            // note: we are PURPOSELY not using OBeautifulCode.Reflection.Recipes.TypeHelper.IsAssignableTo
+            // because of performance issues related to the OBeautifulCode.Validation calls in that method.
+            var result = (type1 == type2) || type1.IsAssignableFrom(type2) || type2.IsAssignableFrom(type1);
+
+            return result;
         }
 
         /// <summary>
