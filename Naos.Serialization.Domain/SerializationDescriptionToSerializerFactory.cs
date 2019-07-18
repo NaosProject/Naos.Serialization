@@ -7,7 +7,7 @@
 namespace Naos.Serialization.Domain
 {
     using System;
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
     using OBeautifulCode.Validation.Recipes;
     using static System.FormattableString;
 

@@ -16,7 +16,7 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Factory;
     using Naos.Serialization.Json;
 
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
 
     using Xunit;
 
@@ -91,7 +91,7 @@ namespace Naos.Serialization.Test
             var serializerDescription = new SerializationDescription(
                 SerializationKind.Bson,
                 SerializationFormat.String,
-                expectedConfigType.ToTypeDescription());
+                expectedConfigType.ToRepresentation());
 
             // Act
             var serializer = SerializerFactory.Instance.BuildSerializer(serializerDescription);
@@ -117,7 +117,7 @@ namespace Naos.Serialization.Test
             var serializerDescription = new SerializationDescription(
                 SerializationKind.Json,
                 SerializationFormat.String,
-                configType.ToTypeDescription());
+                configType.ToRepresentation());
 
             var seededSerializer = new NaosJsonSerializer(configType);
 
@@ -138,7 +138,7 @@ namespace Naos.Serialization.Test
             var serializerDescription = new SerializationDescription(
                 SerializationKind.Json,
                 SerializationFormat.String,
-                configType.ToTypeDescription());
+                configType.ToRepresentation());
 
             var seededSerializer = new NaosJsonSerializer(configType);
 
@@ -152,7 +152,7 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<NotSupportedException>();
-            exception.Message.Should().Be("Supplied 'serializationDescription' (SerializationDescription: SerializationKind=Bson, SerializationFormat=Binary, CompressionKind=None, ConfigurationTypeDescription=, Metadata=,) does not match 'supportedSerializationDescription' (SerializationDescription: SerializationKind=Json, SerializationFormat=String, CompressionKind=None, ConfigurationTypeDescription=OBeautifulCode.Type.TypeDescription, Metadata=,).");
+            exception.Message.Should().Be("Supplied 'serializationDescription' (SerializationDescription: SerializationKind=Bson, SerializationFormat=Binary, CompressionKind=None, ConfigurationTypeRepresentation=, Metadata=,) does not match 'supportedSerializationDescription' (SerializationDescription: SerializationKind=Json, SerializationFormat=String, CompressionKind=None, ConfigurationTypeRepresentation=Representation.TypeRepresentation: Namespace = Naos.Serialization.Json, Name = GenericDiscoveryJsonConfiguration`1, AssemblyQualifiedName = Naos.Serialization.Json.GenericDiscoveryJsonConfiguration`1, Naos.Serialization.Json, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null, GenericArguments = System.Collections.Generic.List`1[OBeautifulCode.Representation.TypeRepresentation]., Metadata=,).");
         }
     }
 }

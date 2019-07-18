@@ -14,7 +14,7 @@ namespace Naos.Serialization.Domain
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using OBeautifulCode.Reflection.Recipes;
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
     using OBeautifulCode.Validation.Recipes;
     using static System.FormattableString;
 
@@ -40,7 +40,14 @@ namespace Naos.Serialization.Domain
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Is immutable and want a field.")]
         public static readonly IReadOnlyCollection<Type> InternallyRequiredTypes = new[]
         {
-            typeof(TypeDescription),
+            typeof(ExpressionRepresentationBase),
+            typeof(MemberBindingRepresentationBase),
+            typeof(ElementInitRepresentation),
+            typeof(ConstructorInfoRepresentation),
+            typeof(MethodInfoRepresentation),
+            typeof(MemberInfoRepresentation),
+            typeof(AssemblyRepresentation),
+            typeof(TypeRepresentation),
             typeof(SerializationDescription),
             typeof(DescribedSerialization),
             typeof(DynamicTypePlaceholder),
@@ -241,8 +248,9 @@ namespace Naos.Serialization.Domain
         /// Register the specified type and class types that are assignable to those specified types.
         /// </summary>
         /// <param name="types">The types.</param>
+        /// <returns>Types assignable to the types provided.</returns>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Want to be used from derivatives using 'this.'")]
-        private static IReadOnlyCollection<Type> DiscoverAllAssignableTypes(IReadOnlyCollection<Type> types)
+        public static IReadOnlyCollection<Type> DiscoverAllAssignableTypes(IReadOnlyCollection<Type> types)
         {
             new { types }.Must().NotBeNull();
 

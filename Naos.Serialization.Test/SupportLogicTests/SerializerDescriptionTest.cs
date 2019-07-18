@@ -17,7 +17,7 @@ namespace Naos.Serialization.Test
     using Naos.Compression.Domain;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
 
     using Xunit;
 
@@ -88,8 +88,8 @@ namespace Naos.Serialization.Test
         public static void EqualityLogic___Should_be_valid___When_different_data()
         {
             // Arrange
-            var typeDescription1 = typeof(string).ToTypeDescription();
-            var typeDescription2 = typeof(decimal).ToTypeDescription();
+            var typeRepresentation1 = typeof(string).ToRepresentation();
+            var typeRepresentation2 = typeof(decimal).ToRepresentation();
 
             var metadata1 = new Dictionary<string, string> { { A.Dummy<string>(), A.Dummy<string>() } };
             var metadata1Plus = new Dictionary<string, string> { { A.Dummy<string>(), A.Dummy<string>() } };
@@ -99,43 +99,43 @@ namespace Naos.Serialization.Test
                                     {
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.DotNetZip, metadata1),
-                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.DotNetZip, metadata1Plus),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation1, CompressionKind.DotNetZip, metadata1),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation1, CompressionKind.DotNetZip, metadata1Plus),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.DotNetZip, metadata1),
-                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.DotNetZip, metadata2),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation1, CompressionKind.DotNetZip, metadata1),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation1, CompressionKind.DotNetZip, metadata2),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.DotNetZip),
-                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1, CompressionKind.None),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation1, CompressionKind.DotNetZip),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation1, CompressionKind.None),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1),
-                                                Second = new SerializationDescription(SerializationKind.Json, SerializationFormat.Binary, typeDescription1),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation1),
+                                                Second = new SerializationDescription(SerializationKind.Json, SerializationFormat.Binary, typeRepresentation1),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1),
-                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.String, typeDescription1),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation1),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.String, typeRepresentation1),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1),
-                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription2),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation1),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation2),
                                             },
                                         new
                                             {
-                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription1),
+                                                First = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation1),
                                                 Second = (SerializationDescription)null,
                                             },
                                         new
                                             {
                                                 First = (SerializationDescription)null,
-                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeDescription2),
+                                                Second = new SerializationDescription(SerializationKind.Bson, SerializationFormat.Binary, typeRepresentation2),
                                             },
                                     }.ToList();
 
@@ -159,15 +159,15 @@ namespace Naos.Serialization.Test
         public static void EqualityLogic___Should_be_valid___When_same_data()
         {
             // Arrange
-            var typeDescription = typeof(string).ToTypeDescription();
+            var typeRepresentation = typeof(string).ToRepresentation();
             var serializationKind = SerializationKind.Bson;
             var serializationRepresentation = SerializationFormat.Binary;
             var notEqualTests = new[]
                                     {
                                         new
                                             {
-                                                First = new SerializationDescription(serializationKind, serializationRepresentation, typeDescription),
-                                                Second = new SerializationDescription(serializationKind, serializationRepresentation, typeDescription),
+                                                First = new SerializationDescription(serializationKind, serializationRepresentation, typeRepresentation),
+                                                Second = new SerializationDescription(serializationKind, serializationRepresentation, typeRepresentation),
                                             },
                                         new
                                             {

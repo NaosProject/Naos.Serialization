@@ -17,6 +17,7 @@ namespace Naos.Serialization.Recipes
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
     using OBeautifulCode.AutoFakeItEasy;
+    using OBeautifulCode.Representation;
 
     /// <summary>
     /// Create dummy objects for <see cref="Naos.Serialization.Domain" />.
@@ -39,6 +40,9 @@ namespace Naos.Serialization.Recipes
             AutoFixtureBackedDummyFactory.ConstrainDummyToExclude(RegisteredJsonConverterOutputKind.Unknown);
 
             #if NaosSerializationDomainTest
+            AutoFixtureBackedDummyFactory.AddDummyCreator(
+                () => new TypeRepresentation(A.Dummy<string>(), A.Dummy<string>(), A.Dummy<string>(), new TypeRepresentation[0]));
+
             AutoFixtureBackedDummyFactory.UseRandomConcreteSubclassForDummy<Naos.Serialization.Test.KeyOrValueObjectHierarchyBase>();
             AutoFixtureBackedDummyFactory.UseRandomConcreteSubclassForDummy<Naos.Serialization.Test.TestBase>();
             #endif

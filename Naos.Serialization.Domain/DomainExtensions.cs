@@ -13,7 +13,7 @@ namespace Naos.Serialization.Domain
     using Naos.Compression.Domain;
 
     using OBeautifulCode.Reflection.Recipes;
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
     using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
@@ -110,7 +110,7 @@ namespace Naos.Serialization.Domain
             }
 
             var ret = new DescribedSerialization(
-                payloadType.ToTypeDescription(),
+                payloadType.ToRepresentation(),
                 payload,
                 serializationDescription);
 
@@ -172,7 +172,7 @@ namespace Naos.Serialization.Domain
             new { deserializer }.Must().NotBeNull();
 
             var localDecompressor = decompressor ?? new NullCompressor();
-            var targetType = describedSerialization.PayloadTypeDescription.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
+            var targetType = describedSerialization.PayloadTypeRepresentation.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
 
             object ret;
             switch (describedSerialization.SerializationDescription.SerializationFormat)

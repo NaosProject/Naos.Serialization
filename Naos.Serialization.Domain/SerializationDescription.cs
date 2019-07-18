@@ -12,7 +12,7 @@ namespace Naos.Serialization.Domain
     using Naos.Compression.Domain;
     using OBeautifulCode.Collection.Recipes;
     using OBeautifulCode.Math.Recipes;
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
     using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
@@ -28,9 +28,9 @@ namespace Naos.Serialization.Domain
         /// <param name="serializationKind">The <see cref="SerializationKind" /> to serialize into.</param>
         /// <param name="serializationFormat">The <see cref="SerializationFormat" /> to serialize into.</param>
         /// <param name="compressionKind">Optional <see cref="CompressionKind" /> to use; DEFAULT is None.</param>
-        /// <param name="configurationTypeDescription">Optional configuration to use; DEFAULT is null.</param>
+        /// <param name="configurationTypeRepresentation">Optional configuration to use; DEFAULT is null.</param>
         /// <param name="metadata">Optional metadata to put, especially useful for customer serializer factory; DEFAULT is empty.</param>
-        public SerializationDescription(SerializationKind serializationKind, SerializationFormat serializationFormat, TypeDescription configurationTypeDescription = null, CompressionKind compressionKind = CompressionKind.None, IReadOnlyDictionary<string, string> metadata = null)
+        public SerializationDescription(SerializationKind serializationKind, SerializationFormat serializationFormat, TypeRepresentation configurationTypeRepresentation = null, CompressionKind compressionKind = CompressionKind.None, IReadOnlyDictionary<string, string> metadata = null)
         {
             new { serializationKind }.Must().NotBeEqualTo(SerializationKind.Invalid);
             new { serializationFormat }.Must().NotBeEqualTo(SerializationFormat.Invalid);
@@ -38,7 +38,7 @@ namespace Naos.Serialization.Domain
 
             this.SerializationKind = serializationKind;
             this.SerializationFormat = serializationFormat;
-            this.ConfigurationTypeDescription = configurationTypeDescription;
+            this.ConfigurationTypeRepresentation = configurationTypeRepresentation;
             this.CompressionKind = compressionKind;
             this.Metadata = metadata ?? new Dictionary<string, string>();
         }
@@ -59,9 +59,9 @@ namespace Naos.Serialization.Domain
         public CompressionKind CompressionKind { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="TypeDescription" /> of the configuration.
+        /// Gets the <see cref="TypeRepresentation" /> of the configuration.
         /// </summary>
-        public TypeDescription ConfigurationTypeDescription { get; private set; }
+        public TypeRepresentation ConfigurationTypeRepresentation { get; private set; }
 
         /// <summary>
         /// Gets a map of metadata for custom use.
@@ -72,7 +72,7 @@ namespace Naos.Serialization.Domain
         public override string ToString()
         {
             var metadataString = string.Join(",", this.Metadata.Select(_ => Invariant($"[{_.Key}={_.Value}]")));
-            var result = Invariant($"{nameof(SerializationDescription)}: {nameof(this.SerializationKind)}={this.SerializationKind}, {nameof(this.SerializationFormat)}={this.SerializationFormat}, {nameof(this.CompressionKind)}={this.CompressionKind}, {nameof(this.ConfigurationTypeDescription)}={this.ConfigurationTypeDescription}, {nameof(this.Metadata)}={metadataString},");
+            var result = Invariant($"{nameof(SerializationDescription)}: {nameof(this.SerializationKind)}={this.SerializationKind}, {nameof(this.SerializationFormat)}={this.SerializationFormat}, {nameof(this.CompressionKind)}={this.CompressionKind}, {nameof(this.ConfigurationTypeRepresentation)}={this.ConfigurationTypeRepresentation}, {nameof(this.Metadata)}={metadataString},");
             return result;
         }
 
@@ -98,7 +98,7 @@ namespace Naos.Serialization.Domain
 
             return first.SerializationKind == second.SerializationKind && first.SerializationFormat == second.SerializationFormat
                    && first.CompressionKind == second.CompressionKind
-                   && first.ConfigurationTypeDescription == second.ConfigurationTypeDescription
+                   && first.ConfigurationTypeRepresentation == second.ConfigurationTypeRepresentation
                    && metadataEqual;
         }
 
@@ -121,7 +121,7 @@ namespace Naos.Serialization.Domain
             .Hash(this.SerializationKind)
             .Hash(this.SerializationFormat)
             .Hash(this.CompressionKind)
-            .Hash(this.ConfigurationTypeDescription)
+            .Hash(this.ConfigurationTypeRepresentation)
             .HashDictionary(this.Metadata).Value;
     }
 }

@@ -7,8 +7,10 @@
 namespace Naos.Serialization.Test
 {
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
     using FluentAssertions;
     using Naos.Serialization.Domain;
+    using OBeautifulCode.Representation;
     using Xunit;
 
     public static class ArrayElementTypeIsDiscovered
@@ -23,7 +25,6 @@ namespace Naos.Serialization.Test
             var configured = SerializationConfigurationManager.ConfigureWithReturn<NullDiscoverySerializationConfiguration<TypeWithObjectArray>>(config);
 
             // Assert
-            configured.RegisteredTypeToDetailsMap.Keys.Should().HaveCount(2 + SerializationConfigurationBase.InternallyRequiredTypes.Count);
             configured.RegisteredTypeToDetailsMap.Keys.Should().Contain(typeof(TypeWithObjectArray));
             configured.RegisteredTypeToDetailsMap.Keys.Should().Contain(typeof(TypeWithObjectArrayElementType));
             configured.RegisteredTypeToDetailsMap.Keys.Should().NotContain(typeof(TypeWithObjectArrayElementType[]));

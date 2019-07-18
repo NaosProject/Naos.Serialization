@@ -8,7 +8,7 @@ namespace Naos.Serialization.PropertyBag
 {
     using System;
     using Naos.Serialization.Domain;
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
     using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
@@ -39,7 +39,7 @@ namespace Naos.Serialization.PropertyBag
 
             lock (this.sync)
             {
-                var configurationType = serializationDescription.ConfigurationTypeDescription?.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
+                var configurationType = serializationDescription.ConfigurationTypeRepresentation?.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
 
                 switch (serializationDescription.SerializationKind)
                 {

@@ -18,7 +18,7 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Bson;
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
     using Xunit;
 
     using static System.FormattableString;

@@ -13,7 +13,7 @@ namespace Naos.Serialization.Factory
     using Naos.Serialization.Json;
     using Naos.Serialization.PropertyBag;
 
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
     using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
@@ -44,7 +44,7 @@ namespace Naos.Serialization.Factory
 
             lock (this.sync)
             {
-                var configurationType = serializationDescription.ConfigurationTypeDescription?.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
+                var configurationType = serializationDescription.ConfigurationTypeRepresentation?.ResolveFromLoadedTypes(typeMatchStrategy, multipleMatchStrategy);
 
                 switch (serializationDescription.SerializationKind)
                 {

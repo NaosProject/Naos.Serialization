@@ -14,7 +14,7 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Domain;
     using Naos.Serialization.Json;
     using Naos.Serialization.PropertyBag;
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
     using OBeautifulCode.Validation.Recipes;
     using static System.FormattableString;
 
@@ -76,17 +76,17 @@ namespace Naos.Serialization.Test
 
             foreach (var serializer in serializers)
             {
-                var configurationTypeDescription = serializer.ConfigurationType.ToTypeDescription();
+                var configurationTypeRepresentation = serializer.ConfigurationType.ToRepresentation();
 
                 var stringDescription = new SerializationDescription(
                     serializer.Kind,
                     SerializationFormat.String,
-                    configurationTypeDescription);
+                    configurationTypeRepresentation);
 
                 var binaryDescription = new SerializationDescription(
                     serializer.Kind,
                     SerializationFormat.Binary,
-                    configurationTypeDescription);
+                    configurationTypeRepresentation);
 
                 var actualString = expected.ToDescribedSerializationUsingSpecificSerializer(stringDescription, serializer);
                 var actualBinary = expected.ToDescribedSerializationUsingSpecificSerializer(binaryDescription, serializer);

@@ -16,7 +16,7 @@ namespace Naos.Serialization.Test
     using Naos.Serialization.Domain;
     using Naos.Serialization.Factory.Extensions;
 
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
 
     using Xunit;
 
@@ -25,7 +25,7 @@ namespace Naos.Serialization.Test
     public static class DescribedSerializationTest
     {
         [Fact]
-        public static void Constructor__Should_throw_ArgumentNullException___When_parameter_typeDescription_is_null()
+        public static void Constructor__Should_throw_ArgumentNullException___When_parameter_TypeRepresentation_is_null()
         {
             // Arrange
             Action action = () => new DescribedSerialization(null, A.Dummy<string>(), A.Dummy<SerializationDescription>());
@@ -36,14 +36,14 @@ namespace Naos.Serialization.Test
             // Assert
             exception.Should().NotBeNull();
             exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Be("Parameter 'payloadTypeDescription' is null.");
+            exception.Message.Should().Be("Parameter 'payloadTypeRepresentation' is null.");
         }
 
         [Fact]
         public static void Constructor__Should_throw_ArgumentException___When_parameter_SerializerDescription_is_null()
         {
             // Arrange
-            Action action = () => new DescribedSerialization(A.Dummy<TypeDescription>(), string.Empty, null);
+            Action action = () => new DescribedSerialization(A.Dummy<TypeRepresentation>(), string.Empty, null);
 
             // Act
             var exception = Record.Exception(action);
@@ -55,29 +55,29 @@ namespace Naos.Serialization.Test
         }
 
         [Fact]
-        public static void TypeDescription__Should_return_same_typeDescription_passed_to_constructor___When_getting()
+        public static void TypeRepresentation__Should_return_same_TypeRepresentation_passed_to_constructor___When_getting()
         {
             // Arrange
-            var typeDescription = A.Dummy<TypeDescription>();
+            var typeRepresentation = A.Dummy<TypeRepresentation>();
             var payload = A.Dummy<string>();
             var serializer = A.Dummy<SerializationDescription>();
-            var systemUnderTest = new DescribedSerialization(typeDescription, payload, serializer);
+            var systemUnderTest = new DescribedSerialization(typeRepresentation, payload, serializer);
 
             // Act
-            var actual = systemUnderTest.PayloadTypeDescription;
+            var actual = systemUnderTest.PayloadTypeRepresentation;
 
             // Assert
-            actual.Should().BeSameAs(typeDescription);
+            actual.Should().BeSameAs(typeRepresentation);
         }
 
         [Fact]
         public static void Payload__Should_return_same_payload_passed_to_constructor___When_getting()
         {
             // Arrange
-            var typeDescription = A.Dummy<TypeDescription>();
+            var typeRepresentation = A.Dummy<TypeRepresentation>();
             var payload = A.Dummy<string>();
             var serializer = A.Dummy<SerializationDescription>();
-            var systemUnderTest = new DescribedSerialization(typeDescription, payload, serializer);
+            var systemUnderTest = new DescribedSerialization(typeRepresentation, payload, serializer);
 
             // Act
             var actual = systemUnderTest.SerializedPayload;
@@ -90,10 +90,10 @@ namespace Naos.Serialization.Test
         public static void Serializer__Should_return_same_serializer_passed_to_constructor___When_getting()
         {
             // Arrange
-            var typeDescription = A.Dummy<TypeDescription>();
+            var typeRepresentation = A.Dummy<TypeRepresentation>();
             var payload = A.Dummy<string>();
             var serializer = A.Dummy<SerializationDescription>();
-            var systemUnderTest = new DescribedSerialization(typeDescription, payload, serializer);
+            var systemUnderTest = new DescribedSerialization(typeRepresentation, payload, serializer);
 
             // Act
             var actual = systemUnderTest.SerializationDescription;
@@ -106,8 +106,8 @@ namespace Naos.Serialization.Test
         public static void EqualityLogic___Should_be_valid___When_different_data()
         {
             // Arrange
-            var typeDescription1 = typeof(string).ToTypeDescription();
-            var typeDescription2 = typeof(decimal).ToTypeDescription();
+            var typeRepresentation1 = typeof(string).ToRepresentation();
+            var typeRepresentation2 = typeof(decimal).ToRepresentation();
 
             var payload1 = A.Dummy<string>();
             var payload2 = A.Dummy<string>();
@@ -119,28 +119,28 @@ namespace Naos.Serialization.Test
                                     {
                                         new
                                             {
-                                                First = new DescribedSerialization(typeDescription1, payload1, serializationDescription1),
-                                                Second = new DescribedSerialization(typeDescription2, payload1, serializationDescription1),
+                                                First = new DescribedSerialization(typeRepresentation1, payload1, serializationDescription1),
+                                                Second = new DescribedSerialization(typeRepresentation2, payload1, serializationDescription1),
                                             },
                                         new
                                             {
-                                                First = new DescribedSerialization(typeDescription1, payload1, serializationDescription1),
-                                                Second = new DescribedSerialization(typeDescription1, payload2, serializationDescription1),
+                                                First = new DescribedSerialization(typeRepresentation1, payload1, serializationDescription1),
+                                                Second = new DescribedSerialization(typeRepresentation1, payload2, serializationDescription1),
                                             },
                                         new
                                             {
-                                                First = new DescribedSerialization(typeDescription1, payload1, serializationDescription1),
-                                                Second = new DescribedSerialization(typeDescription1, payload1, serializationDescription2),
+                                                First = new DescribedSerialization(typeRepresentation1, payload1, serializationDescription1),
+                                                Second = new DescribedSerialization(typeRepresentation1, payload1, serializationDescription2),
                                             },
                                         new
                                             {
-                                                First = new DescribedSerialization(typeDescription1, payload1, serializationDescription1),
+                                                First = new DescribedSerialization(typeRepresentation1, payload1, serializationDescription1),
                                                 Second = (DescribedSerialization)null,
                                             },
                                         new
                                             {
                                                 First = (DescribedSerialization)null,
-                                                Second = new DescribedSerialization(typeDescription1, payload1, serializationDescription1),
+                                                Second = new DescribedSerialization(typeRepresentation1, payload1, serializationDescription1),
                                             },
                                     }.ToList();
 
@@ -164,7 +164,7 @@ namespace Naos.Serialization.Test
         public static void EqualityLogic___Should_be_valid___When_same_data()
         {
             // Arrange
-            var typeDescription = typeof(string).ToTypeDescription();
+            var typeRepresentation = typeof(string).ToRepresentation();
             var serializedPayload = A.Dummy<string>();
             var serializationDescription = A.Dummy<SerializationDescription>();
 
@@ -172,8 +172,8 @@ namespace Naos.Serialization.Test
                                     {
                                         new
                                             {
-                                                First = new DescribedSerialization(typeDescription, serializedPayload, serializationDescription),
-                                                Second = new DescribedSerialization(typeDescription, serializedPayload, serializationDescription),
+                                                First = new DescribedSerialization(typeRepresentation, serializedPayload, serializationDescription),
+                                                Second = new DescribedSerialization(typeRepresentation, serializedPayload, serializationDescription),
                                             },
                                         new
                                             {

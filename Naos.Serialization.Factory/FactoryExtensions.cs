@@ -9,7 +9,7 @@ namespace Naos.Serialization.Factory.Extensions
     using Naos.Compression.Domain;
     using Naos.Serialization.Domain;
 
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
 
     /// <summary>
     /// Extension methods.

@@ -9,7 +9,7 @@ namespace Naos.Serialization.Domain
     using System;
 
     using OBeautifulCode.Math.Recipes;
-    using OBeautifulCode.Type;
+    using OBeautifulCode.Representation;
     using OBeautifulCode.Validation.Recipes;
 
     /// <summary>
@@ -20,20 +20,20 @@ namespace Naos.Serialization.Domain
         /// <summary>
         /// Initializes a new instance of the <see cref="DescribedSerialization"/> class.
         /// </summary>
-        /// <param name="payloadTypeDescription">A description of the type of object serialized.</param>
+        /// <param name="payloadTypeRepresentation">A description of the type of object serialized.</param>
         /// <param name="serializedPayload">The object serialized to a string.</param>
         /// <param name="serializationDescription">The serializer used to generate the payload.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="payloadTypeDescription"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="payloadTypeRepresentation"/> is null.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="serializedPayload"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="serializedPayload"/> is whitespace.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="serializationDescription"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="serializationDescription"/> is whitespace.</exception>
-        public DescribedSerialization(TypeDescription payloadTypeDescription, string serializedPayload, SerializationDescription serializationDescription)
+        public DescribedSerialization(TypeRepresentation payloadTypeRepresentation, string serializedPayload, SerializationDescription serializationDescription)
         {
-            new { payloadTypeDescription }.Must().NotBeNull();
+            new { payloadTypeRepresentation }.Must().NotBeNull();
             new { serializationDescription }.Must().NotBeNull();
 
-            this.PayloadTypeDescription = payloadTypeDescription;
+            this.PayloadTypeRepresentation = payloadTypeRepresentation;
             this.SerializedPayload = serializedPayload;
             this.SerializationDescription = serializationDescription;
         }
@@ -41,7 +41,7 @@ namespace Naos.Serialization.Domain
         /// <summary>
         /// Gets a description of the type of object serialized.
         /// </summary>
-        public TypeDescription PayloadTypeDescription { get; private set; }
+        public TypeRepresentation PayloadTypeRepresentation { get; private set; }
 
         /// <summary>
         /// Gets the object serialized to a string (bytes will be Base64 encoded here).
@@ -71,7 +71,7 @@ namespace Naos.Serialization.Domain
                 return false;
             }
 
-            return first.PayloadTypeDescription == second.PayloadTypeDescription
+            return first.PayloadTypeRepresentation == second.PayloadTypeRepresentation
                    && first.SerializedPayload == second.SerializedPayload
                    && first.SerializationDescription == second.SerializationDescription;
         }
@@ -91,6 +91,6 @@ namespace Naos.Serialization.Domain
         public override bool Equals(object obj) => this == (obj as DescribedSerialization);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCodeHelper.Initialize().Hash(this.PayloadTypeDescription).Hash(this.SerializedPayload).Hash(this.SerializationDescription).Value;
+        public override int GetHashCode() => HashCodeHelper.Initialize().Hash(this.PayloadTypeRepresentation).Hash(this.SerializedPayload).Hash(this.SerializationDescription).Value;
     }
 }
