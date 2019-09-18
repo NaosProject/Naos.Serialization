@@ -125,7 +125,7 @@ namespace Naos.Serialization.Json
                 .Concat(
                     new JsonConverter[]
                     {
-                        new DictionaryJsonConverter(this.TypesWithStringConverters),
+                        // new DictionaryJsonConverter(this.TypesWithStringConverters) - this converter cannot write (CanWrite => false)
                         new KeyValueArrayDictionaryJsonConverter(this.TypesWithStringConverters),
                     }).ToList();
         }
