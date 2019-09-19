@@ -7,14 +7,12 @@
 namespace Naos.Serialization.Json
 {
     using System;
-    using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
 
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
 
     using OBeautifulCode.Reflection.Recipes;
 
@@ -29,8 +27,6 @@ namespace Naos.Serialization.Json
     /// </summary>
     internal abstract class DictionaryJsonConverterBase : JsonConverter
     {
-        private static readonly Type[] SupportedDictionaryTypes = new[] { typeof(Dictionary<,>), typeof(IDictionary<,>), typeof(ReadOnlyDictionary<,>), typeof(IReadOnlyDictionary<,>), typeof(ConcurrentDictionary<,>) };
-
         /// <summary>
         /// Types that are serialized as strings in JSON.
         /// </summary>
@@ -56,14 +52,14 @@ namespace Naos.Serialization.Json
             }
             else
             {
-                if (objectType.IsGenericType)
+                // Note that we are NOT checking whether the type is assignable to a dictionary type,
+                // we are specifically checking that the type is a System dictionary type.
+                // If the consumer is deriving from a dictionary type, they should create a custom converter.
+                if (objectType.IsSystemDictionaryType())
                 {
-                    var unboundGenericObjectType = objectType.GetGenericTypeDefinition();
-                    var shouldConsiderDictionaryType = SupportedDictionaryTypes.Contains(unboundGenericObjectType);
                     var keyType = objectType.GetGenericArguments().First();
-                    var shouldConsiderKeyType = this.ShouldConsiderKeyType(keyType);
 
-                    result = shouldConsiderDictionaryType && shouldConsiderKeyType;
+                    result = this.ShouldConsiderKeyType(keyType);
                 }
                 else
                 {
