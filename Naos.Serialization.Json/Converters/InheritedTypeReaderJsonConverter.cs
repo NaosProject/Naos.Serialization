@@ -215,7 +215,7 @@ namespace Naos.Serialization.Json
             if (!this.assignableTypesCache.ContainsKey(type))
             {
                 var assignableTypes = allTypes
-                    .Where(_ => _.IsAssignableType() && _ != type && _.IsAssignableTo(type))
+                    .Where(_ => _.IsNonAnonymousClosedClassType() && _ != type && _.IsAssignableTo(type))
                     .ToList();
 
                 this.assignableTypesCache.AddOrUpdate(type, assignableTypes, (t, cts) => assignableTypes);

@@ -240,7 +240,8 @@ namespace Naos.Serialization.Domain
                 newTypes.Distinct().ToList().ForEach(_ => typesToInspect.Add(_));
             }
 
-            var result = typeHashSet.Where(_ => _.IsAssignableType()).ToList();
+            var result = typeHashSet.Where(_ => _.IsNonAnonymousClosedClassType()).ToList();
+
             return result;
         }
 

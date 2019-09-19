@@ -7,15 +7,15 @@
 namespace Naos.Serialization.Json
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
-    using System.Linq;
     using System.Reflection;
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
+
+    using OBeautifulCode.Reflection.Recipes;
 
     /// <summary>
     /// Resolves member mappings for a type using camel casing property names.

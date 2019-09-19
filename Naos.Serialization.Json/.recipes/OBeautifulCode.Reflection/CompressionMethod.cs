@@ -7,7 +7,7 @@
 // </auto-generated>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Naos.Serialization.Json
+namespace OBeautifulCode.Reflection.Recipes
 {
     /// <summary>
     /// Determines the compression algorithm and/or archive file format used to compress a resource.

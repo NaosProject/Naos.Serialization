@@ -7,7 +7,7 @@
 // </auto-generated>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Naos.Serialization.Json
+namespace OBeautifulCode.Reflection.Recipes
 {
     using System;
     using System.Collections.Generic;

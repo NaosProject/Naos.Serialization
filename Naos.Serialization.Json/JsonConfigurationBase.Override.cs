@@ -11,7 +11,9 @@ namespace Naos.Serialization.Json
     using System.Linq;
 
     using Naos.Serialization.Domain;
+
     using OBeautifulCode.Collection.Recipes;
+    using OBeautifulCode.Reflection.Recipes;
     using OBeautifulCode.Validation.Recipes;
 
     using static System.FormattableString;
